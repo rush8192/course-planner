@@ -1,0 +1,86 @@
+<div class="header">
+  <ul class="nav nav-pills pull-right">
+    <li class="active"><a ng-href="#">Home</a></li>
+    <li><a ng-href="#">About</a></li>
+    <li><a ng-href="#">Contact</a></li>
+  </ul>
+  <h3 class="text-muted">CoursePlanner</h3>
+</div>
+
+<script type="text/ng-template" id="courseDetailsModalContent.html">
+    <div class="modal-header">
+        <h2>{{course.designation}}</h2>
+        <h3>{{course.title}}</h3>
+    </div>
+    <div class="modal-body">
+        {{course.description}}
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-danger" ng-click="ok()">Remove Course</button>
+        <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+    </div>
+</script>
+
+<div class="jumbotron">
+  <h1>'Allo, 'Allo!</h1>
+  <p class="lead">
+    <img src="images/yeoman.png" alt="I'm Yeoman"><br>
+    Always a pleasure scaffolding your apps.
+  </p>
+  <p><a class="btn btn-lg btn-success" ng-href="#">Splendid!<span class="glyphicon glyphicon-ok"></span></a></p>
+</div>
+
+<div class="row marketing">
+  <h4>HTML5 Boilerplate</h4>
+  <p>
+    HTML5 Boilerplate is a professional front-end template for building fast, robust, and adaptable web apps or sites.
+  </p>
+
+  <h4>Angular</h4>
+  <p>
+    AngularJS is a toolset for building the framework most suited to your application development.
+  </p>
+
+  <h4>Karma</h4>
+  <p>Spectacular Test Runner for JavaScript.</p>
+</div>
+
+
+
+<div class="thumbnail" data-drop="true" data-jqyoui-options ng-model="list2" jqyoui-droppable style='height:50px;'>
+    <div class="btn btn-success" data-drag="false" data-jqyoui-options ng-model="list2" jqyoui-draggable ng-hide="!list2.title">{{list2.title}}</div>
+</div>
+
+
+
+<div class="btn btn-primary" data-drag="true" data-jqyoui-options="{revert: 'invalid'}" ng-model="list1" jqyoui-draggable="{animate:true}" ng-hide="!list1.title">{{list1.title}}</div>
+
+<div class="well well-large">
+    <ol data-drop="true" ng-model='list4' jqyoui-droppable="{multiple:true}">
+        <li ng-repeat="item in list4 track by $index" ng-show="item.title" data-drag="true" data-jqyoui-options="{revert: 'invalid', helper: 'clone'}" ng-model="list4" jqyoui-draggable="{index: {{$index}},animate:true, refreshPositions: true}">{{item.title}}</li>
+        <li class="placeholder" ng-hide="hideMe()">Add your items here</li>
+    </ol>
+</div>
+
+<div style="width:150px">
+<accordion close-others="oneAtATime">
+    <accordion-group is-open="$first" ng-repeat="group in groups">
+        <accordion-heading>
+            <div>
+            {{ group.title }}
+            </div>
+        </accordion-heading>
+        <div ng-repeat="course in group.courses" ng-mouseleave="course.hovered = false">
+            <span ng-show="course.hovered" ng-click="removeCourse(group.courses,course)" class="glyphicon glyphicon-remove"></span>
+            <span data-drag="true" data-jqyoui-options="{revert: 'invalid', helper: 'clone'}" ng-model="group.courses" jqyoui-draggable="{index: {{$index}}, placeholder: false}" ng-mouseenter="course.hovered = true" ng-click="open(group.courses,course)">{{course.designation}}</span>
+        </div>
+    </accordion-group>
+</accordion>
+</div>
+
+<div google-chart chart="chartObject" style="height:600px; width:100%;"></div>
+
+
+<div class="footer">
+  <p><span class="glyphicon glyphicon-heart"></span> from the Yeoman team</p>
+</div>
