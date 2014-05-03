@@ -26,10 +26,10 @@ def course_dl(year):
     print('Downloading page: ' + str(page_index) + ' in year: ' + str(year))
     file_path = _HTML_DIR + ('%d-%d_%d.html' % (year, year+1, page_index))
     if (os.path.exists(file_path) is False):
+      time.sleep(0.5)
       url = template_url.format(page_index)
       (url_valid, html_str) = open_url(url)
       f = open(_HTML_DIR + ('%d-%d_%d.html' % (year, year + 1, page_index)), 'w')
       f.write(html_str)
       f.close()
     page_index += 1
-    time.sleep(0.5)
