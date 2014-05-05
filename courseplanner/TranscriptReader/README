@@ -1,0 +1,5 @@
+to run the transcript parser from the command line (for testing purposes):
+
+	python ./parser.py unofficial_winter_2014.pdf
+
+this will parse my transcript from winter 2014 and output to the file out1.csv
