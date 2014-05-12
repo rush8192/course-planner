@@ -15,11 +15,17 @@
 # limitations under the License.
 #
 import webapp2
+import add_courses, add_majors, ops
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
         self.response.write('Hello world!')
-
+        # test datastore features
+        add_courses.main()
+        add_majors.main()
+        ops.create_student('Ryan', 0, 0)
+        ops.get_course('CS 106A')
+    
 app = webapp2.WSGIApplication([
     ('/', MainHandler)
 ], debug=True)
