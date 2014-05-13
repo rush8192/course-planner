@@ -19,12 +19,14 @@ import add_courses, add_majors, ops
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
-        self.response.write('Hello world!')
-        # test datastore features
+        self.response.write('Welcome to CoursePlanner!')
+        # Add courses and majors to datastore on start up
         add_courses.main()
-        add_majors.main()
-        ops.create_student('Ryan', 0, 0)
-        ops.get_course('CS 106A')
+        #add_majors.main()
+        
+        # test datastore features
+        #ops.create_student('Ryan', 0, 0)
+        #ops.get_course('CS 106A')
     
 app = webapp2.WSGIApplication([
     ('/', MainHandler)

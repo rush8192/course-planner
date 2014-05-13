@@ -2,11 +2,15 @@ from google.appengine.ext import db
 
 class DictModel(db.Model):
     def to_dict(self):
-       return dict([(p, unicode(getattr(self, p))) for p in self.properties()])
+        return dict([(p, unicode(getattr(self, p))) for p in self.properties()])
 
 class Course(DictModel):
     course_num = db.StringProperty()
     course_desc = db.TextProperty()
+    rankings_sum = db.IntegerProperty()
+    rankings_tally = db.IntegerProperty()
+    hpw_sum = db.IntegerProperty()
+    hpw_tally = db.IntegerProperty()
     
 class Offering(DictModel):
     course_title = db.StringProperty(required=True)
@@ -53,7 +57,6 @@ class Req_Course(DictModel):
     force_error = db.StringProperty()
     # many-to-many courses to requirement fulfilled
     allowed_courses = db.ListProperty(db.Key)
-
     
 class Student(DictModel):
     student_id = db.IntegerProperty(required=True)

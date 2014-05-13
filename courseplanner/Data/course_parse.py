@@ -36,11 +36,11 @@ def parsed_course_desc(course):
 def parsed_course_attr(course):
   course_attr_dict = {}
   # Initialization
-  course_attr_dict['terms'] = ''
-  course_attr_dict['units'] = ''
+  course_attr_dict['terms'] = []
+  course_attr_dict['units'] = []
   course_attr_dict['grading'] = ''
-  course_attr_dict['instructors'] = ''
-  course_attr_dict['reqs'] = ''
+  course_attr_dict['instructors'] = []
+  course_attr_dict['reqs'] = []
 
   course_attrs = course.findAll('div', {'class':'courseAttributes'})
   course_attr_blob = ''
@@ -57,7 +57,14 @@ def parsed_course_attr(course):
       units = attr_str.replace('Units: ', '').strip()
       units = units.split('-')
       for i in range(len(units)):
-        units[i] = int(units[i].strip())
+        units[i] = int(units[i].strip())   
+      if (len(units) > 1):
+        temp_units = []
+        unit = units[0]
+        while (unit != units[-1]):
+          temp_units.append(unit)
+          unit += 1
+        units = temp_units
       course_attr_dict['units'] = units
     elif ('Grading: ' in attr_str):
       grading = attr_str.replace('Grading: ', '').strip()
@@ -80,8 +87,9 @@ def parsed_course_attr(course):
   return course_attr_dict
 
 # For repeated course offerings through many years
-def create_course_offering_dict(year, terms, units, grading, instructors, reqs):
+def create_course_offering_dict(year, terms, units, grading, instructors, reqs, title):
   offering_dict = {}
+  offering_dict['course_title'] = title
   offering_dict['year'] = year
   offering_dict['term'] = terms
   offering_dict['units'] = units
@@ -91,12 +99,15 @@ def create_course_offering_dict(year, terms, units, grading, instructors, reqs):
   return offering_dict
 
 # Basic Entry in JSON Array
-def create_course_dict(num, title, desc, offering_dict):
+def create_course_dict(num, desc, offering_dict):
   course_dict = {}
   course_dict['course_num'] = num
-  course_dict['course_title'] = title
   course_dict['course_desc'] = desc
   course_dict['offering'] = [offering_dict]
+  course_dict['rankings_sum'] = 0
+  course_dict['rankings_tally'] = 0
+  course_dict['hpw_sum'] = 0
+  course_dict['hpw_tally'] = 0
   return course_dict
 
 def create_json_array(html_dir):
@@ -126,13 +137,13 @@ def create_json_array(html_dir):
 
           course_offering_dict = create_course_offering_dict(course_year, \
                                  course_terms, course_units, course_grading, \
-                                 course_instructors, course_reqs)
+                                 course_instructors, course_reqs, course_title)
           if course_num in courses_json_dict:
             offering_array = courses_json_dict[course_num]['offering']
             offering_array.append(course_offering_dict)
           else:
             courses_json_dict[course_num] = create_course_dict(course_num, \
-                                            course_title, course_desc, \
+                                            course_desc, \
                                             course_offering_dict)
   json_str = json.dumps(courses_json_dict)
   with open('courses_json', 'w') as outfile:
