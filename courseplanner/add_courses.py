@@ -34,6 +34,6 @@ def main():
                          reqs = offering['reqs'],
                          year = offering['year'],
                          units = offering['units'],
-                         course = c)
+                         course = c.key)
             o.put()
 
