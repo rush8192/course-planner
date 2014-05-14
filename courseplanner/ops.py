@@ -26,14 +26,14 @@ def add_course(student_id, course_num, course_req_id, grade, units):
     # fetch single result and extract from array
     student = Student.query(Student.student_id == student_id).fetch(1)[0]
     course = Course.query(Course.course_num == course_num).fetch(1)[0]
-    req_course = Req_Course.query(Req_Course.course_req_id == course_req_id)
+    req_course = Req_Course.query(Req_Course.course_req_id == course_req_id).fetch(1)[0]
 
     candidate_course = Candidate_Course(course=course.key, req_course=req_course.key,
                                         grade=grade, units=units, student=student.key)
     candidate_course.put()
 
     # Validate course, req_course pairing
-    if course.key() in req_course.allowed_courses:
+    if course.key in req_course.allowed_courses:
         return True
     else:
         return False
@@ -47,7 +47,7 @@ def get_course_dict(course_num):
 
 # Return json dump of course information by course_num
 def get_course_json(course_num):
-    course_dict = get_course(course_num)
+    course_dict = get_course_dict(course_num)
     if course_dict is not None:
         return json.dumps(course_dict)
     return None

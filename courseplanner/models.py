@@ -1,9 +1,5 @@
 from google.appengine.ext import ndb
 
-class DictModel(ndb.Model):
-    def to_dict(self):
-        return dict([(p, unicode(getattr(self, p))) for p in self.properties()])
-
 class Offering(ndb.Model): pass
 class Course(ndb.Model):
     course_num = ndb.StringProperty(required=True)
@@ -23,7 +19,7 @@ class Offering(ndb.Model):
     instructors = ndb.StringProperty(repeated=True)
     reqs = ndb.StringProperty(repeated=True)
     year = ndb.StringProperty()
-    units = ndb.IntegerPropert(repeated=True)
+    units = ndb.IntegerProperty(repeated=True)
 
 class Req_Box(ndb.Model): pass
 class Major(ndb.Model):
