@@ -1,4 +1,4 @@
-from google.appengine.ext import db
+from google.appengine.ext import ndb
 import json
 from models import *
 
@@ -15,29 +15,21 @@ from models import *
  
 
 def create_student(name, student_id, major_id):
-    q = db.GqlQuery("SELECT * FROM Major WHERE major_id = :1", major_id)
-    for m in q.run(limit=1):
-        major = m
-    s = Student(name=name, student_id = student_id, major=major)
+    major = Major.query(Major.major_id == major_id).fetch(1)[0]
+    s = Student(name=name, student_id = student_id, major=major.key)
     s.put()
     
 # Add course to candidate list for given student, course, grade, units, and req
 # Return true if course fulfills the req, false otherwise. Assumes course_req_id
 # is valid and for correct major
 def add_course(student_id, course_num, course_req_id, grade, units):
-    q = db.GqlQuery("SELECT * FROM Student WHERE student_id = :1", student_id)
-    # get first (should be only) result: does it have to be this ugly?
-    student = [s for s in q.run()][0]
+    # fetch single result and extract from array
+    student = Student.query(Student.student_id == student_id).fetch(1)[0]
+    course = Course.query(Course.course_num == course_num).fetch(1)[0]
+    req_course = Req_Course.query(Req_Course.course_req_id == course_req_id)
     
-    q = db.GqlQuery("SELECT * FROM Course WHERE course_num = :1", course_num)
-    course = [c for c in q.run()][0]
-    
-    q = db.GqlQuery("SELECT * FROM Req_Course WHERE course_req_id = :1",
-                    course_req_id)
-    req_course = [c for c in q.run()][0]
-    
-    candidate_course = Candidate_Course(course=course, req_course=req_course, grade=grade,
-                                         units=units, student=student)
+    candidate_course = Candidate_Course(course=course.key, req_course=req_course.key,
+                                        grade=grade, units=units, student=student.key)
     candidate_course.put()
     
     # Validate course, req_course pairing
@@ -50,6 +42,5 @@ def add_course(student_id, course_num, course_req_id, grade, units):
 def get_course(course_num):
     # upper case
     course_num = course_num.upper()
-    q = db.GqlQuery("SELECT * FROM Course WHERE course_num = :1", course_num)          
-    course = [c for c in q.run()][0]
+    course = Course.query(Course.course_num == course_num).fetch(1)[0]
     return json.dumps(course.to_dict())

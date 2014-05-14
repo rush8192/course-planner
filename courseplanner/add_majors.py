@@ -1,4 +1,4 @@
-from google.appengine.ext import db
+from google.appengine.ext import ndb
 import json
 from models import *
 
@@ -7,8 +7,7 @@ from models import *
 
 def main():
     m = Major(major_id=0, major_name='CS', track_name='AI')
-    q = db.GqlQuery("SELECT * FROM Course WHERE course_num = :1", "CS 106A")
-    course = [c for c in q.run()][0].key()
-    c = Req_Course(course_req_id = 0, allowed_courses = [course])
+    course = Course.query(Course.course_num == 'CS 106A').fetch(1)[0]
+    c = Req_Course(course_req_id = 0, allowed_courses = [course.key])
     m.put()
     c.put()
