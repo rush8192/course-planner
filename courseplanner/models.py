@@ -2,6 +2,7 @@ from google.appengine.ext import ndb
 
 class DictModel(ndb.Model):
     def to_dict(self):
+<<<<<<< HEAD
        return dict([(p, unicode(getattr(self, p))) for p in self.properties()])
        
 class Offering(DictModel): pass
@@ -9,6 +10,17 @@ class Course(DictModel):
     course_num = ndb.StringProperty()
     course_desc = ndb.TextProperty()
     offerings = ndb.KeyProperty(Offering, repeated=True)
+=======
+        return dict([(p, unicode(getattr(self, p))) for p in self.properties()])
+
+class Course(DictModel):
+    course_num = db.StringProperty()
+    course_desc = db.TextProperty()
+    rankings_sum = db.IntegerProperty()
+    rankings_tally = db.IntegerProperty()
+    hpw_sum = db.IntegerProperty()
+    hpw_tally = db.IntegerProperty()
+>>>>>>> 2840fe38576519ca2a6c00ed6bfb0f0051ec7f41
     
 class Offering(DictModel):
     course = ndb.KeyProperty(Course)
@@ -58,7 +70,11 @@ class Req_Course(DictModel):
     # TODO - structure force error
     force_error = ndb.StringProperty()
     # many-to-many courses to requirement fulfilled
+<<<<<<< HEAD
     allowed_courses = ndb.KeyProperty(repeated=True)
+=======
+    allowed_courses = db.ListProperty(db.Key)
+>>>>>>> 2840fe38576519ca2a6c00ed6bfb0f0051ec7f41
     
 class Candidate_Course(DictModel): pass
 class Student(DictModel):
