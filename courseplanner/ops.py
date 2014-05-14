@@ -1,4 +1,4 @@
-from google.appengine.ext import db
+from google.appengine.ext import ndb
 import json
 from models import *
 
@@ -15,7 +15,7 @@ from models import *
  
 
 def create_student(name, student_id, major_id):
-    q = db.GqlQuery("SELECT * FROM Major WHERE major_id = :1", major_id)
+    q = ndb.GqlQuery("SELECT * FROM Major WHERE major_id = :1", major_id)
     for m in q.run(limit=1):
         major = m
     s = Student(name=name, student_id = student_id, major=major)
@@ -25,14 +25,14 @@ def create_student(name, student_id, major_id):
 # Return true if course fulfills the req, false otherwise. Assumes course_req_id
 # is valid and for correct major
 def add_course(student_id, course_num, course_req_id, grade, units):
-    q = db.GqlQuery("SELECT * FROM Student WHERE student_id = :1", student_id)
+    q = ndb.GqlQuery("SELECT * FROM Student WHERE student_id = :1", student_id)
     # get first (should be only) result: does it have to be this ugly?
     student = [s for s in q.run()][0]
     
-    q = db.GqlQuery("SELECT * FROM Course WHERE course_num = :1", course_num)
+    q = ndb.GqlQuery("SELECT * FROM Course WHERE course_num = :1", course_num)
     course = [c for c in q.run()][0]
     
-    q = db.GqlQuery("SELECT * FROM Req_Course WHERE course_req_id = :1",
+    q = ndb.GqlQuery("SELECT * FROM Req_Course WHERE course_req_id = :1",
                     course_req_id)
     req_course = [c for c in q.run()][0]
     
@@ -46,10 +46,21 @@ def add_course(student_id, course_num, course_req_id, grade, units):
     else:
         return False                                
 
-# return JSON dump of course by course_num        
-def get_course(course_num):
+# Return dict of course information by course_num
+def get_course_dict(course_num):
     # upper case
     course_num = course_num.upper()
-    q = db.GqlQuery("SELECT * FROM Course WHERE course_num = :1", course_num)          
-    course = [c for c in q.run()][0]
-    return json.dumps(course.to_dict())
+    q = ndb.GqlQuery("SELECT * FROM Course WHERE course_num = :1", course_num)
+    result = q.run()
+    if (len(result) == 0):
+        return None
+    else:
+        course = [c for c in result][0]
+        return course.to_dict()
+
+# Return json dump of course information by course_num
+def get_course_json(course_num):
+    course_dict = get_course(course_num)
+    if course_dict is not None:
+        return json.dumps(course_dict)
+    return None

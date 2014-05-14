@@ -1,6 +1,6 @@
-from google.appengine.ext import db
+from google.appengine.ext import ndb
 
-class DictModel(db.Model):
+class DictModel(ndb.Model):
     def to_dict(self):
         return dict([(p, unicode(getattr(self, p))) for p in self.properties()])
 
@@ -40,19 +40,19 @@ class Req_Box(DictModel):
     
     
 class Grad_Req(DictModel):
-    req_name = db.StringProperty()
+    req_name = ndb.StringProperty()
     # List of Req_Course: (0/1):many relationship
-    req_courses = db.ListProperty(db.Key)
-    candidate_course = db.ReferenceProperty(Course)
-    candidate_course_units = db.IntegerProperty()    
+    req_courses = ndb.ListProperty(db.Key)
+    candidate_course = ndb.ReferenceProperty(Course)
+    candidate_course_units = ndb.IntegerProperty()    
     
 # Required Course belonging either to a Req_Box (major requirement)
 # or Grad_Req (GER)    
 class Req_Course(DictModel):
-    course_req_id = db.IntegerProperty()
-    display_title = db.StringProperty()
-    course_req_type = db.StringProperty()
-    min_grade = db.FloatProperty()
+    course_req_id = ndb.IntegerProperty()
+    display_title = ndb.StringProperty()
+    course_req_type = ndb.StringProperty()
+    min_grade = ndb.FloatProperty()
     # TODO - structure force error
     force_error = db.StringProperty()
     # many-to-many courses to requirement fulfilled
