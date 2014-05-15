@@ -28,6 +28,16 @@ class MainHandler(webapp2.RequestHandler):
         ops.create_student('Ryan', 0, 0)
         ops.get_course_json('CS 106A')
     
+class TranscriptHandler(webapp2.RequestHandler):
+    def post(self):
+        import parser
+        print "calling parser..."        
+        parser.getTransContent(self.request.body_file.file, self.response)
+        
+    def get(self):
+        self.response.write('only accepts POST requests')
+    
 app = webapp2.WSGIApplication([
-    ('/', MainHandler)
+    ('/', MainHandler),
+    ('/trans/upload', TranscriptHandler)
 ], debug=True)

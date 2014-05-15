@@ -11,7 +11,7 @@ from pdfminer.layout import LAParams
 CMD_LINE = False
 
 # prints standard debug info to stdout when set to true
-PRINT_LOG = True
+PRINT_LOG = False
 
 # Set to true only if manually resolving transcript ambiguities
 MANUAL_RESOLVE = False
@@ -20,7 +20,7 @@ MANUAL_RESOLVE = False
 
 def main(argv):
     import getopt
-        
+    
     CMD_LINE = True
     
     try:
@@ -35,10 +35,10 @@ def main(argv):
         fp = file(fname, 'rb')
         getTransContent(fp, resultFp)
 
-def helloWorld(resultFp):
-	resultFp.write("hello, world")
 
 def getTransContent(fp, resultfp):
+    print "Getting trans content. . ."
+    print fp
     outfp = cStringIO.StringIO()
 
 	# This secontion contains pdf parsing boilerplate
@@ -68,6 +68,8 @@ def getTransContent(fp, resultfp):
         page.rotate = (page.rotate+rotation) % 360
         interpreter.process_page(page)
     fp.close()
+    
+    print "parsing trans. . ."
     
     parseTrans(outfp.getvalue(), resultfp)
     device.close()
@@ -289,7 +291,7 @@ def getBaseCourseId(courseId):
 # Gets the list of possible matching courses for a given base course ID (ie. CS 106)
 def getCourseList(courseId):
 	courseList = []
-	json_data=open('../Data/courses_json')
+	json_data=open('Data/courses_json')
 	allCourses = json.load(json_data)
 	for courseCand in allCourses:
 		courseInfo = allCourses[courseCand]
