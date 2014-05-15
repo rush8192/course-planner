@@ -21,12 +21,12 @@ class MainHandler(webapp2.RequestHandler):
     def get(self):
         self.response.write('Welcome to CoursePlanner!')
         # Add courses and majors to datastore on start up
-        add_courses.main()
-        add_majors.main()
+        #add_courses.main()
+        #add_majors.main()
         
         # test datastore features
-        ops.create_student('Ryan', 0, 0)
-        ops.get_course_json('CS 106A')
+        ops.create_student('Ryan', 0)
+        #ops.get_course_json('CS 106A')
     
 class TranscriptHandler(webapp2.RequestHandler):
     def post(self):

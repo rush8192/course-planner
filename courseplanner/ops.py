@@ -4,19 +4,20 @@ from models import *
 
 # This is where all for CRUD operations will live. Potential list:
 #   -create_student
-#   -add_course
-#   -remove_course
-#   -get_course(by substring of course_num)
+#   -add_course_to_student_list
+#   -remove_course_from_student_list
 #   -get_student_courses(student_id)
-#   -get_major(major_id or substring of name)
-#   -set_major(student_id, major_id, track_name?)
-#   -set_track(student_id, major_id, track_name)
+
+#   -add_course_to_master_list
+#   -remove_course_from_master_list
+#   -get_course(by substring of course_num)
+
+#   -get_program_sheet(major_id or substring of name)
+#   -set_program_sheet(student_id, major_id, track_name?)
 #   -add_petition(course_id, course_req_id)
 
-
-def create_student(name, student_id, major_id):
-    major = Major.query(Major.major_id == major_id).fetch(1)[0]
-    s = Student(name=name, student_id = student_id, major=major.key)
+def create_student(name, student_id):
+    s = Student(student_name=name, student_id = student_id)
     s.put()
 
 # Add course to candidate list for given student, course, grade, units, and req
