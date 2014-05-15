@@ -33,7 +33,6 @@ class Offering(ndb.Model):
 class Program_Sheet(ndb.Model):
     ps_name = ndb.StringProperty()
     req_boxes = ndb.KeyProperty(Req_Box, repeated=True)
-    allow_double_count = ndb.BooleanProperty()
 
 # Requirement box such as depth or DB:Hum
 class Req_Box(ndb.Model):
@@ -59,9 +58,13 @@ class Req_Course(ndb.Model):
 #------------------Begin Student Models------------------#
 class Candidate_Course(ndb.Model): pass
 
-class Student_Plan(ndb.Model):
+class Student_Program_Sheet(ndb.Model):
     program_sheet = ndb.KeyProperty(Program_Sheet, repeated=True)
+    allow_double_count = ndb.BooleanProperty()
     cand_courses = ndb.KeyProperty(Candidate_Course, repeated=True)
+
+class Student_Plan(ndb.Model):
+    program_sheets = ndb.KeyProperty(Student_Program_Sheet, repeated=True)
 
 class Student(ndb.Model):
     student_id = ndb.IntegerProperty(required=True)
