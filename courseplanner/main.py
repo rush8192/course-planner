@@ -21,7 +21,7 @@ class MainHandler(webapp2.RequestHandler):
     def get(self):
         self.response.write('Welcome to CoursePlanner!')
         # Add courses and majors to datastore on start up
-        #add_courses.main()
+        add_courses.main()
         add_majors.main()
         
         # test datastore features

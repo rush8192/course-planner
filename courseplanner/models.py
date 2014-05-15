@@ -1,6 +1,10 @@
 from google.appengine.ext import ndb
 
+# stubs for all classes with cyclical references
 class Offering(ndb.Model): pass
+class Requirement(ndb.Model): pass
+class Req_Box(ndb.Model): pass
+
 class Course(ndb.Model):
     course_num = ndb.StringProperty(required=True)
     course_desc = ndb.TextProperty()
@@ -21,14 +25,22 @@ class Offering(ndb.Model):
     year = ndb.StringProperty()
     units = ndb.IntegerProperty(repeated=True)
 
-class Req_Box(ndb.Model): pass
 class Major(ndb.Model):
     major_id = ndb.IntegerProperty(required=True)
     major_name = ndb.StringProperty(required=True)
     track_name = ndb.StringProperty(required=True)
-    req_boxes = ndb.KeyProperty(Req_Box, repeated=True)
+    requirements = ndb.KeyProperty(Requirement, repeated=True)
 
-# Requirement box for major requirements
+# Requirement for major/GER: contains 1 or more Req_Boxes
+class Requirement(ndb.Model):
+    # If it belongs to a major, store here
+    major_id = ndb.IntegerProperty()
+    req_id = ndb.IntegerProperty(required=True)
+    req_name = ndb.StringProperty()
+    req_boxes = ndb.KeyProperty(Req_Box, repeated=True)
+    allow_double_count = ndb.BooleanProperty()
+
+# Requirement box for major requirements / GERS
 class Req_Box(ndb.Model):
     major = ndb.KeyProperty(Major)
     req_id = ndb.IntegerProperty(required=True)
@@ -37,16 +49,9 @@ class Req_Box(ndb.Model):
     min_num_courses = ndb.IntegerProperty()
     # TODO - structure conditional ops
     conditional_ops = ndb.StringProperty()
-    # List of Req_Course: (0/1):many relationship
+    # List of fulfilling courses
     req_courses = ndb.KeyProperty(repeated=True)
 
-# GER
-class Grad_Req(ndb.Model):
-    req_name = ndb.StringProperty()
-    # List of Req_Course: (0/1):many relationship
-    req_courses = ndb.KeyProperty(repeated=True)
-    candidate_course = ndb.KeyProperty(Course)
-    candidate_course_units = ndb.IntegerProperty()
 
 # Required Course belonging either to a Req_Box (major requirement)
 # or Grad_Req (GER)
