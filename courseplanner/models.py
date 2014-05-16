@@ -9,6 +9,7 @@ class Req_Course(ndb.Model): pass
 #------------------Begin Course Models-------------------#
 class Course(ndb.Model):
     course_num = ndb.StringProperty(required=True)
+    course_title = ndb.StringProperty()
     course_desc = ndb.TextProperty()
     rankings_sum = ndb.IntegerProperty()
     rankings_tally = ndb.IntegerProperty()
@@ -18,7 +19,6 @@ class Course(ndb.Model):
 
 class Offering(ndb.Model):
     course = ndb.KeyProperty(Course)
-    course_title = ndb.StringProperty(required=True)
     # repeated=True gives list of Strings
     term = ndb.StringProperty(repeated=True)
     grading = ndb.StringProperty()
@@ -32,6 +32,7 @@ class Offering(ndb.Model):
 # Program sheet for a major/GER/minor: Contains 1+ Req_Boxes
 class Program_Sheet(ndb.Model):
     ps_name = ndb.StringProperty()
+    major_id = ndb.IntegerProperty()
     req_boxes = ndb.KeyProperty(Req_Box, repeated=True)
 
 # Requirement box such as depth or DB:Hum
@@ -73,11 +74,14 @@ class Student(ndb.Model):
     academic_plans = ndb.KeyProperty(Student_Plan, repeated=True) 
 
 class Candidate_Course(ndb.Model):
-    course = ndb.KeyProperty(Course)
+    course = ndb.KeyProperty(Course, required=True)
+    student = ndb.KeyProperty(Student, required=True)
+    student_program_sheet = ndb.KeyProperty(Student_Program_Sheet)
+    # (optional) requirement that course is being applied to
     req_course = ndb.KeyProperty(Req_Course)
+    term = ndb.StringProperty()
+    year = ndb.IntegerProperty()
     grade = ndb.FloatProperty()
     units = ndb.IntegerProperty()
-    # each student has many candidate courses
     allow_petition = ndb.StringProperty()
-    student = ndb.KeyProperty(Student)
 #-------------------End Student Models--------------------#

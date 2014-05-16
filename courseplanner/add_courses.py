@@ -16,7 +16,6 @@ def main():
                    rankings_tally = course['rankings_tally'],
                    hpw_sum =  course['hpw_sum'],
                    hpw_tally = course['hpw_tally'])
-        c.put()
 
         # Add Information about each Offering for a Course
         for offering in course['offering']:
@@ -26,9 +25,8 @@ def main():
               offering['instructors'] = []
             if type(offering['term']) != list:
               offering['term'] = []
-
-            o = Offering(course_title = offering['course_title'],
-                         term = offering['term'],
+            c.course_title = offering['course_title']
+            o = Offering(term = offering['term'],
                          grading = offering['grading'],
                          instructors = offering['instructors'],
                          reqs = offering['reqs'],
@@ -36,4 +34,6 @@ def main():
                          units = offering['units'],
                          course = c.key)
             o.put()
+        
+        c.put()
 

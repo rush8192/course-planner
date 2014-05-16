@@ -4,51 +4,141 @@ from models import *
 
 # This is where all for CRUD operations will live. Potential list:
 #   -create_student
-#   -add_course_to_student_list
-#   -remove_course_from_student_list
-#   -get_student_courses(student_id)
+#   -add_candidate_course
+#   -remove_candidate_course
+#   -get_candidate_courses(student_id)
 
-#   -add_course_to_master_list
-#   -remove_course_from_master_list
+#   -add_course_listing
+#   -remove_course_listing
+#   -get_master_course_list
 #   -get_course(by substring of course_num)
 
-#   -get_program_sheet(major_id or substring of name)
-#   -set_program_sheet(student_id, major_id, track_name?)
-#   -add_petition(course_id, course_req_id)
+#   -get_program_sheet(major_id, ps_name)
 
-def create_student(name, student_id):
-    s = Student(student_name=name, student_id = student_id)
+# Helper to print error messages in consistent json format
+def error(message):
+    return json.dumps('{"errorMessage": "' + str(message) + '"}')
+
+def create_student(student_id, student_name):
+    s = Student(student_id = student_id, student_name = student_name)
+    # TODO: Add empty course plan (Rush)
     s.put()
 
 # Add course to candidate list for given student, course, grade, units, and req
 # Return true if course fulfills the req, false otherwise. Assumes course_req_id
 # is valid and for correct major
-def add_course(student_id, course_num, course_req_id, grade, units):
+#
+# Parameters:
+#    req_course (optional): key for Req_Course the course fulfills. Can have candidate
+#       courses without req_course (e.g. taken for interest, or major undecided) 
+#    force - flag to override errors validating the course.
+def add_candidate_course(student_id, course_num, req_course, grade, units, force=False):
     # fetch single result and extract from array
     student = Student.query(Student.student_id == student_id).fetch(1)[0]
     course = Course.query(Course.course_num == course_num).fetch(1)[0]
-    req_course = Req_Course.query(Req_Course.course_req_id == course_req_id).fetch(1)[0]
 
-    candidate_course = Candidate_Course(course=course.key, req_course=req_course.key,
+    candidate_course = Candidate_Course(course=course.key, req_course=req_course,
                                         grade=grade, units=units, student=student.key)
-    candidate_course.put()
-
+     
     # Validate course, req_course pairing
-    if course.key in req_course.allowed_courses:
+    # TODO: merge with Rush's course validation(?)
+    if force or course.key in req_course.allowed_courses:
+        candidate_course.put()
         return True
     else:
-        return False
+        return error("Course does not fulfill given requirement.")
+ 
+# Removes course from student's program sheet (in all places that it occurs). Optional
+# parameter ps specifies Student_Program_Sheet by key. If not given, course taken off all
+# sheets found
+def remove_candidate_course(student_id, course_num, ps):
+    student = Student.query(Student.student_id == student_id).fetch(1)
+    if len(student) > 0: student = student[0]
+    else:
+        return error('Student with id ' + student_id + ' not found')
+    course = Course.query(Course.course_num == course_num).fetch(1)
+    if len(course) > 0: course = course[0]
+    else:
+        return error ('Course number ' + course_num + ' not found')
+    if ps: 
+        candidate_courses = Candidate_Course.query(student == student.key, 
+                                                   course == course.key,
+                                                   student_program_sheet == ps).fetch()
+    else:
+        candidate_courses = Candidate_Course.query(student == student.key,
+                                                   course == course.key).fetch()
+    for course in candidate_courses:
+        course.key.delete()          
 
-# Return dict of course information by course_num
-def get_course_dict(course_num):
-    # upper case
-    course_num = course_num.upper()
-    course = Course.query(Course.course_num == course_num).fetch(1)[0]
-    return course.to_dict()
+# Return all candidate courses associated with student: for now, this is just a set
+# of unique course_nums. (Reqs information will be obtained separately when fetching
+# student's program sheet).
+def get_candidate_courses(student_id):
+    student = Student.query(Student.student_id == student_id).fetch(1)
+    if len(student) > 0: student = student[0]
+    else:
+        return error('Student with id ' + student_id + ' not found')
+    courses = Candidate_Course.query(student == student.key).fetch()
+    course_dict = dict()
+    for course in courses:
+        course_dict[course.course_num] = 1
+    return json.dumps(course_dict.keys())
+
+# Add course listing: only course_num required
+def add_course_listing(course_num, course_desc, course_title):
+    existing = Course.query(course_num == course_num)
+    if len(existing) > 0:
+        return error('Course with course number = ' + course_num + ' already exists!')
+    course = Course(course_num=course_num, course_desc=course_desc, 
+                    course_title=course_title)
+    course.put()
+    return True
+    
+# Edit course listing: can change description or title. If either is None, left unaffected    
+# TODO: more advanced editing e.g. Offerings
+def edit_course_listing(course_num, course_desc, course_title):
+    courses = Course.query(course_num == course_num).fetch(1)
+    if len(courses) > 0:
+        course = courses[0]
+        if course_desc:
+            course.course_desc = course_desc
+        if course_title:
+            course.course_title = course_title
+        course.put()
+    else:
+        return error('Course_num ' + course_num + ' not found.')           
+ 
+def remove_course_listing(course_num):
+    courses = Course.query(course_num == course_num).fetch(1)
+    if len(courses) > 0:
+        course = courses[0]
+        course.key.delete()
+    else:
+        return error('Course_num ' + course_num + ' not found.')
 
 # Return json dump of course information by course_num
-def get_course_json(course_num):
-    course_dict = get_course_dict(course_num)
-    if course_dict is not None:
-        return json.dumps(course_dict)
-    return None
+def get_course_listing(course_num):
+    course_num = course_num.upper()
+    courses = Course.query(Course.course_num == course_num).fetch(1)
+    if len(courses) > 0:
+        return json.dumps(courses[0].to_dict())
+    return error('Course ' + course_num + ' not found.')
+    
+# Return list of all course_nums in datastore
+def get_master_course_list():
+    courses = Course.query().fetch(projection=[Course.course_num])
+    return json.dumps(courses)    
+    
+        
+# Get program sheet by either major_id or ps_name. For now, only exact matches
+def get_program_sheet(major_id, ps_name):
+    if major_id:
+        sheets = Program_Sheet.query(Program_Sheet.major_id == major_id).fetch(1)
+        message = error('Major_id' + str(major_id) + 'not found.')
+    else:
+        sheets = Program_Sheet.query(Program_Sheet.ps_name == ps_name).fetch(1)
+        message = error('Program sheet named ' + str(ps_name) + ' not found.')
+    if len(sheets) == 0:
+        return message
+    else:
+        return json.dumps(sheets[0])   
