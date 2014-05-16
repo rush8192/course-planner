@@ -16,9 +16,9 @@
 #
 import webapp2
 from google.appengine.api import users
-from google.appengine.ext import db
+from google.appengine.ext import ndb
 import add_courses, add_majors, ops
-import models
+from models import Student, Program_Sheet
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
@@ -51,11 +51,11 @@ class PlanHandler(webapp2.RequestHandler):
             uid = self.request.get('uid')
         else:
             uid = user.nickname()
-        matchingStudent = db.GqlQuery("SELECT * FROM Student WHERE student_id IN :1",
-                                [ uid ])
+        matchingStudent = Student.query(Student.student_id == 5)
         student = matchingStudent.get()
         if student == None:
             self.response.write('Error: no matching student record for student: ' + uid)
+            return
         else:
             for plan in student.academic_plans:
                 if plan.program_sheets[0].program_sheet.ps_name == planId:
@@ -66,7 +66,7 @@ class PlanHandler(webapp2.RequestHandler):
 
 
     # POST: allows the user to create a new plan for the given major/minor ID field
-    def post(self):
+    def post(self, pathname):
         user = users.get_current_user();
         uid = ""
         if (user == None):
@@ -75,17 +75,16 @@ class PlanHandler(webapp2.RequestHandler):
             uid = user.nickname()
         print "creating new plan for: " + uid
         planId = self.request.get('plan_id')
-        candidateSheet = db.GqlQuery("SELECT * FROM Program_Sheet WHERE ps_name IN :1",
-                                [ planId ]).get()
+        candidateSheet = Program_Sheet.query(Program_Sheet.ps_name == planId).get()
         if candidateSheet == None:
-            self.response.write('Error: invalid plan ID')
+            self.response.write('Error: invalid plan ID: ' + planId + '\n')
+            return
         else:
             print "found matching plan: " + candidateSheet.ps_name
             plan = Student_Program_Sheet(program_sheet=candidateSheet,
                         cand_courses=[])
             plan.put()
-            matchingStudent = db.GqlQuery("SELECT * FROM Student WHERE student_id IN :1",
-                                [ uid ]).get()
+            matchingStudent = Student.query(Student.student_id == uid).get()
             if matchingStudent == None:
                 self.response.write('Error: no matching student record for: ' + uid)
             else:
