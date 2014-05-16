@@ -1,13 +1,19 @@
 from google.appengine.ext import ndb
 
+class DictModel(ndb.Model):
+    # TODO redefine to_dict() so that it encodes keys in serializable fashion!
+    # to_dict() in ndb.Model is somewhat useless since it doesn't guarantee json
+    # serializability
+    pass
+
 # stubs for all classes with cyclical references
-class Offering(ndb.Model): pass
-class Requirement(ndb.Model): pass
-class Req_Box(ndb.Model): pass
-class Req_Course(ndb.Model): pass
+class Offering(DictModel): pass
+class Requirement(DictModel): pass
+class Req_Box(DictModel): pass
+class Req_Course(DictModel): pass
 
 #------------------Begin Course Models-------------------#
-class Course(ndb.Model):
+class Course(DictModel):
     course_num = ndb.StringProperty(required=True)
     course_title = ndb.StringProperty()
     course_desc = ndb.TextProperty()
@@ -17,7 +23,7 @@ class Course(ndb.Model):
     hpw_tally = ndb.IntegerProperty()
     offerings = ndb.KeyProperty(Offering, repeated=True)
 
-class Offering(ndb.Model):
+class Offering(DictModel):
     course = ndb.KeyProperty(Course)
     # repeated=True gives list of Strings
     term = ndb.StringProperty(repeated=True)
@@ -30,13 +36,13 @@ class Offering(ndb.Model):
 
 #----------------Begin Program Sheet Models----------------#
 # Program sheet for a major/GER/minor: Contains 1+ Req_Boxes
-class Program_Sheet(ndb.Model):
+class Program_Sheet(DictModel):
     ps_name = ndb.StringProperty()
     major_id = ndb.IntegerProperty()
     req_boxes = ndb.KeyProperty(Req_Box, repeated=True)
 
 # Requirement box such as depth or DB:Hum
-class Req_Box(ndb.Model):
+class Req_Box(DictModel):
     program_sheet = ndb.KeyProperty(Program_Sheet)
     req_box_name = ndb.StringProperty(required=True)
     min_total_units = ndb.IntegerProperty()
@@ -47,7 +53,7 @@ class Req_Box(ndb.Model):
     req_courses = ndb.KeyProperty(Req_Course, repeated=True)
 
 # Required Course belonging to a Req_Box (major requirement or GER req)
-class Req_Course(ndb.Model):
+class Req_Course(DictModel):
     req_box = ndb.KeyProperty(Req_Box)
     req_course_title = ndb.StringProperty()
     course_req_type = ndb.StringProperty()
@@ -57,23 +63,23 @@ class Req_Course(ndb.Model):
 #----------------End Program Sheet Models----------------#
 
 #------------------Begin Student Models------------------#
-class Candidate_Course(ndb.Model): pass
+class Candidate_Course(DictModel): pass
 
-class Student_Program_Sheet(ndb.Model):
+class Student_Program_Sheet(DictModel):
     program_sheet = ndb.KeyProperty(Program_Sheet, repeated=True)
     allow_double_count = ndb.BooleanProperty()
     cand_courses = ndb.KeyProperty(Candidate_Course, repeated=True)
 
-class Student_Plan(ndb.Model):
+class Student_Plan(DictModel):
     program_sheets = ndb.KeyProperty(Student_Program_Sheet, repeated=True)
 
-class Student(ndb.Model):
+class Student(DictModel):
     student_id = ndb.IntegerProperty(required=True)
     student_name = ndb.StringProperty()
     student_course_list = ndb.KeyProperty(Candidate_Course, repeated=True)
     academic_plans = ndb.KeyProperty(Student_Plan, repeated=True) 
 
-class Candidate_Course(ndb.Model):
+class Candidate_Course(DictModel):
     course = ndb.KeyProperty(Course, required=True)
     student = ndb.KeyProperty(Student, required=True)
     student_program_sheet = ndb.KeyProperty(Student_Program_Sheet)
