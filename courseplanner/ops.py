@@ -119,21 +119,32 @@ def __get_student_entities(student_id, student_name=None):
     if len(student) > 0: 
         return student
     return None
+
+# True, False if student_id taken
+def __student_exists(student_id):
+    student = Student.query(Student.student_id == student_id).fetch(1)
+    return len(student) > 0    
+    
 #------------------------End Helper Methods------------------------#
 
 #------------------------Begin Student Methods------------------------#
-def create_student(student_id, student_name):
+def create_student(student_id=None, student_name=None):
+    if not student_id:
+        return ERROR('Must provide student id!')
+    if __student_exists(student_id):
+        return ERROR('Student with id ' + str(student_id) + ' already exists')
     s = Student(student_id = student_id, student_name = student_name)
     # TODO: Add empty course plan (Rush)
     s.put()
-    return json.dumps(s.to_dict())
+    return True
 
-def get_student(student_name, student_id=None):
+def get_student(student_id=None, student_name=None):
     student_entities = __get_student_entities(student_id, student_name)
-    if len(student_entities) > 0:
-        return json.dumps([s.to_dict() for s in student_entities])
-    if len(student_entities) == 1:
-        return json.dumps(student_entities[0].to_dict())
+    if student_entities:
+        if len(student_entities) > 0:
+            return json.dumps([s.to_dict() for s in student_entities])
+        if len(student_entities) == 1:
+            return json.dumps(student_entities[0].to_dict())
     # Not Found
     if student_name is None:
         return ERROR('Student with id ' + str(student_id) + ' not found')
@@ -155,15 +166,16 @@ def add_candidate_course(student_id, course_num, req_course, grade, units, force
     if len(student) > 0: student = student[0]
     else:
         return ERROR('Student with id ' + str(student_id) + ' not found')
-    course = Course.query(Course.course_num == course_num).fetch(1)
-    if len(course) > 0:
-        course = course[0]
-    else: 
-        return error ('Course number ' + str(course_num) + ' not found')
+    course = __get_course_listing_entity(course_num)
+    if not course:
+        return ERROR('Course number ' + str(course_num) + ' not found')
     if units == '':
         units = None
     if req_course:
-        candidate_course = Candidate_Course(course=course.key, req_course=req_course,
+        req_course_key = __deserialize_key(req_course, Req_Course)
+        if not req_course: 
+            return ERROR('Req_Course key ' + req_course + ' not found.')
+        candidate_course = Candidate_Course(course=course.key, req_course=req_course_key,
                                         grade=grade, units=units, student=student.key)
     else:
         candidate_course = Candidate_Course(course=course.key,
@@ -172,7 +184,7 @@ def add_candidate_course(student_id, course_num, req_course, grade, units, force
     # TODO: merge with Rush's course validation(?)
     if force or not req_course or course.key in req_course.allowed_courses:
         candidate_course.put()
-        #return json.dumps(candidate_course.to_dict(excludes=[course, student]))
+        return True
     else:
         return ERROR("Course does not fulfill given requirement.")
  
@@ -184,15 +196,15 @@ def remove_candidate_course(student_id, course_num, ps):
     if len(student) > 0: student = student[0]
     else:
         return ERROR('Student with id ' + student_id + ' not found')
-    course = Course.query(Course.course_num == course_num).fetch(1)
-    if len(course) > 0: course = course[0]
-    else:
-        return error ('Course number ' + course_num + ' not found')
+    course = __get_course_listing_entity(course_num)
+    if not course:
+        return ERROR('Course number ' + course_num + ' not found')
     if ps: 
+        ps_key = __deserialize_key(ps, Student_Program_Sheet)
         candidate_courses = Candidate_Course.query(Candidate_Course.student == student.key, 
                                                    Candidate_Course.course == course.key,
                                                    Candidate_Course.student_program_sheet 
-                                                    == ps).fetch()
+                                                    == ps_key).fetch()
     else:
         candidate_courses = Candidate_Course.query(Candidate_Course.student == student.key,
                                                    Candidate_Course.course == course.key
@@ -208,10 +220,11 @@ def get_candidate_courses(student_id):
     if len(student) > 0: student = student[0]
     else:
         return ERROR('Student with id ' + student_id + ' not found')
-    courses = Candidate_Course.query(student == student.key).fetch()
+    courses = Candidate_Course.query(Candidate_Course.student == student.key).fetch()
     course_dict = dict()
     for course in courses:
-        course_dict[course.course_num] = 1
+        c = course.course.get()
+        course_dict[c.course_num] = 1
     return json.dumps(course_dict.keys())
 
 #------------------------End Student Methods------------------------#
