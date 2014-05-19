@@ -27,7 +27,7 @@ class MainHandler(webapp2.RequestHandler):
     def get(self):
         self.response.write('Welcome to CoursePlanner!')
         # Add courses and majors to datastore on start up
-        # add_courses.main()
+        add_courses.main()
         # add_majors.main()
         # student = create_student(0, 'Ryan')
         #self.response.write(uri_for('get_student', student_id=None, student_name='Ryan'))
@@ -41,36 +41,29 @@ class TranscriptHandler(webapp2.RequestHandler):
     def get(self):
         self.response.write('only accepts POST requests')
         
-#------------Horrendous List of CRUD Handlers-----------------#
-#-They exist solely to pass parameters to their ops.py method-#
-class GetStudentHandler(webapp2.RequestHandler): 
+#------------Student/Course CRUD Handlers-----------------#
+class StudentHandler(webapp2.RequestHandler): 
     def get(self):
         student_id = self.request.get('student_id')
-        if student_id != '':
-            student_id = int(student_id)
-        else: student_id = None
+        if student_id == '':
+            student_id = None
         student_name = self.request.get('student_name')
+        if student_name == '':
+            student_name = None
         self.response.write(get_student(student_id, student_name))
     def post(self):
-       self.response.write(error('only accepts GET requests'))
-        
-class CreateStudentHandler(webapp2.RequestHandler): 
-    def get(self):
         student_id = self.request.get('student_id')
-        if student_id != '':
-            student_id = int(student_id)
-        else: student_id = None
+        if student_id == '':
+            student_id = None
         student_name = self.request.get('student_name')
+        if student_name == '':
+            student_name = None
         self.response.write(create_student(student_id, student_name))
+        
+class CandidateCourseHandler(webapp2.RequestHandler): 
     def post(self):
-       self.response.write(error('only accepts GET requests'))
-       
-class AddCCHandler(webapp2.RequestHandler): 
-    def get(self):
         student_id = self.request.get('student_id')
-        if student_id != '':
-            student_id = int(student_id)
-        else:
+        if student_id == '':
             student_id = None
         units = self.request.get('units')
         if units != '':
@@ -93,15 +86,15 @@ class AddCCHandler(webapp2.RequestHandler):
                                                  grade=grade,
                                                  units=units,
                                                  force=force))
-    def post(self):
-       self.response.write(error('only accepts GET requests'))
-       
-class RemoveCCHandler(webapp2.RequestHandler): 
     def get(self):
         student_id = self.request.get('student_id')
-        if student_id != '':
-            student_id = int(student_id)
-        else:
+        if student_id == '':
+            student_id = None
+        self.response.write(get_candidate_courses(student_id=student_id))
+        
+    def delete(self):
+        student_id = self.request.get('student_id')
+        if student_id == '':
             student_id = None
         course_num = self.request.get('course_num')
         ps = self.request.get('ps')
@@ -109,52 +102,37 @@ class RemoveCCHandler(webapp2.RequestHandler):
             ps = None
         self.response.write(remove_candidate_course(student_id=student_id,
                                                     course_num=course_num,
-                                                    ps=ps))
-    def post(self):
-       self.response.write(error('only accepts GET requests'))
-       
-class AddCourseHandler(webapp2.RequestHandler): 
+                                                    ps=ps))   
+
+
+class CourseHandler(webapp2.RequestHandler): 
     def get(self):
+        course_num = self.request.get('course_num')
+        self.response.write(get_course_listing(course_num=course_num))    
+    def post(self):
         course_num = self.request.get('course_num')
         course_desc = self.request.get('course_desc')
         course_title = self.request.get('course_title')
         self.response.write(add_course_listing(course_num=course_num,
                                                 course_desc=course_desc,
                                                 course_title=course_title))
-    def post(self):
-       self.response.write(error('only accepts GET requests'))
-       
-class EditCourseHandler(webapp2.RequestHandler): 
-    def get(self):
+    def patch(self):
         course_num = self.request.get('course_num')
         course_desc = self.request.get('course_desc')
         course_title = self.request.get('course_title')
         self.response.write(edit_course_listing(course_num=course_num,
                                                 course_desc=course_desc,
                                                 course_title=course_title))
-    def post(self):
-       self.response.write(error('only accepts GET requests'))
-       
-class RemoveCourseHandler(webapp2.RequestHandler): 
-    def get(self):
+    def delete(self):
         course_num = self.request.get('course_num')
         self.response.write(remove_course_listing(course_num=course_num))
-    def post(self):
-       self.response.write(error('only accepts GET requests'))
-              
-class GetCourseListHandler(webapp2.RequestHandler):
+
+class CourseListHandler(webapp2.RequestHandler):
     def get(self):
         self.response.write(get_master_course_list())
-    def post(self):
-       self.response.write(error('only accepts GET requests')) 
-       
-class GetCourseHandler(webapp2.RequestHandler): 
-    def get(self):
-        course_num = self.request.get('course_num')
-        self.response.write(get_course_listing(course_num=course_num))
-    def post(self):
-       self.response.write(error('only accepts GET requests')) 
-#--------------------End CRUD Handlers-------------------------#
+        
+#----------------End Student/Course Handlers-----------------#
+
 
 # Class that handles creating and returning student's plans
 class PlanHandler(webapp2.RequestHandler):
@@ -215,15 +193,10 @@ class PlanVerificationHandler(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
     ('/trans/upload', TranscriptHandler),
-    ('/student/get/', GetStudentHandler),
-    ('/student/create/', CreateStudentHandler),
-    ('/student/add_class/', AddCCHandler),
-    ('/student/remove_class/', RemoveCCHandler),
-    ('/course/add/', AddCourseHandler),
-    ('/course/remove/', RemoveCourseHandler),
-    ('/course/edit/', EditCourseHandler),
-    ('/course/all/', GetCourseListHandler),
-    ('/course/get/', GetCourseHandler),    
+    ('/student/', StudentHandler),
+    ('/student/course/', CandidateCourseHandler),
+    ('/course/', CourseHandler),
+    ('/course/all/', CourseListHandler),    
     ('/plan/(.*)', PlanHandler),
     ('/plan/verify', PlanVerificationHandler),
     ('/programsheet/', ProgramSheetHandler),
