@@ -41,7 +41,7 @@ class TranscriptHandler(webapp2.RequestHandler):
     def get(self):
         self.response.write('only accepts POST requests')
         
-#------------Student/Course CRUD Handlers-----------------#
+#---------------Student/Course CRUD Handlers-------------------#
 class StudentHandler(webapp2.RequestHandler): 
     def get(self):
         student_id = self.request.get('student_id')
@@ -116,7 +116,7 @@ class CourseHandler(webapp2.RequestHandler):
         self.response.write(add_course_listing(course_num=course_num,
                                                 course_desc=course_desc,
                                                 course_title=course_title))
-    def patch(self):
+    def put(self):
         course_num = self.request.get('course_num')
         course_desc = self.request.get('course_desc')
         course_title = self.request.get('course_title')

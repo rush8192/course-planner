@@ -193,7 +193,7 @@ def get_candidate_courses(student_id):
 
 #------------------------Begin Course Listing Methods------------------------#
 
-# Add course listing: only course_num required
+# Add course listing: return error if course_num exists, True otherwise
 def add_course_listing(course_num, course_desc, course_title):
     course_num = __fix_course_num(course_num)
     existing = Course.query(Course.course_num == course_num).fetch()
@@ -202,7 +202,7 @@ def add_course_listing(course_num, course_desc, course_title):
     course = Course(course_num=course_num, course_desc=course_desc, 
                     course_title=course_title)
     course.put()
-    return json.dumps(course)
+    return True
     
 # Edit course listing: can change description or title. If either is None, left unaffected    
 # TODO: more advanced editing e.g. Offerings
@@ -227,6 +227,7 @@ def remove_course_listing(course_num):
     if len(courses) > 0:
         course = courses[0]
         course.key.delete()
+        return True
     else:
         return ERROR('Course_num ' + course_num + ' not found.')
 
@@ -234,7 +235,7 @@ def remove_course_listing(course_num):
 def get_course_listing(course_num):
     course_listing_entity = __get_course_listing_entity(course_num)
     if (course_listing_entity is None):
-        return ERROR('Course_num ' + course_num + ' is not found.')
+        return ERROR('Course_num ' + course_num + ' not found.')
     return json.dumps(course_listing_entity.to_dict())
     
 # Return list of all course_nums in datastore
