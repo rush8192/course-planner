@@ -4,6 +4,7 @@ class DictModel(ndb.Model):
     # TODO redefine to_dict() so that it encodes keys in serializable fashion!
     # to_dict() in ndb.Model is somewhat useless since it doesn't guarantee json
     # serializability
+    # or you know... lol it off
     pass
 
 # stubs for all classes with cyclical references
@@ -38,7 +39,6 @@ class Offering(DictModel):
 # Program sheet for a major/GER/minor: Contains 1+ Req_Boxes
 class Program_Sheet(DictModel):
     ps_name = ndb.StringProperty()
-    major_id = ndb.IntegerProperty()
     req_boxes = ndb.KeyProperty(Req_Box, repeated=True)
 
 # Requirement box such as depth or DB:Hum
@@ -55,10 +55,9 @@ class Req_Box(DictModel):
 # Required Course belonging to a Req_Box (major requirement or GER req)
 class Req_Course(DictModel):
     req_box = ndb.KeyProperty(Req_Box)
-    req_course_title = ndb.StringProperty()
-    course_req_type = ndb.StringProperty()
+    req_course_info = ndb.StringProperty()
     min_grade = ndb.FloatProperty()
-    # Many-to-many courses to requirement fulfilled
+    min_units = ndb.IntegerProperty()
     allowed_courses = ndb.KeyProperty(Course, repeated=True)
 #----------------End Program Sheet Models----------------#
 

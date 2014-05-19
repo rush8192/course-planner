@@ -21,6 +21,7 @@ import add_courses, add_majors, ops
 from models import Student, Program_Sheet
 from webapp2 import uri_for
 from ops import *
+from PSHandlers import *
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
@@ -29,7 +30,7 @@ class MainHandler(webapp2.RequestHandler):
         # add_courses.main()
         # add_majors.main()
         # student = create_student(0, 'Ryan')
-        self.response.write(uri_for('get_student', student_id=None, student_name='Ryan'))
+        #self.response.write(uri_for('get_student', student_id=None, student_name='Ryan'))
     
 class TranscriptHandler(webapp2.RequestHandler):
     def post(self):
@@ -100,7 +101,7 @@ class RemoveCCHandler(webapp2.RequestHandler):
         student_id = self.request.get('student_id')
         if student_id != '':
             student_id = int(student_id)
-					else:
+        else:
             student_id = None
         course_num = self.request.get('course_num')
         ps = self.request.get('ps')
@@ -211,7 +212,6 @@ class PlanVerificationHandler(webapp2.RequestHandler):
     def get(self):
         print "unimplemented"
     
-    
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
     ('/trans/upload', TranscriptHandler),
@@ -225,5 +225,8 @@ app = webapp2.WSGIApplication([
     ('/course/all/', GetCourseListHandler),
     ('/course/get/', GetCourseHandler),    
     ('/plan/(.*)', PlanHandler),
-    ('/plan/verify', PlanVerificationHandler)
+    ('/plan/verify', PlanVerificationHandler),
+    ('/programsheet/', ProgramSheetHandler),
+    ('/programsheet/reqbox/', ReqBoxHandler),
+    ('/programsheet/reqbox/reqcourses', ReqCourseHandler)
 ], debug=True)
