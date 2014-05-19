@@ -12,6 +12,7 @@ class Offering(DictModel): pass
 class Requirement(DictModel): pass
 class Req_Box(DictModel): pass
 class Req_Course(DictModel): pass
+class Candidate_Course(DictModel): pass
 
 #------------------Begin Course Models-------------------#
 class Course(DictModel):
@@ -62,8 +63,6 @@ class Req_Course(DictModel):
 #----------------End Program Sheet Models----------------#
 
 #------------------Begin Student Models------------------#
-class Candidate_Course(DictModel): pass
-
 class Student_Program_Sheet(DictModel):
     program_sheet = ndb.KeyProperty(Program_Sheet, repeated=True)
     allow_double_count = ndb.BooleanProperty()

@@ -210,11 +210,14 @@ def remove_candidate_course(student_id, course_num, ps):
                                                    Candidate_Course.course == course.key
                                                    ).fetch()
     for course in candidate_courses:
-        course.key.delete()          
+        course.key.delete() 
+    return True             
 
 # Return all candidate courses associated with student: for now, this is just a set
 # of unique course_nums. (Reqs information will be obtained separately when fetching
 # student's program sheet).
+#
+# Returns: json dump or error message
 def get_candidate_courses(student_id):
     student = Student.query(Student.student_id == student_id).fetch(1)
     if len(student) > 0: student = student[0]
@@ -259,7 +262,8 @@ def edit_course_listing(course_num, course_desc=None, course_title=None):
         return True
     else:
         return ERROR('Course_num ' + course_num + ' not found.')           
- 
+
+# Remove course listing - return error if not found, True otherwise 
 def remove_course_listing(course_num):
     course_num = __fix_course_num(course_num)
     courses = Course.query(Course.course_num == course_num).fetch(1)
@@ -270,14 +274,15 @@ def remove_course_listing(course_num):
     else:
         return ERROR('Course_num ' + course_num + ' not found.')
 
-# Return json dump of course information by course_num
+# Return json dump of course information by course_num, or error 
+# if not found.
 def get_course_listing(course_num):
     course_listing_entity = __get_course_listing_entity(course_num)
     if (course_listing_entity is None):
         return ERROR('Course_num ' + course_num + ' not found.')
     return json.dumps(course_listing_entity.to_dict())
     
-# Return list of all course_nums in datastore
+# Return json list of all course_nums in datastore
 def get_master_course_list():
     courses = Course.query().fetch(projection=[Course.course_num])
     course_dict = dict()
