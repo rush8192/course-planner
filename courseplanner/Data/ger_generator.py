@@ -37,7 +37,7 @@ def create_old_req_ihum_pwr_json():
     json_dict['req_name'] = 'Graduation Requirements (Class of 2015 and Before)'
     json_dict['allow_double_count'] = 'y'
 
-    req_boxes_json_dict = {}
+    req_boxes_json_array = []
     req_boxes = ['DB', 'EC', 'IHUM', 'Language', 'Writing']
     for req_box_name in req_boxes:
         req_box_dict = {}
@@ -53,27 +53,28 @@ def create_old_req_ihum_pwr_json():
             req_box_dict['min_num_courses'] = 1
         if 'Writing' in req_box_name:
             req_box_dict['min_num_courses'] = 2
-        req_box_dict['req_box_courses'] = {}
-        req_boxes_json_dict[req_box_name] = req_box_dict
+        req_box_dict['req_box_courses'] = []
+        req_boxes_json_array.append(req_box_dict)
 
     for key in old_req_dict:
         if 'DB' in key:
-            req_courses_dict = req_boxes_json_dict['DB']['req_box_courses']
+            req_courses_array = req_boxes_json_array[0]['req_box_courses']
         if 'EC' in key:
-            req_courses_dict = req_boxes_json_dict['EC']['req_box_courses']
+            req_courses_array = req_boxes_json_array[1]['req_box_courses']
         if 'IHUM' in key:
-            req_courses_dict = req_boxes_json_dict['IHUM']['req_box_courses']
+            req_courses_array = req_boxes_json_array[2]['req_box_courses']
         if 'Language' in key:
-            req_courses_dict = req_boxes_json_dict['Language']['req_box_courses']
+            req_courses_array = req_boxes_json_array[3]['req_box_courses']
         if 'Writing' in key and 'SLE' not in key:
-            req_courses_dict = req_boxes_json_dict['Writing']['req_box_courses']
-
+            req_courses_array = req_boxes_json_array[4]['req_box_courses']
+        req_courses_dict = {}
         req_courses_dict['req_course_info'] = key
         req_courses_dict['min_req_units'] = 0
         req_courses_dict['min_req_grade'] = 1.7
         req_courses_dict['allowed_course_list'] = old_req_dict[key]
+        req_courses_array.append(req_courses_dict)
 
-    json_dict['ps_req_boxes'] = req_boxes_json_dict
+    json_dict['ps_req_boxes'] = req_boxes_json_array
 
     f = open('old_req_json', 'w')
     json_str = json.dumps(json_dict, indent=2, sort_keys=True)
