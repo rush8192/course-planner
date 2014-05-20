@@ -1,5 +1,6 @@
 {
   "allow_double_count": "y", 
+  "conditional_ops": "", 
   "ps_req_boxes": [
     {
       "min_num_courses": 5, 

@@ -36,6 +36,7 @@ def create_old_req_ihum_pwr_json():
     json_dict = {}
     json_dict['req_name'] = 'Graduation Requirements (Class of 2015 and Before)'
     json_dict['allow_double_count'] = 'y'
+    json_dict['conditional_ops'] = ''
 
     req_boxes_json_array = []
     req_boxes = ['DB', 'EC', 'IHUM', 'Language', 'Writing']
