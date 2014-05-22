@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 import webapp2
+import json
 from google.appengine.api import users
 from google.appengine.ext import ndb
 import add_courses, add_majors, ops
@@ -138,6 +139,7 @@ class CourseListHandler(webapp2.RequestHandler):
 class PlanHandler(webapp2.RequestHandler):
 
     # GET: fetch a student's plan for a given major/minor (could this match multiple entries?)
+    # planid contains the string that comes after "/plan" in the url
     def get(self, planid):
         user = users.get_current_user();
         uid = ""
@@ -145,18 +147,33 @@ class PlanHandler(webapp2.RequestHandler):
             uid = self.request.get('uid')
         else:
             uid = user.nickname()
-        matchingStudent = Student.query(Student.student_id == 5)
-        student = matchingStudent.get()
+        student = Student.query(Student.student_id == uid).get()
         if student == None:
             self.response.write('Error: no matching student record for student: ' + uid)
             return
         else:
-            for plan in student.academic_plans:
-                if plan.program_sheets[0].program_sheet.ps_name == planId:
-                    self.response.write('Found matching plan: ' + planId + ' for student: ' + uid)
-                    # fill in JSON object and return
-                    return
-        self.response.write('Error: no matching program sheet found with id: ' + planId + ' for student: ' + uid)
+            if planid == None or planid == "/": #no argument; just return all plans for student
+                # not sure how to return a repeated ndb entity
+                #self.response.write( student.academic_plans.to_dict() )
+                print "Listing all plans for " + uid
+                pass
+            else:
+                # remove the "/" from planid
+                planid = planid[1:]
+                print planid
+                
+                # not sure if this is correct syntax for iterating through ndb
+                # repeated property; documentation is somewhat suspect online
+                for planKey in student.academic_plans:
+                    # compare planKey to the planId passed in; not sure
+                    # if this is correct way to compare the key values 
+                    if planKey.get().id() == planid:
+                        # method should return the matching student plan
+                        #self.response.write(planKey.get().to_dict())
+                        print "Found matching plan : " + planid + " for " + uid
+                        return
+                self.response.write('Error: no matching program sheet found with id: ' + planid + ' for student: ' + uid)
+
 
 
     # POST: allows the user to create a new plan for the given major/minor ID field
@@ -167,24 +184,29 @@ class PlanHandler(webapp2.RequestHandler):
             uid = self.request.get('uid')
         else:
             uid = user.nickname()
-        print "creating new plan for: " + uid
-        planId = self.request.get('plan_id')
-        candidateSheet = Program_Sheet.query(Program_Sheet.ps_name == planId).get()
-        if candidateSheet == None:
-            self.response.write('Error: invalid plan ID: ' + planId + '\n')
+        title = self.request.get('title')
+        print "creating new plan for: " + uid + " with title: " + title
+        
+        # first we load the GER program sheet, and add it to a new plan
+        GER_SHEET_NAME = "GER-2014" #this needs to be changed to the correct value
+        
+        matchingStudent = Student.query(Student.student_id == uid).get()
+        if matchingStudent == None:
+            self.response.write('Error: no matching student record for: ' + uid)
             return
-        else:
-            print "found matching plan: " + candidateSheet.ps_name
-            plan = Student_Program_Sheet(program_sheet=candidateSheet,
-                        cand_courses=[])
-            plan.put()
-            matchingStudent = Student.query(Student.student_id == uid).get()
-            if matchingStudent == None:
-                self.response.write('Error: no matching student record for: ' + uid)
-            else:
-                student.academic_plans.program_sheets.append(plan)
-                student.put()
-                self.response.write('created new plan successfully for : ' + candidateSheet.ps_name)
+        
+        gerSheet = Program_Sheet.query(Program_Sheet.ps_name == GER_SHEET_NAME).get()
+        studentGerSheet = Student_Program_Sheet(program_sheet=gerSheet,
+                        cand_courses=[], allow_double_count=False)
+        studentPlan = Student_Plan(student_plan_name=title, student_course_list=[], program_sheets=[ studentGerSheet ])
+        studentPlan.put()
+        matchingStudent.academic_plans.append(studentPlan)
+        print "created new plan for student: " + uid + " with id: " + studentPlan.id()
+        self.response.set_status(201)
+        # return the created plan
+        # self.response.write(studentPlan.to_dict())
+        
+        
     
 class PlanVerificationHandler(webapp2.RequestHandler):
     def get(self):
@@ -197,7 +219,7 @@ app = webapp2.WSGIApplication([
     ('/student/course/', CandidateCourseHandler),
     ('/course/', CourseHandler),
     ('/course/all/', CourseListHandler),    
-    ('/plan/(.*)', PlanHandler),
+    ('/plan(/.*)?', PlanHandler),
     ('/plan/verify', PlanVerificationHandler),
     ('/programsheet/', ProgramSheetHandler),
     ('/programsheet/reqbox/', ReqBoxHandler),

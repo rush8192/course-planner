@@ -288,6 +288,8 @@ def getBaseCourseId(courseId):
     		error("Course ID only contains alphabetic characters; this violates an assumption of this loop")
     return courseId[:(index+1)]
     
+COURSE_DICT = None
+    
 # Gets the list of possible matching courses for a given base course ID (ie. CS 106)
 def getCourseList(courseId):
 	courseList = []
