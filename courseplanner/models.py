@@ -1,11 +1,16 @@
 from google.appengine.ext import ndb
 
 class DictModel(ndb.Model):
-    # TODO redefine to_dict() so that it encodes keys in serializable fashion!
-    # to_dict() in ndb.Model is somewhat useless since it doesn't guarantee json
-    # serializability
-    # or you know... lol it off
-    pass
+    # Redefines to_dict() include serialized key of self, as well as keys
+    # for all KeyProperties
+    def to_dict(self):
+        output = ndb.Model.to_dict(self)
+        output['key'] = self.key.id()
+        for key, prop in output.iteritems():
+            value = getattr(self, key)
+            if isinstance(value, ndb.Key):
+                output[key] = value.id()
+        return output
 
 # stubs for all classes with cyclical references
 class Offering(DictModel): pass
