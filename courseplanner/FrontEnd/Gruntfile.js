@@ -177,6 +177,11 @@ module.exports = function (grunt) {
           generatedImagesDir: '<%= yeoman.dist %>/images/generated'
         }
       },
+      devDist: {
+        options: {
+          cssDir: '<%= yeoman.dist %>/styles'  
+        }
+      },
       server: {
         options: {
           debugInfo: true
@@ -316,6 +321,17 @@ module.exports = function (grunt) {
           src: ['generated/*']
         }]
       },
+      devDist: {         
+        files: [{
+          expand: true,
+          dot: true,
+          cwd: '<%= yeoman.app %>',
+          dest: '<%= yeoman.dist %>',
+          src: [
+            '**','!styles/**'   // everything but styles/
+          ]
+        }]
+      },
       styles: {
         expand: true,
         cwd: '<%= yeoman.app %>/styles',
@@ -403,6 +419,23 @@ module.exports = function (grunt) {
     'karma'
   ]);
 
+  grunt.registerTask('foo', [
+    'clean:server',
+    'bowerInstall',
+    'concurrent:server',
+    'autoprefixer',
+    'connect:livereload',
+    'watch'
+  ]);
+
+  grunt.registerTask('make', [
+    'clean:dist',
+    'bowerInstall',
+    'clean:dist',
+    'copy:devDist',
+    'compass:devDist'
+  ]);
+
   grunt.registerTask('build', [
     'clean:dist',
     'bowerInstall',
@@ -410,7 +443,6 @@ module.exports = function (grunt) {
     'concurrent:dist',
     'autoprefixer',
     'concat',
-    'ngmin',
     'copy:dist',
     'cdnify',
     'cssmin',
