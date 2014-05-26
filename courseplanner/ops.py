@@ -85,9 +85,9 @@ def __get_req_box_dict(rb_key):
 
 # Converts Program_Sheet to dictionary with Req_Boxes filled in
 def __get_ps_dict(ps_name):
-    ps = Program_Sheet.query(Program_Sheet.ps_name == ps_name).fetch(1)
-    if len(ps == 0):
-        return 'Program Sheet does not exist'
+    ps = Program_Sheet.query(Program_Sheet.ps_name == ps_name).get()
+    if ps == None:
+        return 'Program Sheet ' + str(ps_name) + ' does not exist'
     ps_entity = ps[0]
     ps_dict = ps_entity.to_dict()
     req_box_keys = list(ps_dict['req_boxes'])
@@ -103,10 +103,8 @@ def __get_ps_dict(ps_name):
 # Returns entity if found, or None
 def __get_course_listing_entity(course_num):
     course_num = __fix_course_num(course_num)
-    courses = Course.query(Course.course_num == course_num).fetch(1)
-    if len(courses) > 0:
-        return courses[0]
-    return None
+    course = Course.query(Course.course_num == course_num).get()
+    return course
 
 # Fetches student entity
 # Returns student entity(s) if found, or None
