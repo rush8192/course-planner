@@ -11,8 +11,7 @@ handlers:
 
 - url: .*
   script: main.app
-  login: required
-
+  
 libraries:
 - name: webapp2
   version: "2.5.2"

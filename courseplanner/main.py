@@ -15,11 +15,213 @@
 # limitations under the License.
 #
 import webapp2
+import json
+from google.appengine.api import users
+from google.appengine.ext import ndb
+import add_courses, add_majors, ops
+from models import Student, Program_Sheet
+from webapp2 import uri_for
+from ops import *
+from PSHandlers import *
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
-        self.response.write('Hello world!')
+        self.response.write('Welcome to CoursePlanner!')
+        # Add courses and majors to datastore on start up
+        add_courses.main()
+        # add_majors.main()
+        # student = create_student(0, 'Ryan')
+        #self.response.write(uri_for('get_student', student_id=None, student_name='Ryan'))
+    
+class TranscriptHandler(webapp2.RequestHandler):
+    def post(self):
+        import parser
+        print "calling parser..."        
+        parser.getTransContent(self.request.body_file.file, self.response)
+        
+    def get(self):
+        self.response.write('only accepts POST requests')
+        
+#---------------Student/Course CRUD Handlers-------------------#
+class StudentHandler(webapp2.RequestHandler): 
+    def get(self):
+        student_id = self.request.get('student_id')
+        if student_id == '':
+            student_id = None
+        student_name = self.request.get('student_name')
+        if student_name == '':
+            student_name = None
+        self.response.write(get_student(student_id, student_name))
+    def post(self):
+        student_id = self.request.get('student_id')
+        if student_id == '':
+            student_id = None
+        student_name = self.request.get('student_name')
+        if student_name == '':
+            student_name = None
+        self.response.write(create_student(student_id, student_name))
+        
+class CandidateCourseHandler(webapp2.RequestHandler): 
+    def post(self):
+        student_id = self.request.get('student_id')
+        if student_id == '':
+            student_id = None
+        units = self.request.get('units')
+        if units != '':
+            units = int(units)
+        else: units = None
+        grade = self.request.get('grade')
+        if grade != '':
+            grade = float(grade)
+        else: grade = None
+        course_num = self.request.get('course_num')
+        force = self.request.get('force')
+        if force == 'True': 
+            force = True
+        else: force = False
+        units = self.request.get('units')
+        req_course = self.request.get('req_course')
+        self.response.write(add_candidate_course(student_id=student_id,
+                                                 course_num=course_num,
+                                                 req_course=req_course,
+                                                 grade=grade,
+                                                 units=units,
+                                                 force=force))
+    def get(self):
+        student_id = self.request.get('student_id')
+        if student_id == '':
+            student_id = None
+        self.response.write(get_candidate_courses(student_id=student_id))
+        
+    def delete(self):
+        student_id = self.request.get('student_id')
+        if student_id == '':
+            student_id = None
+        course_num = self.request.get('course_num')
+        ps = self.request.get('ps')
+        if ps == '':
+            ps = None
+        self.response.write(remove_candidate_course(student_id=student_id,
+                                                    course_num=course_num,
+                                                    ps=ps))   
 
+
+class CourseHandler(webapp2.RequestHandler): 
+    def get(self):
+        course_num = self.request.get('course_num')
+        self.response.write(get_course_listing(course_num=course_num))    
+    def post(self):
+        course_num = self.request.get('course_num')
+        course_desc = self.request.get('course_desc')
+        course_title = self.request.get('course_title')
+        self.response.write(add_course_listing(course_num=course_num,
+                                                course_desc=course_desc,
+                                                course_title=course_title))
+    def put(self):
+        course_num = self.request.get('course_num')
+        course_desc = self.request.get('course_desc')
+        course_title = self.request.get('course_title')
+        self.response.write(edit_course_listing(course_num=course_num,
+                                                course_desc=course_desc,
+                                                course_title=course_title))
+    def delete(self):
+        course_num = self.request.get('course_num')
+        self.response.write(remove_course_listing(course_num=course_num))
+
+class CourseListHandler(webapp2.RequestHandler):
+    def get(self):
+        self.response.write(get_master_course_list())
+        
+#----------------End Student/Course Handlers-----------------#
+
+
+# Class that handles creating and returning student's plans
+class PlanHandler(webapp2.RequestHandler):
+
+    # GET: fetch a student's plan for a given major/minor (could this match multiple entries?)
+    # planid contains the string that comes after "/plan" in the url
+    def get(self, planid):
+        user = users.get_current_user();
+        uid = ""
+        if (user == None):
+            uid = self.request.get('uid')
+        else:
+            uid = user.nickname()
+        student = Student.query(Student.student_id == uid).get()
+        if student == None:
+            self.response.write('Error: no matching student record for student: ' + uid)
+            return
+        else:
+            if planid == None or planid == "/": #no argument; just return all plans for student
+                # not sure how to return a repeated ndb entity
+                #self.response.write( student.academic_plans.to_dict() )
+                print "Listing all plans for " + uid
+                pass
+            else:
+                # remove the "/" from planid
+                planid = planid[1:]
+                print planid
+                
+                # not sure if this is correct syntax for iterating through ndb
+                # repeated property; documentation is somewhat suspect online
+                for planKey in student.academic_plans:
+                    # compare planKey to the planId passed in; not sure
+                    # if this is correct way to compare the key values 
+                    if planKey.get().id() == planid:
+                        # method should return the matching student plan
+                        #self.response.write(planKey.get().to_dict())
+                        print "Found matching plan : " + planid + " for " + uid
+                        return
+                self.response.write('Error: no matching program sheet found with id: ' + planid + ' for student: ' + uid)
+
+
+
+    # POST: allows the user to create a new plan for the given major/minor ID field
+    def post(self, pathname):
+        user = users.get_current_user();
+        uid = ""
+        if (user == None):
+            uid = self.request.get('uid')
+        else:
+            uid = user.nickname()
+        title = self.request.get('title')
+        print "creating new plan for: " + uid + " with title: " + title
+        
+        # first we load the GER program sheet, and add it to a new plan
+        GER_SHEET_NAME = "GER-2014" #this needs to be changed to the correct value
+        
+        matchingStudent = Student.query(Student.student_id == uid).get()
+        if matchingStudent == None:
+            self.response.write('Error: no matching student record for: ' + uid)
+            return
+        
+        gerSheet = Program_Sheet.query(Program_Sheet.ps_name == GER_SHEET_NAME).get()
+        studentGerSheet = Student_Program_Sheet(program_sheet=gerSheet,
+                        cand_courses=[], allow_double_count=False)
+        studentPlan = Student_Plan(student_plan_name=title, student_course_list=[], program_sheets=[ studentGerSheet ])
+        studentPlan.put()
+        matchingStudent.academic_plans.append(studentPlan)
+        print "created new plan for student: " + uid + " with id: " + studentPlan.id()
+        self.response.set_status(201)
+        # return the created plan
+        # self.response.write(studentPlan.to_dict())
+        
+        
+    
+class PlanVerificationHandler(webapp2.RequestHandler):
+    def get(self):
+        print "unimplemented"
+    
 app = webapp2.WSGIApplication([
-    ('/', MainHandler)
+    ('/', MainHandler),
+    ('/trans/upload', TranscriptHandler),
+    ('/student/', StudentHandler),
+    ('/student/course/', CandidateCourseHandler),
+    ('/course/', CourseHandler),
+    ('/course/all/', CourseListHandler),    
+    ('/plan(/.*)?', PlanHandler),
+    ('/plan/verify', PlanVerificationHandler),
+    ('/programsheet/', ProgramSheetHandler),
+    ('/programsheet/reqbox/', ReqBoxHandler),
+    ('/programsheet/reqbox/reqcourses', ReqCourseHandler)
 ], debug=True)
