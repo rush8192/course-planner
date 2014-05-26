@@ -2,6 +2,7 @@ from google.appengine.ext import ndb
 import json
 import re
 from models import *
+from google.appengine.api import users
 
 """
 This is where all for CRUD operations will live. Potential list:
@@ -26,7 +27,7 @@ def __fix_course_num(course_num):
     course_num = course_num.upper()
     n_split = re.split('(\d+)', course_num, 1)
     if len(n_split) < 2:
-        return ERROR('Course number must include digits')
+        return course_num
     ret = n_split[0].replace(" ", "") + ' '
     for s in n_split[1:]:
         ret += s
@@ -120,33 +121,15 @@ def __get_student_entities(student_id, student_name=None):
 
 # True, False if student_id taken
 def __student_exists(student_id):
-    student = Student.query(Student.student_id == student_id).fetch(1)
-    return len(student) > 0
+    student = Student.query(Student.student_id == student_id).get()
+    return student is not None
 
 #------------------------End Helper Methods------------------------#
 
 #------------------------Begin Student Methods------------------------#
-def create_student(student_id=None, student_name=None):
-    if not student_id:
-        return ERROR('Must provide student id!')
-    if __student_exists(student_id):
-        return ERROR('Student with id ' + str(student_id) + ' already exists')
-    s = Student(student_id = student_id, student_name = student_name)
-    # TODO: Add empty course plan (Rush)
-    s.put()
-    return True
-
-def get_student(student_id=None, student_name=None):
-    student_entities = __get_student_entities(student_id, student_name)
-    if student_entities:
-        if len(student_entities) > 0:
-            return json.dumps([s.to_dict() for s in student_entities])
-        if len(student_entities) == 1:
-            return json.dumps(student_entities[0].to_dict())
-    # Not Found
-    if student_name is None:
-        return ERROR('Student with id ' + str(student_id) + ' not found')
-    return ERROR('Student with name ' + str(student_name) + ' not found')
+def get_student():
+    user = users.get_current_user()
+    return "{'userID':" + user.user_id() + "}"
 
 # Add course to candidate list for given student, course, grade, units, and req
 # Return true if course fulfills the req, false otherwise. Assumes course_req_id
@@ -280,13 +263,19 @@ def get_course_listing(course_num):
         return ERROR('Course_num ' + course_num + ' not found.')
     return json.dumps(course_listing_entity.to_dict())
 
-# Return json list of all course_nums in datastore
-def get_master_course_list():
-    courses = Course.query().fetch(projection=[Course.course_num])
-    course_dict = dict()
+# Return json list of 10 courses with prefixes
+def get_course_listing_by_prefix(course_num_prefix):
+    course_num_prefix = __fix_course_num(course_num_prefix)
+    courses = Course.query(ndb.AND(Course.course_num >= course_num_prefix, \
+                                   Course.course_num <= course_num_prefix +'z'))\
+              .fetch(limit=15, projection=[Course.course_num])
+    json_array = []
     for course in courses:
-        course_dict[course.course_num] = 1
-    return json.dumps(course_dict.keys())
+        course_dict = {}
+        course_dict['key'] = course.key.id()
+        course_dict['course_num'] = course.course_num
+        json_array.append(course_dict)
+    return json.dumps(json_array)
 
 #------------------------End Course Listing Methods------------------------#
 
@@ -303,6 +292,7 @@ def add_program_sheet(ps_name, req_box_array):
     if (__program_sheet_exists(ps_name)):
         return ERROR('Program sheet already exists for ' + str(ps_name) + '.')
     ps_entity = Program_Sheet(ps_name=ps_name)
+    ps_entity.put()
     for req_box in req_box_array:
         result = add_req_box_to_ps(ps_entity, req_box)
         # Exists Error, Abort
@@ -374,7 +364,7 @@ def add_req_box_to_ps(ps_entity, req_box_dict, ps_key=None):
     rb_entity = Req_Box(program_sheet=ps_entity, req_box_name=req_box_name, \
                       min_total_units=min_units, min_num_courses=min_num_courses, \
                       conditional_ops=conditional_ops)
-
+    rb_entity.put()
     req_course_array = req_box_dict['req_courses']
     for req_course in req_course_array:
         result = add_req_course_to_rb(rb_entity, req_course)
