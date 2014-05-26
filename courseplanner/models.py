@@ -75,14 +75,13 @@ class Student_Program_Sheet(DictModel):
 
 class Student_Plan(DictModel):
     student_plan_name = ndb.StringProperty()
-    student_course_list = ndb.KeyProperty(Candidate_Course, repeated=True)    
+    student_course_list = ndb.KeyProperty(Candidate_Course, repeated=True)
     program_sheets = ndb.KeyProperty(Student_Program_Sheet, repeated=True)
 
 class Student(DictModel):
-    # Student's google user id 
+    # Student's google user id
     student_id = ndb.StringProperty(required=True)
-    student_name = ndb.StringProperty()
-    academic_plans = ndb.KeyProperty(Student_Plan, repeated=True) 
+    academic_plans = ndb.KeyProperty(Student_Plan, repeated=True)
 
 class Candidate_Course(DictModel):
     course = ndb.KeyProperty(Course, required=True)

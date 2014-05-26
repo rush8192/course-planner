@@ -45,21 +45,9 @@ class TranscriptHandler(webapp2.RequestHandler):
 #---------------Student/Course CRUD Handlers-------------------#
 class StudentHandler(webapp2.RequestHandler):
     def get(self):
-        student_id = self.request.get('student_id')
-        if student_id == '':
-            student_id = None
-        student_name = self.request.get('student_name')
-        if student_name == '':
-            student_name = None
-        self.response.write(get_student(student_id, student_name))
+        self.response.write(get_student())
     def post(self):
-        student_id = self.request.get('student_id')
-        if student_id == '':
-            student_id = None
-        student_name = self.request.get('student_name')
-        if student_name == '':
-            student_name = None
-        self.response.write(create_student(student_id, student_name))
+        create_student()
 
 class CandidateCourseHandler(webapp2.RequestHandler):
     def post(self):

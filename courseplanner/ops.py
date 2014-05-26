@@ -2,6 +2,7 @@ from google.appengine.ext import ndb
 import json
 import re
 from models import *
+from google.appengine.api import users
 
 """
 This is where all for CRUD operations will live. Potential list:
@@ -126,27 +127,17 @@ def __student_exists(student_id):
 #------------------------End Helper Methods------------------------#
 
 #------------------------Begin Student Methods------------------------#
-def create_student(student_id=None, student_name=None):
-    if not student_id:
-        return ERROR('Must provide student id!')
+def create_student():
+    user = users.get_current_user()
     if __student_exists(student_id):
-        return ERROR('Student with id ' + str(student_id) + ' already exists')
-    s = Student(student_id = student_id, student_name = student_name)
+        return
+    s = Student(student_id = user.user_id())
     # TODO: Add empty course plan (Rush)
     s.put()
-    return True
 
-def get_student(student_id=None, student_name=None):
-    student_entities = __get_student_entities(student_id, student_name)
-    if student_entities:
-        if len(student_entities) > 0:
-            return json.dumps([s.to_dict() for s in student_entities])
-        if len(student_entities) == 1:
-            return json.dumps(student_entities[0].to_dict())
-    # Not Found
-    if student_name is None:
-        return ERROR('Student with id ' + str(student_id) + ' not found')
-    return ERROR('Student with name ' + str(student_name) + ' not found')
+def get_student():
+    user = users.get_current_user()
+    return "{'userID':" + user.user_id() + "}"
 
 # Add course to candidate list for given student, course, grade, units, and req
 # Return true if course fulfills the req, false otherwise. Assumes course_req_id
