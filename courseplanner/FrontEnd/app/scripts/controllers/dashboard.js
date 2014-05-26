@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('coursePlannerApp')
-  .controller('DashboardCtrl', function ($scope, $modal, $log) {
+  .controller('DashboardCtrl', function ($scope, $modal, $log, $http) {
     $scope.awesomeThings = [
       'HTML5 Boilerplate',
       'AngularJS',
@@ -229,6 +229,213 @@ angular.module('coursePlannerApp')
         };
 
         $scope.list1 = {title: 'AngularJS - Drag Me'};
-        $scope.list2 = {};
-        $scope.list4 = [];
-  });
+        $scope.foo = true;
+
+        // Any function returning a promise object can be used to load values asynchronously
+        $scope.getLocation = function(val) {
+            return $http.get('http://maps.googleapis.com/maps/api/geocode/json', {
+                params: {
+                    address: val,
+                    sensor: false
+                }
+            }).then(function(res){
+                var addresses = [];
+                angular.forEach(res.data.results, function(item){
+                    addresses.push(item.formatted_address);
+                });
+                return addresses;
+            });
+        };
+
+        $scope.$watch('asyncSelected', function() {
+            $scope.asyncSelected = $scope.asyncSelected.toLowerCase().replace(/,+/g,'');
+        });
+
+
+        $scope.mm = [
+            {
+                name: "Computer Science",
+                requirement_groups: [
+                    {
+                        name: "Mathematics",
+                        requirements: [
+                            {
+                                name: "MATH 41",
+                                fulfilling: null
+                            },
+                            {
+                                name: "MATH 42",
+                                fulfilling: null
+                            },
+                            {
+                                name: "CS 103",
+                                fulfilling: null
+                            },
+                            {
+                                name: "CS 109",
+                                fulfilling: null
+                            },
+                            {
+                                name: "Elective",
+                                fulfilling: null
+                            },
+                            {
+                                name: "Elective",
+                                fulfilling: null
+                            }
+                        ]
+                    },
+                    {
+                        name: "Science",
+                        requirements: [
+                            {
+                                name: "PHYS 41",
+                                fulfilling: null
+                            },
+                            {
+                                name: "PHYS 43",
+                                fulfilling: null
+                            },
+                            {
+                                name: "Elective",
+                                fulfilling: null
+                            }
+                        ]
+                    },
+                    {
+                        name: "Technology in Society",
+                        requirements: [
+                            {
+                                name: "TIS",
+                                fulfilling: null
+                            }
+                        ]
+                    },
+                    {
+                        name: "Depth",
+                        requirements: [
+                            {
+                                name: "MATH 41",
+                                fulfilling: null
+                            },
+                            {
+                                name: "MATH 42",
+                                fulfilling: null
+                            },
+                            {
+                                name: "CS 103",
+                                fulfilling: null
+                            },
+                            {
+                                name: "CS 109",
+                                fulfilling: null
+                            },
+                            {
+                                name: "Elective",
+                                fulfilling: null
+                            },
+                            {
+                                name: "Elective",
+                                fulfilling: null
+                            }
+                        ]
+                    },
+                    {
+                        name: "Core",
+                        requirements: [
+                            {
+                                name: "PHYS 41",
+                                fulfilling: null
+                            },
+                            {
+                                name: "PHYS 43",
+                                fulfilling: null
+                            },
+                            {
+                                name: "Elective",
+                                fulfilling: null
+                            }
+                        ]
+                    },
+                    {
+                        name: "WIM",
+                        requirements: [
+                            {
+                                name: "TIS",
+                                fulfilling: null
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                name: "Physics",
+                requirement_groups: [
+                    {
+                        name: "Mathematics",
+                        requirements: [
+                            {
+                                name: "MATH 41",
+                                fulfilling: null
+                            },
+                            {
+                                name: "MATH 42",
+                                fulfilling: null
+                            },
+                            {
+                                name: "Elective",
+                                fulfilling: null
+                            },
+                            {
+                                name: "Elective",
+                                fulfilling: null
+                            }
+                        ]
+                    },
+                    {
+                        name: "Science",
+                        requirements: [
+                            {
+                                name: "PHYS 41",
+                                fulfilling: null
+                            },
+                            {
+                                name: "PHYS 43",
+                                fulfilling: null
+                            },
+                            {
+                                name: "Elective",
+                                fulfilling: null
+                            }
+                        ]
+                    },
+                    {
+                        name: "Technology in Society",
+                        requirements: [
+                            {
+                                name: "TIS",
+                                fulfilling: null
+                            }
+                        ]
+                    }
+                ]
+            }
+        ];
+  })
+    .directive('disableDrop', function () {
+        return {
+            restrict: 'A',
+            scope: {
+                disableDrop: "="
+            },
+            link: function(scope, elm, attrs) {
+                scope.$watch('disableDrop', function(newValue, oldValue) {
+                    if (newValue != null) {
+                        elm.droppable("option","disabled",true);
+                    } else {
+                        elm.droppable("option","disabled",false);
+                    }
+                });
+            }
+        }
+    });
