@@ -134,10 +134,12 @@ class CourseHandler(webapp2.RequestHandler):
         course_num = self.request.get('course_num')
         self.response.write(remove_course_listing(course_num=course_num))
 
-class CourseListHandler(webapp2.RequestHandler):
+class CourseSearchHandler(webapp2.RequestHandler):
     @createStudent
     def get(self):
-        self.response.write(get_master_course_list())
+        course_num_prefix = self.request.get('course_num_prefix')
+        if len(course_num_prefix) > 0:
+            self.response.write(get_course_listing_by_prefix(course_num_prefix))
 
 #----------------End Student/Course Handlers-----------------#
 
@@ -226,7 +228,7 @@ app = webapp2.WSGIApplication([
     ('/api/student', StudentHandler), # Ryan (test function)
     ('/api/student/course', CandidateCourseHandler), # Ryan
     ('/api/course', CourseHandler), # Ryan
-    ('/api/course/all', CourseListHandler), # Ryan
+    ('/api/course/search', CourseSearchHandler), # Ryan
     ('/api/programsheet', ProgramSheetHandler), # Kevin
     ('/api/programsheet/reqbox', ReqBoxHandler), # Kevin
     ('/api/programsheet/reqbox/reqcourses', ReqCourseHandler) # Kevin

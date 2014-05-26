@@ -27,7 +27,7 @@ def __fix_course_num(course_num):
     course_num = course_num.upper()
     n_split = re.split('(\d+)', course_num, 1)
     if len(n_split) < 2:
-        return ERROR('Course number must include digits')
+        return course_num
     ret = n_split[0].replace(" ", "") + ' '
     for s in n_split[1:]:
         ret += s
@@ -263,13 +263,19 @@ def get_course_listing(course_num):
         return ERROR('Course_num ' + course_num + ' not found.')
     return json.dumps(course_listing_entity.to_dict())
 
-# Return json list of all course_nums in datastore
-def get_master_course_list():
-    courses = Course.query().fetch(batch_size=10000, projection=[Course.course_num])
-    course_dict = dict()
+# Return json list of 10 courses with prefixes
+def get_course_listing_by_prefix(course_num_prefix):
+    course_num_prefix = __fix_course_num(course_num_prefix)
+    courses = Course.query(ndb.AND(Course.course_num >= course_num_prefix, \
+                                   Course.course_num <= course_num_prefix +'z'))\
+              .fetch(limit=15, projection=[Course.course_num])
+    json_array = []
     for course in courses:
-        course_dict[course.key.id()] = course.course_num
-    return json.dumps(course_dict)
+        course_dict = {}
+        course_dict['key'] = course.key.id()
+        course_dict['course_num'] = course.course_num
+        json_array.append(course_dict)
+    return json.dumps(json_array)
 
 #------------------------End Course Listing Methods------------------------#
 
