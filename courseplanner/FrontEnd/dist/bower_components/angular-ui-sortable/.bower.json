@@ -1,0 +1,19 @@
+{
+  "name": "angular-ui-sortable",
+  "version": "0.10.1",
+  "main": "./src/sortable.js",
+  "dependencies": {
+    "angular": "~1.0.x",
+    "jquery-ui": ">= 1.9"
+  },
+  "homepage": "https://github.com/angular-ui/ui-sortable",
+  "_release": "0.10.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.10.1",
+    "commit": "ce70f8e2cd649c18dc6f7312fbd26a55183a8b3c"
+  },
+  "_source": "git://github.com/angular-ui/ui-sortable.git",
+  "_target": "~0.10.0",
+  "_originalSource": "angular-ui-sortable"
+}
