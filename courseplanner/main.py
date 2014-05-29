@@ -188,7 +188,7 @@ class PlanHandler(webapp2.RequestHandler):
         print "creating new plan for: " + uid + " with title: " + title
         
         # first we load the GER program sheet, and add it to a new plan
-        GER_SHEET_NAME = "GER-2014" #this needs to be changed to the correct value
+        GER_SHEET_NAME = "GER-2014" #TODO: this needs to be changed to the correct value
         
         matchingStudent = Student.query(Student.student_id == uid).get()
         if matchingStudent == None:
