@@ -2,7 +2,7 @@ from google.appengine.ext import db
 import json
 from models import *
 
-# Read course listings from json data file and add to datastore. 
+# Read course listings from json data file and add to datastore.
 
 def main():
     in_file = open('Data/courses_json', 'r')
@@ -16,6 +16,7 @@ def main():
                    rankings_tally = course['rankings_tally'],
                    hpw_sum =  course['hpw_sum'],
                    hpw_tally = course['hpw_tally'])
+        c.put()
 
         # Add Information about each Offering for a Course
         for offering in course['offering']:
@@ -34,6 +35,6 @@ def main():
                          units = offering['units'],
                          course = c.key)
             o.put()
-        
         c.put()
+        break
 

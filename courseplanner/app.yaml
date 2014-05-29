@@ -5,13 +5,24 @@ api_version: 1
 threadsafe: yes
 
 handlers:
-- url: /favicon\.ico
-  static_files: favicon.ico
-  upload: favicon\.ico
+- url: /
+  static_files: FrontEnd/dist/index.html
+  upload: FrontEnd/dist/index.html
+  login: required
 
-- url: .*
+- url: /setupinitial7
   script: main.app
-  
+
+- url: /api/.*
+  script: main.app
+  login: required
+  auth_fail_action: unauthorized
+
+- url: /
+  static_dir: FrontEnd/dist
+  login: required
+  auth_fail_action: unauthorized
+
 libraries:
 - name: webapp2
   version: "2.5.2"

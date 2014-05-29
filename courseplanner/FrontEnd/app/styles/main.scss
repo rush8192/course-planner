@@ -1,7 +1,5 @@
 $icon-font-path: "/bower_components/bootstrap-sass-official/vendor/assets/fonts/bootstrap/";
 
-@import 'bootstrap-sass-official/vendor/assets/stylesheets/bootstrap';
-
 // bower:scss
 @import "../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap.scss";
 // endbower
@@ -13,83 +11,171 @@ $icon-font-path: "/bower_components/bootstrap-sass-official/vendor/assets/fonts/
     padding: 0.2em 0;
 }
 
-/* Space out content a bit */
-body {
-    padding-top: 20px;
-    padding-bottom: 20px;
-}
-
-/* Everything but the jumbotron gets side spacing for mobile first views */
-.header,
-.marketing,
-.footer {
-    padding-left: 15px;
-    padding-right: 15px;
-}
-
-/* Custom page header */
-.header {
-    border-bottom: 1px solid #e5e5e5;
-}
-
 /* Make the masthead heading the same height as the navigation */
-.header h3 {
+/*.header h3 {
     margin-top: 0;
     margin-bottom: 0;
     line-height: 40px;
     padding-bottom: 19px;
-}
+}*/
 
 /* Custom page footer */
-.footer {
-    padding-top: 19px;
+/*.footer {
     color: #777;
     border-top: 1px solid #e5e5e5;
+}*/
+
+.requirementGroup {
+  vertical-align: top;
 }
 
-.container-narrow > hr {
-    margin: 30px 0;
+.notFirstGroup {
+  margin-left: 20px;
 }
 
-/* Main marketing message and sign up button */
-.jumbotron {
-    text-align: center;
-    border-bottom: 1px solid #e5e5e5;
+/* http://www.minimit.com/articles/solutions-tutorials/bootstrap-3-responsive-centered-columns */
+/* centered columns styles */
+.row-centered {
+  text-align:center;
+}
+.col-centered {
+  display:inline-block;
+  float:none;
+  /* reset the text-align */
+  text-align:left;
+  /* inline-block space fix */
+  margin-right:-4px;
 }
 
-.jumbotron .btn {
-    font-size: 21px;
-    padding: 14px 24px;
+// http://stackoverflow.com/questions/16369718/enable-two-scroll-bars-with-bootstrap
+
+html, body {
+  height: 100%;
+  width: 100%;
 }
 
-/* Supporting marketing content */
-.marketing {
-    margin: 40px 0;
+.nav-container {
+  margin-top: 5px;
 }
 
-.marketing p + h4 {
-    margin-top: 28px;
+.nav-container li {
+  margin-right: 15px;
+}
+
+.logo {
+  color: white;
+  padding-top: 10px;
+  padding-left: 35px;
+}
+
+#search-bar {
+  top: 0px;
+  margin-top: -38px;
+  margin-left: 50%;
+  width: 30%;
+  //margin-right: 500px;
+}
+
+
+#header {
+  height: 50px;
+  background-color: #432F21;
+  //background: -moz-linear-gradient(top, rgba(130,130,130,1) 80%, rgba(130,130,130,1) 100%); /* FF3.6+ */
+  //background: linear-gradient(to bottom, rgba(130,130,130,1) 50%,rgba(130,130,130,.5) 100%); /* W3C */
+  margin-top: -20px;
+  top: 0;
+}
+
+.spacer {
+  height: 10px;
+}
+
+#footer {
+  height: 25px;
+  background-color: red;
+}
+
+#sidebar {
+  padding-right: 0px;
+}
+
+.content-row {
+  height: 100%;
+}
+
+.header-row, .content-row, .footer-row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.column:before, .column:after {
+  content: "";
+  display: table;
+}
+
+.column:after {
+  clear: both;
+}
+
+.column {
+  height: 100%;
+  overflow: auto;
+}
+
+.box {
+  bottom: 60px; /* increase for footer use */
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+/*.full {
+  width: 100%;
+}*/
+
+
+// END INDEPENDENT SCROLLING
+
+.accordion-group-container {
+  text-align: center;
+}
+
+.requirement-group-heading {
+  text-align: center;
+}
+
+.individual-requirement {
+  margin-left: 10px;
+  margin-right: 10px;
+  background-color: #d2bcab;
+}
+
+.individual-requirement-placeholder {
+  text-align: center;
+  color: #e8e8e8;
+}
+
+.individual-requirement-btn {
+}
+
+.class-button {
+}
+
+.spaceBottom {
+  margin-bottom: 7px;
+}
+
+.reqContainer {
+  background-color: #d2d2d2;
 }
 
 /* Responsive: Portrait tablets and up */
 @media screen and (min-width: 768px) {
-    .container {
-        max-width: 730px;
-    }
+    /*.container {
+        max-width: 830px;
+    }*/
 
-    /* Remove the padding we set earlier */
-    .header,
-    .marketing,
-    .footer {
-        padding-left: 0;
-        padding-right: 0;
-    }
-    /* Space out the masthead */
-    .header {
-        margin-bottom: 30px;
-    }
-    /* Remove the bottom border on the jumbotron for visual effect */
-    .jumbotron {
-        border-bottom: 0;
-    }
+
+
 }

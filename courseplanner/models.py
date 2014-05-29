@@ -1,11 +1,16 @@
 from google.appengine.ext import ndb
 
 class DictModel(ndb.Model):
-    # TODO redefine to_dict() so that it encodes keys in serializable fashion!
-    # to_dict() in ndb.Model is somewhat useless since it doesn't guarantee json
-    # serializability
-    # or you know... lol it off
-    pass
+    # Redefines to_dict() include serialized key of self, as well as keys
+    # for all KeyProperties
+    def to_dict(self):
+        output = ndb.Model.to_dict(self)
+        output['key'] = self.key.id()
+        for key, prop in output.iteritems():
+            value = getattr(self, key)
+            if isinstance(value, ndb.Key):
+                output[key] = value.id()
+        return output
 
 # stubs for all classes with cyclical references
 class Offering(DictModel): pass
@@ -70,14 +75,13 @@ class Student_Program_Sheet(DictModel):
 
 class Student_Plan(DictModel):
     student_plan_name = ndb.StringProperty()
-    student_course_list = ndb.KeyProperty(Candidate_Course, repeated=True)    
+    student_course_list = ndb.KeyProperty(Candidate_Course, repeated=True)
     program_sheets = ndb.KeyProperty(Student_Program_Sheet, repeated=True)
 
 class Student(DictModel):
-    # Student's google user id 
+    # Student's google user id
     student_id = ndb.StringProperty(required=True)
-    student_name = ndb.StringProperty()
-    academic_plans = ndb.KeyProperty(Student_Plan, repeated=True) 
+    academic_plans = ndb.KeyProperty(Student_Plan, repeated=True)
 
 class Candidate_Course(DictModel):
     course = ndb.KeyProperty(Course, required=True)
