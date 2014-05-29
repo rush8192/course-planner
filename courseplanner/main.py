@@ -24,6 +24,7 @@ from webapp2 import uri_for
 from ops import *
 from PSHandlers import *
 from decorators import *
+import cStringIO
 
 def outputMessage(self, result):
     if 'errorMessage' not in json.loads(result):
@@ -38,7 +39,7 @@ class MainHandler(webapp2.RequestHandler):
         self.response.write('Welcome to CoursePlanner!')
         # Add courses and majors to datastore on start up
         add_courses.main()
-        # add_majors.main()
+        add_majors.main()
         # student = create_student(0, 'Ryan')
         #self.response.write(uri_for('get_student', student_id=None, student_name='Ryan'))
 
@@ -47,7 +48,40 @@ class TranscriptHandler(webapp2.RequestHandler):
     def post(self):
         import parser
         print "calling parser..."
-        parser.getTransContent(self.request.body_file.file, self.response)
+        courseFp = cStringIO.StringIO()
+        parser.getTransContent(self.request.body_file.file, courseFp)
+        print courseFp.getvalue()
+        
+        user = users.get_current_user();
+        uid = "rush8192"
+        #uid = user.nickname()
+        
+        matchingStudent = Student.query(Student.student_id == uid).get()
+        print matchingStudent
+        for course in courseFp.getvalue().split("\n"):
+            if course == "":
+                continue
+            splitCourse = course.split("||")
+            courseId = splitCourse[0]
+            # second term is course title; we should be able to pull from DB
+            year = splitCourse[2]
+            term = splitCourse[3]
+            # fourth term is units attempted; fifth is units earned
+            units = splitCourse[5]
+            grade = splitCourse[6]
+            matchingCourse = Course.query(Course.course_num == courseId).get()
+            if matchingCourse == None:
+                print "possible error: no matching class: " + courseId
+                continue
+                for academicPlan in matchingStudent.academic_plans:
+                    plan = academicPlan.get()
+                    candCourse = Candidate_Course(course=matchingCourse.key, student=matchingStudent.key,
+                                    term=term, year=year, grade=grade, units=units)
+                    candCourse.put()
+                    plan.append(candCourse.key)
+                    plan.put()
+                    print "added course : " + courseId + " for student plan " + plan.student_plan_name
+            
 
     @createStudent
     def get(self):
@@ -239,10 +273,6 @@ class PopHandler(webapp2.RequestHandler):
                 studentObj = Student(student_id=student,academic_plans=[])
                 studentObj.put()
                 print "populated db with student: " + student
-                
-        add_majors.main()
-            
-        
         
 
 app = webapp2.WSGIApplication([
