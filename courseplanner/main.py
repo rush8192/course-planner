@@ -26,19 +26,24 @@ from PSHandlers import *
 from decorators import *
 import cStringIO
 
-def outputMessage(self, result):
-    if 'errorMessage' not in json.loads(result):
-        self.response.write(result)
+def outputMessage(self, result, get=True):
+    if get:
+        if 'errorMessage' not in json.loads(result):
+            self.response.write(result)
+        else:
+            self.response.write('404 Error: ' + json.loads(result)['errorMessage'])
+            self.response.set_status(404)
     else:
-        self.response.write('404 Error')
-        self.response.set_status(404)
+        if type(result) is str and 'errorMessage' not in json.loads(result):
+            self.response.write('404 Error: ' + json.loads(result)['errorMessage'])
+            self.response.set_status(404)           
 
 class MainHandler(webapp2.RequestHandler):
     @createStudent
     def get(self):
         self.response.write('Welcome to CoursePlanner!')
         # Add courses and majors to datastore on start up
-        add_courses.main()
+        #add_courses.main()
         add_majors.main()
         # student = create_student(0, 'Ryan')
         #self.response.write(uri_for('get_student', student_id=None, student_name='Ryan'))
@@ -260,13 +265,11 @@ class PlanVerificationHandler(webapp2.RequestHandler):
     def get(self):
         print "unimplemented"
         
-        
 # populates a few sample users into the db for testing purposes
 class PopHandler(webapp2.RequestHandler):
     @createStudent
     def get(self):
         stubStudents = [ "rush8192", "kshin" ]
-    
         for student in stubStudents:
             matchingStudent = Student.query(Student.student_id == student).get()
             if matchingStudent == None:
@@ -274,6 +277,104 @@ class PopHandler(webapp2.RequestHandler):
                 studentObj.put()
                 print "populated db with student: " + student
         
+#--------------Begin Program Sheet Handlers-----------------------#
+
+def __str_to_int(str):
+    if str == '':
+        return 0
+    else:
+        return int(str)
+
+def __str_to_float(str):
+    if str == '':
+        return 0
+    else:
+        return float(str)
+
+class ProgramSheetHandler(webapp2.RequestHandler):
+    @createStudent
+    def get(self):
+        outputMessage(self, get_program_sheet(ps_name= self.request.get('ps_name')))
+
+    @createStudent
+    def post(self):
+        ps_name = self.request.get('ps_name')
+        req_box_array = json.loads(self.request.get('req_boxes'))
+        outputMessage(add_program_sheet(ps_name, req_box_array), False)
+
+    @createStudent
+    def put(self):
+        ps_key = self.request.get('ps_key')
+        new_ps_name = self.request.get('ps_name')
+        outputMessage(edit_program_sheet(ps_key, new_ps_name), False)
+
+    @createStudent
+    def delete(self):
+        ps_key = self.request.get('ps_key')
+        outputMessage(remove_program_sheet(ps_key), False)
+
+class ProgramSheetSearchHandler(webapp2.RequestHandler):
+    @createStudent
+    def get(self):
+        outputMessage(self, get_program_sheet_by_prefix(ps_name= self.request.get('ps_name_prefix')))
+
+class ReqBoxHandler(webapp2.RequestHandler):
+    @createStudent
+    def get(self):
+        outputMessage(get_program_sheet(rb_key = self.request.get('rb_key')))
+
+    # Note POST is always called with ps_key
+    @createStudent
+    def post(self):
+        ps_key = self.request.get('ps_key')
+        req_box_dict = json.loads(self.request.get('req_box'))
+        outputMessage(add_req_box_to_ps(ps_entity=None, ps_key=ps_key, \
+                                        req_box_dict=req_box_dict), False)
+
+    @createStudent
+    def put(self):
+        rb_key = self.request.get('rb_key')
+        req_box_dict = self.request.get('req_box_dict')
+        for key in req_box_dict:
+            if req_box_dict[key] == '':
+                req_box_dict[key] = None
+        outputMessage(edit_req_box_in_ps(rb_entity=None, rb_key=rb_key, \
+                                         req_box_dict=req_box_dict), False)
+
+    @createStudent
+    def delete(self):
+        rb_key = self.request.get('rb_key')
+        outputMessage(remove_req_box_from_ps(rb_key), False)
+
+class ReqCourseHandler(webapp2.RequestHandler):
+    @createStudent
+    def get(self):
+        outputMessage(get_program_sheet(rc_key = self.request.get('rc_key')))
+
+    # Note POST is always called with rb_key
+    @createStudent
+    def post(self):
+        rb_key = self.request.get('rb_key')
+        req_course_dict = json.loads(self.request.get('req_course'))
+        outputMessage(add_req_course_to_rb(rb_entity=None, rb_key=rb_key, \
+                                           req_course_dict=req_course_dict), False)
+
+    @createStudent
+    def put(self):
+        rc_key = self.request.get('rc_key')
+        req_course_dict = json.loads(self.request.get('req_course_dict'))
+        for key in req_course_dict:
+            if req_course_dict[key] == '':
+                req_course_dict[key] = None
+        outputMessage(edit_req_course_in_rb(rc_entity=None, rc_key=rc_key, \
+                                            req_course_dict=req_course_dict), False)
+
+    @createStudent
+    def delete(self):
+        rc_key = self.request.get('rc_key')
+        outputMessage(remove_req_course_from_rb(rc_key), False)
+
+#--------------End Program Sheet Handlers-----------------------#
 
 app = webapp2.WSGIApplication([
     ('/setupinitial7', MainHandler), 
@@ -286,6 +387,7 @@ app = webapp2.WSGIApplication([
     ('/api/course', CourseHandler), # Ryan
     ('/api/course/search', CourseSearchHandler), # Ryan
     ('/api/programsheet', ProgramSheetHandler), # Kevin
+    ('/api/programsheet/search', ProgramSheetSearchHandler), # Kevin
     ('/api/programsheet/reqbox', ReqBoxHandler), # Kevin
     ('/api/programsheet/reqbox/reqcourses', ReqCourseHandler) # Kevin
 ], debug=True)

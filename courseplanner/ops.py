@@ -271,10 +271,8 @@ def get_course_listing_by_prefix(course_num_prefix):
               .fetch(limit=15, projection=[Course.course_num])
     json_array = []
     for course in courses:
-        course_dict = {}
-        course_dict['key'] = course.key.id()
-        course_dict['course_num'] = course.course_num
-        json_array.append(course_dict)
+        json_array.append(course.course_num)
+    print json_array
     return json.dumps(json_array)
 
 #------------------------End Course Listing Methods------------------------#
@@ -313,6 +311,21 @@ def get_program_sheet(ps_name):
     if type(ps_dict) != dict:
         return ERROR(ps_dict)
     return json.dumps(ps_dict)
+
+# Return json list of 10 program sheets with prefixes
+def get_program_sheet_by_prefix(ps_name_prefix):
+    program_sheets = Program_Sheet.query(ndb.AND(Program_Sheet.ps_name >= ps_name_prefix, \
+                                                 Program_Sheet.ps_name <= ps_name_prefix +'z'))\
+                                  .fetch(limit=10, projection=[Program_Sheet.ps_name])
+    json_array = []
+    for ps in program_sheets:
+        #ps_dict = {}
+        #ps_dict['key'] = ps.key.id()
+        #ps_dict['ps_name'] = ps.ps_name
+        #json_array.append(ps_dict)
+        json_array.append(ps.ps_name)
+    print json_array
+    return json.dumps(json_array)
 
 """
 Edits program sheet name given key to program sheet
