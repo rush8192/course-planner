@@ -5,11 +5,11 @@ class DictModel(ndb.Model):
     # for all KeyProperties
     def to_dict(self):
         output = ndb.Model.to_dict(self)
-        output['key'] = self.key.id()
+        output['key'] = self.key.urlsafe()
         for key, prop in output.iteritems():
             value = getattr(self, key)
             if isinstance(value, ndb.Key):
-                output[key] = value.id()
+                output[key] = value.urlsafe()
         return output
 
 # stubs for all classes with cyclical references
@@ -86,7 +86,7 @@ class Student(DictModel):
 class Candidate_Course(DictModel):
     course = ndb.KeyProperty(Course, required=True)
     student = ndb.KeyProperty(Student, required=True)
-    student_program_sheet = ndb.KeyProperty(Student_Program_Sheet)
+    student_plan = ndb.KeyProperty(Student_Plan)
     # (optional) requirement that course is being applied to
     req_course = ndb.KeyProperty(Req_Course)
     term = ndb.StringProperty()

@@ -45,8 +45,6 @@ class MainHandler(webapp2.RequestHandler):
         # Add courses and majors to datastore on start up
         #add_courses.main()
         add_majors.main()
-        # student = create_student(0, 'Ryan')
-        #self.response.write(uri_for('get_student', student_id=None, student_name='Ryan'))
 
 class TranscriptHandler(webapp2.RequestHandler):
     @createStudent
@@ -100,10 +98,8 @@ class StudentHandler(webapp2.RequestHandler):
 
 class CandidateCourseHandler(webapp2.RequestHandler):
     @createStudent
-    def post(self):
-        student_id = self.request.get('student_id')
-        if student_id == '':
-            student_id = None
+    def post(self, course_key):
+        student_id = users.get_current_user().user_id()
         units = self.request.get('units')
         if units != '':
             units = int(units)
@@ -112,73 +108,60 @@ class CandidateCourseHandler(webapp2.RequestHandler):
         if grade != '':
             grade = float(grade)
         else: grade = None
-        course_num = self.request.get('course_num')
-        force = self.request.get('force')
-        if force == 'True':
-            force = True
-        else: force = False
-        units = self.request.get('units')
-        req_course = self.request.get('req_course')
+        student_plan = self.request.get('student_plan')
+        if student_plan == '': student_plan = None
         self.response.write(add_candidate_course(student_id=student_id,
-                                                 course_num=course_num,
-                                                 req_course=req_course,
+                                                 course_key=course_key,
                                                  grade=grade,
                                                  units=units,
-                                                 force=force))
+                                                 student_plan=student_plan))
     @createStudent
     def get(self):
-        student_id = self.request.get('student_id')
-        if student_id == '':
-            student_id = None
+        student_id = users.get_current_user().user_id()
         self.response.write(get_candidate_courses(student_id=student_id))
 
     @createStudent
-    def delete(self):
-        student_id = self.request.get('student_id')
+    def delete(self, course_key):
+        student_id = users.get_current_user().user_id()
         if student_id == '':
             student_id = None
         course_num = self.request.get('course_num')
-        ps = self.request.get('ps')
-        if ps == '':
-            ps = None
+        student_plan = self.request.get('student_plan')
+        if student_plan == '': student_plan = None
         self.response.write(remove_candidate_course(student_id=student_id,
-                                                    course_num=course_num,
-                                                    ps=ps))
+                                                    course_key=course_key,
+                                                    student_plan=student_plan))
 
 class CourseHandler(webapp2.RequestHandler):
     @createStudent
-    def get(self):
-        course_num = self.request.get('course_num')
-        result = get_course_listing(course_num=course_num)
+    def get(self, course_key):
+        result = get_course_listing(course_key=course_key)
         outputMessage(self, result)
 
     @createStudent
-    def post(self):
-        course_num = self.request.get('course_num')
+    def post(self, course_num):
         course_desc = self.request.get('course_desc')
         course_title = self.request.get('course_title')
         self.response.write(add_course_listing(course_num=course_num,
                                                 course_desc=course_desc,
                                                 course_title=course_title))
     @createStudent
-    def put(self):
-        course_num = self.request.get('course_num')
+    #TODO: make webapp2 support patch. But we're probably never using this
+    def patch(self, course_key):
         course_desc = self.request.get('course_desc')
         course_title = self.request.get('course_title')
-        self.response.write(edit_course_listing(course_num=course_num,
+        self.response.write(edit_course_listing(course_key=course_key,
                                                 course_desc=course_desc,
                                                 course_title=course_title))
     @createStudent
-    def delete(self):
-        course_num = self.request.get('course_num')
-        self.response.write(remove_course_listing(course_num=course_num))
+    def delete(self, course_key):
+        self.response.write(remove_course_listing(course_key=course_key))
 
 class CourseSearchHandler(webapp2.RequestHandler):
     @createStudent
-    def get(self):
-        course_num_prefix = self.request.get('course_num_prefix')
-        if len(course_num_prefix) > 0:
-            self.response.write(get_course_listing_by_prefix(course_num_prefix))
+    def get(self, prefix):
+        if len(prefix) > 0:
+            self.response.write(get_course_listing_by_prefix(prefix))
 
 #----------------End Student/Course Handlers-----------------#
 
@@ -217,9 +200,9 @@ class PlanHandler(webapp2.RequestHandler):
                 for planKey in student.academic_plans:
                     # compare planKey to the planId passed in; not sure
                     # if this is correct way to compare the key values
-                    print "looking at key: " + str(planKey.get().key.id())
+                    print "looking at key: " + str(planKey.get().key.urlsafe())
                     print "plan id: " + str(planid)
-                    if str(planKey.get().key.id()) == str(planid):
+                    if str(planKey.get().key.urlsafe()) == str(planid):
                         # method should return the matching student plan
                         print "Found matching plan : " + planid + " for " + uid
                         self.response.write(planKey.get().to_dict())
@@ -255,7 +238,7 @@ class PlanHandler(webapp2.RequestHandler):
         studentPlan.put()
         matchingStudent.academic_plans.append(studentPlan.key)
         matchingStudent.put()
-        print "created new plan for student: " + uid + " with id: " + str(studentPlan.key.id())
+        print "created new plan for student: " + uid + " with id: " + str(studentPlan.key.urlsafe())
         self.response.set_status(201)
         #return the created plan
         self.response.write(studentPlan.to_dict())
@@ -384,8 +367,9 @@ app = webapp2.WSGIApplication([
     ('/api/plan/verify', PlanVerificationHandler), # Rush
     ('/api/student', StudentHandler), # Ryan (test function)
     ('/api/student/course', CandidateCourseHandler), # Ryan
-    ('/api/course', CourseHandler), # Ryan
-    ('/api/course/search', CourseSearchHandler), # Ryan
+    ('/api/student/course/(.+)', CandidateCourseHandler), # Ryan
+    ('/api/course/search/(.*)', CourseSearchHandler), # Ryan
+    ('/api/course/(.+)', CourseHandler), # Ryan
     ('/api/programsheet', ProgramSheetHandler), # Kevin
     ('/api/programsheet/search', ProgramSheetSearchHandler), # Kevin
     ('/api/programsheet/reqbox', ReqBoxHandler), # Kevin
