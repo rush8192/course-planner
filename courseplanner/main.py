@@ -24,6 +24,7 @@ from webapp2 import uri_for
 from ops import *
 from PSHandlers import *
 from decorators import *
+import cStringIO
 
 def outputMessage(self, result):
     if 'errorMessage' not in json.loads(result):
@@ -38,7 +39,7 @@ class MainHandler(webapp2.RequestHandler):
         self.response.write('Welcome to CoursePlanner!')
         # Add courses and majors to datastore on start up
         add_courses.main()
-        # add_majors.main()
+        add_majors.main()
         # student = create_student(0, 'Ryan')
         #self.response.write(uri_for('get_student', student_id=None, student_name='Ryan'))
 
@@ -47,7 +48,40 @@ class TranscriptHandler(webapp2.RequestHandler):
     def post(self):
         import parser
         print "calling parser..."
-        parser.getTransContent(self.request.body_file.file, self.response)
+        courseFp = cStringIO.StringIO()
+        parser.getTransContent(self.request.body_file.file, courseFp)
+        print courseFp.getvalue()
+        
+        user = users.get_current_user();
+        uid = "rush8192"
+        #uid = user.nickname()
+        
+        matchingStudent = Student.query(Student.student_id == uid).get()
+        print matchingStudent
+        for course in courseFp.getvalue().split("\n"):
+            if course == "":
+                continue
+            splitCourse = course.split("||")
+            courseId = splitCourse[0]
+            # second term is course title; we should be able to pull from DB
+            year = splitCourse[2]
+            term = splitCourse[3]
+            # fourth term is units attempted; fifth is units earned
+            units = splitCourse[5]
+            grade = splitCourse[6]
+            matchingCourse = Course.query(Course.course_num == courseId).get()
+            if matchingCourse == None:
+                print "possible error: no matching class: " + courseId
+                continue
+                for academicPlan in matchingStudent.academic_plans:
+                    plan = academicPlan.get()
+                    candCourse = Candidate_Course(course=matchingCourse.key, student=matchingStudent.key,
+                                    term=term, year=year, grade=grade, units=units)
+                    candCourse.put()
+                    plan.append(candCourse.key)
+                    plan.put()
+                    print "added course : " + courseId + " for student plan " + plan.student_plan_name
+            
 
     @createStudent
     def get(self):
@@ -149,8 +183,9 @@ class PlanHandler(webapp2.RequestHandler):
         else:
             if planid == None or planid == "/": #no argument; just return all plans for student
                 # not sure how to return a repeated ndb entity
-                #self.response.write( student.academic_plans.to_dict() )
+                #
                 print "Listing all plans for " + uid
+                self.response.write( student.academic_plans )
                 pass
             else:
                 # remove the "/" from planid
@@ -162,11 +197,13 @@ class PlanHandler(webapp2.RequestHandler):
                 for planKey in student.academic_plans:
                     # compare planKey to the planId passed in; not sure
                     # if this is correct way to compare the key values
-                    if planKey.get().id() == planid:
+                    print "looking at key: " + str(planKey.get().key.id())
+                    print "plan id: " + str(planid)
+                    if str(planKey.get().key.id()) == str(planid):
                         # method should return the matching student plan
-                        #self.response.write(planKey.get().to_dict())
                         print "Found matching plan : " + planid + " for " + uid
-                        return
+                        self.response.write(planKey.get().to_dict())
+                        return 
                 self.response.write('Error: no matching program sheet found with id: ' + planid + ' for student: ' + uid)
 
     # POST: allows the user to create a new plan for the given major/minor ID field
@@ -182,33 +219,52 @@ class PlanHandler(webapp2.RequestHandler):
         print "creating new plan for: " + uid + " with title: " + title
 
         # first we load the GER program sheet, and add it to a new plan
-        GER_SHEET_NAME = "GER-2014" #this needs to be changed to the correct value
 
+        GER_SHEET_NAME = "GER-PRE-2015" #TODO: this needs to be changed to the correct value
+        
         matchingStudent = Student.query(Student.student_id == uid).get()
         if matchingStudent == None:
             self.response.write('Error: no matching student record for: ' + uid)
             return
 
         gerSheet = Program_Sheet.query(Program_Sheet.ps_name == GER_SHEET_NAME).get()
-        studentGerSheet = Student_Program_Sheet(program_sheet=gerSheet,
-                        cand_courses=[], allow_double_count=False)
-        studentPlan = Student_Plan(student_plan_name=title, student_course_list=[], program_sheets=[ studentGerSheet ])
+        studentGerSheet = Student_Program_Sheet(program_sheet=[gerSheet.key],
+                        cand_courses=[], allow_double_count=True)
+        studentGerSheet.put()
+        studentPlan = Student_Plan(student_plan_name=title, student_course_list=[], program_sheets=[ studentGerSheet.key ])
         studentPlan.put()
-        matchingStudent.academic_plans.append(studentPlan)
-        print "created new plan for student: " + uid + " with id: " + studentPlan.id()
+        matchingStudent.academic_plans.append(studentPlan.key)
+        matchingStudent.put()
+        print "created new plan for student: " + uid + " with id: " + str(studentPlan.key.id())
         self.response.set_status(201)
-        # return the created plan
-        # self.response.write(studentPlan.to_dict())
+        #return the created plan
+        self.response.write(studentPlan.to_dict())
 
 class PlanVerificationHandler(webapp2.RequestHandler):
     @createStudent
     def get(self):
         print "unimplemented"
+        
+        
+# populates a few sample users into the db for testing purposes
+class PopHandler(webapp2.RequestHandler):
+    @createStudent
+    def get(self):
+        stubStudents = [ "rush8192", "kshin" ]
+    
+        for student in stubStudents:
+            matchingStudent = Student.query(Student.student_id == student).get()
+            if matchingStudent == None:
+                studentObj = Student(student_id=student,academic_plans=[])
+                studentObj.put()
+                print "populated db with student: " + student
+        
 
 app = webapp2.WSGIApplication([
     ('/setupinitial7', MainHandler), 
     ('/api/trans/upload', TranscriptHandler), # Rush
     ('/api/plan(/.*)?', PlanHandler), # Rush
+    ('/api/populate', PopHandler), # Rush
     ('/api/plan/verify', PlanVerificationHandler), # Rush
     ('/api/student', StudentHandler), # Ryan (test function)
     ('/api/student/course', CandidateCourseHandler), # Ryan
