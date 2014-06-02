@@ -35,14 +35,14 @@ def __fix_course_num(course_num):
 
 # Helper to serialize key
 def __serialize_key(key):
-    return key.id()
+    return key.urlsafe()
 
 # Helper to deserialize key
 def __deserialize_key(key_str, entity_kind):
-    return Key.from_path(kind=entity_kind, id = key_str)
+    return ndb.Key(urlsafe = key_str)
 
 # Helper to return entity from key_str or None (depends on ndb behavior)
-def __entity_from_key_str(key_st, entity_kind):
+def __entity_from_key_str(key_str, entity_kind):
     key = __deserialize_key(key_str, entity_kind)
     return key.get()
 
@@ -132,14 +132,17 @@ def get_student():
     return "{'userID':" + user.user_id() + "}"
 
 # Add course to candidate list for given student, course, grade, units, and req
-# Return true if course fulfills the req, false otherwise. Assumes course_req_id
-# is valid and for correct major
+# Return true if course fulfills the req, false otherwise. Assumes course_req
+# is valid and for correct major. 
 #
 # Parameters:
-#    req_course (optional): key for Req_Course the course fulfills. Can have candidate
-#       courses without req_course (e.g. taken for interest, or major undecided)
-#    force - flag to override errors validating the course.
-def add_candidate_course(student_id, course_num, req_course, grade, units, force=False):
+#    req_course (optional): key str for Req_Course the course fulfills.
+#       Can have candidate courses without req_course (e.g. taken for interest, 
+#       or major undecided)
+#    student_plan (optional): key str for Student_Plan to add course to. If not
+#       given, course 'floats' outside of any plan (fine for single plan model).
+def add_candidate_course(student_id, course_key, grade, units, req_course=None,
+                         student_plan=None):
     if student_id is None or student_id == '':
         return ERROR('Must provide student_id')
     else:
@@ -147,45 +150,50 @@ def add_candidate_course(student_id, course_num, req_course, grade, units, force
     if len(student) > 0: student = student[0]
     else:
         return ERROR('Student with id ' + str(student_id) + ' not found')
-    course = __get_course_listing_entity(course_num)
+    course = __entity_from_key_str(course_key, Course)
     if not course:
         return ERROR('Course number ' + str(course_num) + ' not found')
     if units == '':
         units = None
+    # remove any duplicate student/course pair    
+    existing = Candidate_Course.query(Candidate_Course.course == course.key,  
+                                      Candidate_Course.student == student.key).get() 
+    if existing: existing.key.delete()   
     if req_course:
         req_course_key = __deserialize_key(req_course, Req_Course)
         if not req_course:
             return ERROR('Req_Course key ' + req_course + ' not found.')
-        candidate_course = Candidate_Course(course=course.key, req_course=req_course_key,
-                                        grade=grade, units=units, student=student.key)
+        candidate_course = Candidate_Course(course=course.key, 
+                                            req_course=req_course_key,
+                                            grade=grade, units=units, 
+                                            student=student.key)
     else:
         candidate_course = Candidate_Course(course=course.key,
-                                        grade=grade, units=units, student=student.key)
-    # Validate course, req_course pairing
-    # TODO: merge with Rush's course validation(?)
-    if force or not req_course or course.key in req_course.allowed_courses:
-        candidate_course.put()
-        return True
-    else:
-        return ERROR("Course does not fulfill given requirement.")
+                                            grade=grade, units=units, 
+                                            student=student.key)
+    if student_plan:
+        student_plan_key = __deserialize_key(student_plan, Student_Plan)
+        candidate_course.student_plan = student_plan_key
+    candidate_course.put()
+    return True
 
 # Removes course from student's program sheet (in all places that it occurs). Optional
-# parameter ps specifies Student_Program_Sheet by key. If not given, course taken off all
-# sheets found
-def remove_candidate_course(student_id, course_num, ps):
+# parameter student_plan specifies Student_Plan by key str. If not given, course taken off 
+# all plans found w/ student
+def remove_candidate_course(student_id, course_key, student_plan):
     student = Student.query(Student.student_id == student_id).fetch(1)
     if len(student) > 0: student = student[0]
     else:
         return ERROR('Student with id ' + student_id + ' not found')
-    course = __get_course_listing_entity(course_num)
+    course = __entity_from_key_str(course_key, Course)
     if not course:
-        return ERROR('Course number ' + course_num + ' not found')
-    if ps:
-        ps_key = __deserialize_key(ps, Student_Program_Sheet)
+        return ERROR('Course ' + course_key + ' not found')
+    if student_plan:
+        student_plan_key = __deserialize_key(studen_plan, Student_Plan)
         candidate_courses = Candidate_Course.query(Candidate_Course.student == student.key,
                                                    Candidate_Course.course == course.key,
-                                                   Candidate_Course.student_program_sheet
-                                                    == ps_key).fetch()
+                                                   Candidate_Course.student_plan
+                                                    == studen_plan_key).fetch()
     else:
         candidate_courses = Candidate_Course.query(Candidate_Course.student == student.key,
                                                    Candidate_Course.course == course.key
@@ -204,12 +212,9 @@ def get_candidate_courses(student_id):
     if len(student) > 0: student = student[0]
     else:
         return ERROR('Student with id ' + student_id + ' not found')
-    courses = Candidate_Course.query(Candidate_Course.student == student.key).fetch()
-    course_dict = dict()
-    for course in courses:
-        c = course.course.get()
-        course_dict[c.course_num] = 1
-    return json.dumps(course_dict.keys())
+    candidate_courses = Candidate_Course.query(Candidate_Course.student ==  
+                                               student.key).fetch()
+    return json.dumps([cc.to_dict() for cc in candidate_courses])
 
 #------------------------End Student Methods------------------------#
 
@@ -230,35 +235,30 @@ def add_course_listing(course_num, course_desc, course_title):
 # Edit course listing: can change description or title. If either is None, left unaffected
 # TODO: more advanced editing e.g. Offerings
 def edit_course_listing(course_num, course_desc=None, course_title=None):
-    course_num = __fix_course_num(course_num)
-    courses = Course.query(Course.course_num == course_num).fetch(1)
-    if len(courses) > 0:
-        course = courses[0]
+    course_listing_entity = __entity_from_key_str(course_key, Course)
+    if course_listing_entity is not None:
         if course_desc:
-            course.course_desc = course_desc
+            course_listing_entity.course_desc = course_desc
         if course_title:
-            course.course_title = course_title
-        course.put()
-        #return json.dumps(course.to_dict())
+            course_listing_entity.course_title = course_title
+        course_listing_entity.put()
         return True
     else:
         return ERROR('Course_num ' + course_num + ' not found.')
 
 # Remove course listing - return error if not found, True otherwise
 def remove_course_listing(course_num):
-    course_num = __fix_course_num(course_num)
-    courses = Course.query(Course.course_num == course_num).fetch(1)
-    if len(courses) > 0:
-        course = courses[0]
+    course_listing_entity = __entity_from_key_str(course_key, Course)
+    if course_listing_entity is not None:
         course.key.delete()
         return True
     else:
-        return ERROR('Course_num ' + course_num + ' not found.')
+        return ERROR('Course_key ' + course_key + ' not found.')
 
 # Return json dump of course information by course_num, or error
 # if not found.
-def get_course_listing(course_num):
-    course_listing_entity = __get_course_listing_entity(course_num)
+def get_course_listing(course_key):
+    course_listing_entity = __entity_from_key_str(course_key, Course)
     if (course_listing_entity is None):
         return ERROR('Course_num ' + course_num + ' not found.')
     return json.dumps(course_listing_entity.to_dict())
@@ -272,7 +272,7 @@ def get_course_listing_by_prefix(course_num_prefix):
     json_array = []
     for course in courses:
         course_dict = {}
-        course_dict['key'] = course.key.id()
+        course_dict['key'] = course.key.urlsafe()
         course_dict['course_num'] = course.course_num
         json_array.append(course_dict)
     return json.dumps(json_array)
@@ -430,7 +430,7 @@ def remove_req_box_from_ps(rb_key):
         if ps_entity != None:
             remove_index = -1
             for i in range(len(ps_entity.req_boxes)):
-                if ps_entity.req_boxes[i].id() == rb_entity.id():
+                if ps_entity.req_boxes[i].urlsafe() == rb_entity.urlsafe():
                     del ps_entity.req_boxes[i]
                     break
             ps_entity.put()
@@ -530,7 +530,7 @@ def remove_req_course_from_rb(rc_key):
         if rb_entity != None:
             remove_index = -1
             for i in range(len(rb_entity.req_courses)):
-                if rb_entity.req_courses[i].id() == rc_entity.id():
+                if rb_entity.req_courses[i].urlsafe() == rc_entity.urlsafe():
                     del rb_entity.req_courses[i]
                     break
             rb_entity.put()
