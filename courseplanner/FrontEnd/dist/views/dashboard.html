@@ -1,5 +1,14 @@
-<script type="text/ng-template" id="courseDetailsModalContent.html">
-    <div class="modal-header">
+<script type="text/ng-template" id="courseDetailsModalContent.html"><div class="modal-header">
+        <h2>{{course.course_num}}</h2>
+        <h3>{{course.course_title}}</h3>
+    </div>
+    <div class="modal-body">
+        {{course.course_desc}}
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-danger" ng-click="ok()">Remove Course</button>
+        <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+    </div></script><script type="text/ng-template" id="confirmMajorDeletionModal.html"><div class="modal-header">
         <h2>{{course.designation}}</h2>
         <h3>{{course.title}}</h3>
     </div>
@@ -7,95 +16,19 @@
         {{course.description}}
     </div>
     <div class="modal-footer">
-        <button class="btn btn-danger" ng-click="ok()">Remove Course</button>
+        <button class="btn btn-danger" ng-click="ok()">Remove  Course</button>
         <button class="btn btn-default" ng-click="cancel()">Cancel</button>
-    </div>
-</script>
-
-<script type="text/ng-template" id="confirmMajorDeletionModal.html">
-    <div class="modal-header">
-        <h2>{{course.designation}}</h2>
-        <h3>{{course.title}}</h3>
+    </div></script><script type="text/ng-template" id="uploadTranscriptModal.html"><div class="modal-header">
+        <h3>Upload a transcript</h3>
     </div>
     <div class="modal-body">
-        {{course.description}}
+        Please select a transcript pdf file to upload: <br />
+        
     </div>
     <div class="modal-footer">
-        <button class="btn btn-danger" ng-click="ok()">Remove Course</button>
-        <button class="btn btn-default" ng-click="cancel()">Cancel</button>
-    </div>
-</script>
-
-
-<div class="container-fluid">
-    <div class="box">
-    <div class="row header-row">
-        <div id="header">
-            <ul class="nav nav-pills pull-right nav-container">
-                <li class="active"><a ng-href="#">Upload</a></li>
-                <li class="active"><a ng-href="#">Logout</a></li>
-            </ul>
-            <h3 class="logo">CoursePlanner</h3>
-            <input id="search-bar" class="form-control col-md-1 search-bar" type="text" ng-model="asyncSelected" placeholder="Add a course" typeahead="address for address in getLocation($viewValue)" typeahead-loading="loadingLocations" typeahead-editable="false">
-        </div>
-    </div>
-    <div class="row content-row">
-        <div id="sidebar" class="col-md-2 column">
-            <div class="spacer"/>
-            <accordion close-others="oneAtATime">
-                <accordion-group is-open="$first" ng-repeat="group in groups">
-                    <accordion-heading>
-                        <div class="accordion-group-container">
-                            {{ group.title }}
-                        </div>
-                    </accordion-heading>
-                    <div ng-repeat="course in group.courses" ng-mouseleave="course.hovered = false">
-                        <table style="width: 100%;">
-                            <tr>
-                                <td style="text-align: center; vertical-align: middle;">
-                                    <div ng-class="{spaceBottom: !$last}" class="btn btn-primary class-button" data-drag="true" data-jqyoui-options="{revert: 'invalid', helper: 'clone', scroll: false, appendTo: 'body'}" ng-model="group.courses" jqyoui-draggable="{index: {{$index}}, placeholder: 'keep'}" ng-mouseenter="course.hovered = true" ng-click="open(group.courses,course)">{{course.designation}}</div>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                </accordion-group>
-            </accordion>
-        </div>
-        <div class="col-md-10 column">
-            <div class="spacer"/>
-            <tabset>
-                <tab ng-repeat="m in mm" active="m.active">
-                    <tab-heading ng-mouseenter="m.hover = true" ng-mouseleave="m.hover = false">
-                        {{m.name}}
-                        <span ng-show="m.hover" ng-click="removeTab($index)" class="glyphicon glyphicon-remove"></span>
-                    </tab-heading>
-                    <div class="well well-large reqContainer">
-                        <div class="row row-centered">
-                            <div ng-repeat="group in m.requirement_groups" ng-class="{notFirstGroup: !$first}" class="thumbnail col-md-3 col-lg-2 col-centered requirementGroup">
-                                <h4 class="requirement-group-heading">{{ group.name }}</h4>
-                                <div ng-repeat="requirement in group.requirements" class="well well-sm individual-requirement">
-                                    <div data-drop="true" ng-model='requirement.fulfilling' disable-drop="requirement.fulfilling" jqyoui-droppable="{multiple:false}">
-                                        <table style="width: 100%;">
-                                            <tr>
-                                                <td style="text-align: center; vertical-align: middle;">
-                                                    <div class="individual-requirement-placeholder" ng-hide="requirement.fulfilling">{{requirement.name}}</div>
-                                                    <div class="btn btn-success individual-requirement-btn" ng-show="requirement.fulfilling" data-drag="false" data-jqyoui-options="{revert: 'invalid', helper: 'clone'}" ng-model="requirement">{{requirement.fulfilling.designation}}</div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </tab>
-            </tabset>
-        </div>
-    </div>
-    <!--<div class="row footer-row">
+        <button class="btn btn-default" ng-click="cancel()">Done</button>
+    </div></script><div class="container-fluid"><div class="box"><div class="row header-row"><div id="header"><ul class="nav nav-pills pull-right nav-container"><li class="active" ng-click="transcriptModal()"><a ng-href="#">Upload</a></li><li class="active"><a ng-href="#">Logout</a></li></ul><h3 class="logo">CoursePlanner</h3><input id="search-bar" class="form-control col-md-1 search-bar" type="text" ng-model="asyncSelected" placeholder="Add a course" typeahead="address for address in getLocation($viewValue)" typeahead-loading="loadingLocations" typeahead-editable="false"></div></div><div class="row content-row"><div id="sidebar" class="col-md-2 column"><div class="spacer"><accordion close-others="oneAtATime"><accordion-group is-open="$first" ng-repeat="group in groups"><accordion-heading><div class="accordion-group-container">{{ group.title }}</div></accordion-heading><div ng-repeat="course in group.courses" ng-mouseleave="course.hovered = false"><table style="width: 100%"><tr><td style="text-align: center; vertical-align: middle"><div ng-class="{spaceBottom: !$last}" class="btn btn-primary class-button" data-drag="true" data-jqyoui-options="{revert: 'invalid', helper: 'clone', scroll: false, appendTo: 'body'}" ng-model="group.courses" jqyoui-draggable="{index: {{$index}}, placeholder: 'keep'}" ng-mouseenter="course.hovered = true" ng-click="open(group.courses,course)">{{course.designation}}</div></table></div></accordion-group></accordion></div><div class="col-md-10 column"><div class="spacer"><tabset><tab ng-repeat="m in mm" active="m.active"><tab-heading ng-mouseenter="m.hover = true" ng-mouseleave="m.hover = false">{{m.name}} <span ng-show="m.hover" ng-click="removeTab($index)" class="glyphicon glyphicon-remove"></span></tab-heading><div class="well well-large reqContainer"><div class="row row-centered"><div ng-repeat="group in m.requirement_groups" ng-class="{notFirstGroup: !$first}" class="thumbnail col-md-3 col-lg-2 col-centered requirementGroup"><h4 class="requirement-group-heading">{{ group.name }}</h4><div ng-repeat="requirement in group.requirements" class="well well-sm individual-requirement"><div data-drop="true" ng-model="requirement.fulfilling" disable-drop="requirement.fulfilling" jqyoui-droppable="{multiple:false}"><table style="width: 100%"><tr><td style="text-align: center; vertical-align: middle"><div class="individual-requirement-placeholder" ng-hide="requirement.fulfilling">{{requirement.name}}</div><div class="btn btn-success individual-requirement-btn" ng-show="requirement.fulfilling" data-drag="false" data-jqyoui-options="{revert: 'invalid', helper: 'clone'}" ng-model="requirement">{{requirement.fulfilling.designation}}</div></table></div></div></div></div></div></tab></tabset></div></div><!--<div class="row footer-row">
         <div id="footer" class="col-md-12">
             <p><span class="glyphicon glyphicon-flag"></span> Team CoursePlanner</p>
         </div>
-    </div>-->
-    </div>
-</div>
+    </div>--></div></div>

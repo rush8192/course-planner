@@ -207,8 +207,6 @@ class PlanHandler(webapp2.RequestHandler):
                 planid = planid[1:]
                 print planid
 
-                # not sure if this is correct syntax for iterating through ndb
-                # repeated property; documentation is somewhat suspect online
                 for planKey in student.academic_plans:
                     # compare planKey to the planId passed in; not sure
                     # if this is correct way to compare the key values

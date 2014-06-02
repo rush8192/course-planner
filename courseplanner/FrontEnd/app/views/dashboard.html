@@ -21,18 +21,30 @@
         {{course.description}}
     </div>
     <div class="modal-footer">
-        <button class="btn btn-danger" ng-click="ok()">Remove Course</button>
+        <button class="btn btn-danger" ng-click="ok()">Remove  Course</button>
         <button class="btn btn-default" ng-click="cancel()">Cancel</button>
     </div>
 </script>
 
+<script type="text/ng-template" id="uploadTranscriptModal.html">
+    <div class="modal-header">
+        <h3>Upload a transcript</h3>
+    </div>
+    <div class="modal-body">
+        Please select a transcript pdf file to upload: <br />
+        
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="cancel()">Done</button>
+    </div>
+</script>
 
 <div class="container-fluid">
     <div class="box">
     <div class="row header-row">
         <div id="header">
             <ul class="nav nav-pills pull-right nav-container">
-                <li class="active"><a ng-href="#">Upload</a></li>
+                <li class="active" ng-click="transcriptModal()"><a ng-href="#">Upload</a></li>
                 <li class="active"><a ng-href="#">Logout</a></li>
             </ul>
             <h3 class="logo">CoursePlanner</h3>
