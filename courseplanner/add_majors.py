@@ -32,7 +32,7 @@ def __add_gers():
             for reqCourseJson in boxJson['req_box_courses']:
                 print "creating course box: " + reqCourseJson['req_course_info']
                 reqCourse = Req_Course(req_box = boxModelKey, req_course_info = reqCourseJson['req_course_info'],
-                                        min_grade=reqCourseJson['min_grade'], min_units=reqCourseJson['min_units'])
+                                        min_grade=reqCourseJson['min_req_grade'], min_units=reqCourseJson['min_req_units'])
                 reqCourseKey = reqCourse.put()
                 for courseTitle in reqCourseJson['allowed_course_list']:
                     print "adding course to box: " + courseTitle

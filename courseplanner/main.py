@@ -40,8 +40,6 @@ class MainHandler(webapp2.RequestHandler):
         # Add courses and majors to datastore on start up
         add_courses.main()
         add_majors.main()
-        # student = create_student(0, 'Ryan')
-        #self.response.write(uri_for('get_student', student_id=None, student_name='Ryan'))
 
 class TranscriptHandler(webapp2.RequestHandler):
     @createStudent
@@ -136,14 +134,14 @@ class CourseHandler(webapp2.RequestHandler):
         outputMessage(self, result)
 
     @createStudent
-    def post(self, course_key):
-        course_num = course_key
+    def post(self, course_num):
         course_desc = self.request.get('course_desc')
         course_title = self.request.get('course_title')
         self.response.write(add_course_listing(course_num=course_num,
                                                 course_desc=course_desc,
                                                 course_title=course_title))
     @createStudent
+    #TODO: make webapp2 support patch. But we're probably never using this
     def patch(self, course_key):
         course_desc = self.request.get('course_desc')
         course_title = self.request.get('course_title')
@@ -197,9 +195,9 @@ class PlanHandler(webapp2.RequestHandler):
                 for planKey in student.academic_plans:
                     # compare planKey to the planId passed in; not sure
                     # if this is correct way to compare the key values
-                    print "looking at key: " + str(planKey.get().key.id())
+                    print "looking at key: " + str(planKey.get().key.urlsafe())
                     print "plan id: " + str(planid)
-                    if str(planKey.get().key.id()) == str(planid):
+                    if str(planKey.get().key.urlsafe()) == str(planid):
                         # method should return the matching student plan
                         print "Found matching plan : " + planid + " for " + uid
                         self.response.write(planKey.get().to_dict())
@@ -235,7 +233,7 @@ class PlanHandler(webapp2.RequestHandler):
         studentPlan.put()
         matchingStudent.academic_plans.append(studentPlan.key)
         matchingStudent.put()
-        print "created new plan for student: " + uid + " with id: " + str(studentPlan.key.id())
+        print "created new plan for student: " + uid + " with id: " + str(studentPlan.key.urlsafe())
         self.response.set_status(201)
         #return the created plan
         self.response.write(studentPlan.to_dict())
@@ -270,7 +268,7 @@ app = webapp2.WSGIApplication([
     ('/api/student/course', CandidateCourseHandler), # Ryan
     ('/api/student/course/(.+)', CandidateCourseHandler), # Ryan
     ('/api/course/search/(.*)', CourseSearchHandler), # Ryan
-    ('/api/course/(.+)(/.*)?', CourseHandler), # Ryan
+    ('/api/course/(.+)', CourseHandler), # Ryan
     ('/api/programsheet', ProgramSheetHandler), # Kevin
     ('/api/programsheet/reqbox', ReqBoxHandler), # Kevin
     ('/api/programsheet/reqbox/reqcourses', ReqCourseHandler) # Kevin

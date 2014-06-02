@@ -234,7 +234,7 @@ def add_course_listing(course_num, course_desc, course_title):
 
 # Edit course listing: can change description or title. If either is None, left unaffected
 # TODO: more advanced editing e.g. Offerings
-def edit_course_listing(course_num, course_desc=None, course_title=None):
+def edit_course_listing(course_key, course_desc=None, course_title=None):
     course_listing_entity = __entity_from_key_str(course_key, Course)
     if course_listing_entity is not None:
         if course_desc:
