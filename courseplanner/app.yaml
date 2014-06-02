@@ -17,6 +17,12 @@ handlers:
   script: main.app
   auth_fail_action: unauthorized
 
+- url: /admin
+  static_files: FrontEnd/admin/admin.html
+  upload: FrontEnd/admin/admin.html
+  login: required
+  auth_fail_action: unauthorized
+
 - url: /
   static_dir: FrontEnd/dist
   login: required
