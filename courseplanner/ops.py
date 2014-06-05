@@ -33,18 +33,9 @@ def __fix_course_num(course_num):
         ret += s
     return ret
 
-# Helper to serialize key
-def __serialize_key(key):
-    return key.urlsafe()
-
 # Helper to deserialize key
-def __deserialize_key(key_str, entity_kind):
+def __deserialize_key(key_str):
     return ndb.Key(urlsafe = key_str)
-
-# Helper to return entity from key_str or None (depends on ndb behavior)
-def __entity_from_key_str(key_str, entity_kind):
-    key = __deserialize_key(key_str, entity_kind)
-    return key.get()
 
 # Checks existence of program sheet, true/false
 def __program_sheet_exists(ps_name):
@@ -56,14 +47,14 @@ def __program_sheet_exists(ps_name):
 # Converts Req_Course entity to dictionary, replaces allowed course keys
 # with course names
 def __get_req_course_dict(rc_key):
-    rc_entity = __entity_from_key_str(rc_key)
+    rc_entity = __deserialize_key(rc_key).get()
     if rc_entity is None:
         return 'Cannot find Req_Course'
     rc_dict = rc_entity.to_dict()
     allowed_course_keys = list(rc_dict['allowed_courses'])
     rc_dict['allowed_courses'] = []
     for ac_key in allowed_course_keys:
-        ac_entity = __entity_from_key_str(ac_key)
+        ac_entity = __deserialize_key(ac_key).get()
         if ac_entity is None:
             return 'Cannot find course from allowed course list'
         rc_dict['allowed_courses'].append(ac_entity.course_num)
@@ -71,7 +62,7 @@ def __get_req_course_dict(rc_key):
 
 # Converts Req_Box entity to dictionary with Req_Courses filled in
 def __get_req_box_dict(rb_key):
-    rb_entity = __entity_from_key_str(rb_key)
+    rb_entity = __deserialize_key(rb_key).get()
     if rb_entity is None:
         return 'Cannot find Req_Box'
     rb_dict = rb_entity.to_dict()
@@ -89,7 +80,7 @@ def __get_ps_dict(ps_name):
     ps = Program_Sheet.query(Program_Sheet.ps_name == ps_name).get()
     if ps == None:
         return 'Program Sheet ' + str(ps_name) + ' does not exist'
-    ps_entity = ps[0]
+    ps_entity = ps
     ps_dict = ps_entity.to_dict()
     req_box_keys = list(ps_dict['req_boxes'])
     ps_dict['req_boxes'] = []
@@ -150,7 +141,7 @@ def add_candidate_course(student_id, course_key, grade, units, req_course=None,
     if len(student) > 0: student = student[0]
     else:
         return ERROR('Student with id ' + str(student_id) + ' not found')
-    course = __entity_from_key_str(course_key, Course)
+    course = __deserialize_key(course_key).get()
     if not course:
         return ERROR('Course number ' + str(course_num) + ' not found')
     if units == '':
@@ -160,7 +151,7 @@ def add_candidate_course(student_id, course_key, grade, units, req_course=None,
                                       Candidate_Course.student == student.key).get() 
     if existing: existing.key.delete()   
     if req_course:
-        req_course_key = __deserialize_key(req_course, Req_Course)
+        req_course_key = __deserialize_key(req_course)
         if not req_course:
             return ERROR('Req_Course key ' + req_course + ' not found.')
         candidate_course = Candidate_Course(course=course.key, 
@@ -172,7 +163,7 @@ def add_candidate_course(student_id, course_key, grade, units, req_course=None,
                                             grade=grade, units=units, 
                                             student=student.key)
     if student_plan:
-        student_plan_key = __deserialize_key(student_plan, Student_Plan)
+        student_plan_key = __deserialize_key(student_plan)
         candidate_course.student_plan = student_plan_key
     candidate_course.put()
     return True
@@ -185,11 +176,11 @@ def remove_candidate_course(student_id, course_key, student_plan):
     if len(student) > 0: student = student[0]
     else:
         return ERROR('Student with id ' + student_id + ' not found')
-    course = __entity_from_key_str(course_key, Course)
+    course = __deserialize_key(course_key).get()
     if not course:
         return ERROR('Course ' + course_key + ' not found')
     if student_plan:
-        student_plan_key = __deserialize_key(studen_plan, Student_Plan)
+        student_plan_key = __deserialize_key(studen_plan)
         candidate_courses = Candidate_Course.query(Candidate_Course.student == student.key,
                                                    Candidate_Course.course == course.key,
                                                    Candidate_Course.student_plan
@@ -235,7 +226,7 @@ def add_course_listing(course_num, course_desc, course_title):
 # Edit course listing: can change description or title. If either is None, left unaffected
 # TODO: more advanced editing e.g. Offerings
 def edit_course_listing(course_key, course_desc=None, course_title=None):
-    course_listing_entity = __entity_from_key_str(course_key, Course)
+    course_listing_entity = __deserialize_key(course_key).get()
     if course_listing_entity is not None:
         if course_desc:
             course_listing_entity.course_desc = course_desc
@@ -248,7 +239,7 @@ def edit_course_listing(course_key, course_desc=None, course_title=None):
 
 # Remove course listing - return error if not found, True otherwise
 def remove_course_listing(course_num):
-    course_listing_entity = __entity_from_key_str(course_key, Course)
+    course_listing_entity = __deserialize_key(course_key).get()
     if course_listing_entity is not None:
         course.key.delete()
         return True
@@ -258,7 +249,7 @@ def remove_course_listing(course_num):
 # Return json dump of course information by course_num, or error
 # if not found.
 def get_course_listing(course_key):
-    course_listing_entity = __entity_from_key_str(course_key, Course)
+    course_listing_entity = __deserialize_key(course_key).get()
     if (course_listing_entity is None):
         return ERROR('Course_num ' + course_num + ' not found.')
     return json.dumps(course_listing_entity.to_dict())
@@ -290,6 +281,7 @@ def add_program_sheet(ps_name, req_box_array):
         return ERROR('Program sheet already exists for ' + str(ps_name) + '.')
     ps_entity = Program_Sheet(ps_name=ps_name)
     ps_entity.put()
+    result = True
     for req_box in req_box_array:
         result = add_req_box_to_ps(ps_entity, req_box)
         # Exists Error, Abort
@@ -309,7 +301,14 @@ def get_program_sheet(ps_name):
     ps_dict = __get_ps_dict(ps_name)
     if type(ps_dict) != dict:
         return ERROR(ps_dict)
-    return json.dumps(ps_dict)
+    return json.dumps(ps_dict, sort_keys=True, indent=4, separators=(',', ': '))
+
+def program_sheet_exists(ps_name):
+    truth_dict = {}
+    truth_dict['exists'] = False
+    if (__program_sheet_exists(ps_name)):
+        truth_dict['exists'] = True
+    return json.dumps(truth_dict)
 
 # Return json list of 10 program sheets with prefixes
 def get_program_sheet_by_prefix(ps_name_prefix):
@@ -318,12 +317,7 @@ def get_program_sheet_by_prefix(ps_name_prefix):
                                   .fetch(limit=10, projection=[Program_Sheet.ps_name])
     json_array = []
     for ps in program_sheets:
-        #ps_dict = {}
-        #ps_dict['key'] = ps.key.id()
-        #ps_dict['ps_name'] = ps.ps_name
-        #json_array.append(ps_dict)
         json_array.append(ps.ps_name)
-    print json_array
     return json.dumps(json_array)
 
 """
@@ -334,7 +328,7 @@ Returns:
     Error message on failure
 """
 def edit_program_sheet(ps_key, new_ps_name):
-    ps_entity = __entity_from_key_str(ps_key, 'Program_Sheet')
+    ps_entity = __deserialize_key(ps_key).get()
     if ps_entity is None:
         return ERROR('Program sheet not found.')
     ps_entity.ps_name = new_ps_name
@@ -344,14 +338,16 @@ def edit_program_sheet(ps_key, new_ps_name):
 """
 Deletes program sheet name given key to program sheet
 """
-def remove_program_sheet(ps_key):
-    ps_entity = __entity_from_key_str(ps_key, 'Program_Sheet')
-    if ps_entity is None:
-        return
-    req_boxes_copy = list(ps_entity.req_boxes)
-    for req_box_key in req_boxes_copy:
-        remove_req_box_from_ps(req_box_key)
-    ps_entity.key.delete()
+def remove_program_sheet(ps_name):
+    print ps_name
+    if (__program_sheet_exists(ps_name)):
+        ps_entity = Program_Sheet.query(Program_Sheet.ps_name == ps_name).get()
+        req_boxes_copy = list(ps_entity.req_boxes)
+        for req_box_key in req_boxes_copy:
+            remove_req_box_from_ps(req_box_key)
+        ps_entity.key.delete()
+    else:
+        return ERROR('Program sheet does not exist')
 
 """
 Creates a Req_Box to link to a Program_Sheet
@@ -366,7 +362,7 @@ Returns:
 """
 def add_req_box_to_ps(ps_entity, req_box_dict, ps_key=None):
     if ps_key != None:
-        ps_entity = __entity_from_key_str(ps_key, 'Program_Sheet')
+        ps_entity = __deserialize_key(ps_key).get()
         if ps_entity is None: # None if doesn't exist?
             return ERROR('Program sheet does not currently exist.')
     req_box_name = req_box_dict['req_box_name']
@@ -413,7 +409,7 @@ Returns:
     Error message on failure
 """
 def edit_req_box_in_ps(rb_entity, req_box_dict, rb_key=None):
-    rb_entity = __entity_from_key_str(rb_key, 'Req_Box')
+    rb_entity = __deserialize_key(rb_key).get()
     if rb_entity is None: # None if doesn't exist?
         return ERROR('Req box does not currently exist.')
     req_box_name = req_box_dict['req_box_dict']
@@ -436,7 +432,7 @@ Removes a Req_Box reference from a Program_Sheet
 and deletes the Req_Box itself
 """
 def remove_req_box_from_ps(rb_key):
-    rb_entity = __entity_from_key_str(rb_key, 'Req_Box')
+    rb_entity = __deserialize_key(rb_key).get()
     if rb_entity != None: # None if doesn't exist?
         ps_entity = rb_entity.program_sheet.get()
         if ps_entity != None:
@@ -464,7 +460,7 @@ Returns:
 """
 def add_req_course_to_rb(rb_entity, req_course_dict, rb_key = None):
     if rb_key != None:
-        rb_entity = __entity_from_key_str(rb_key, 'Req_Box')
+        rb_entity = __deserialize_key(rb_key).get()
         if rb_entity is None: # None if doesn't exist?
             return ERROR('Required box does not currently exist.')
     req_course_info = req_course_dict['req_course_info']
@@ -509,7 +505,7 @@ Returns:
 """
 def edit_req_course_in_rb(rc_entity, req_course_dict, rc_key = None):
     if (rc_key is not None):
-        rc_entity = __entity_from_key_str(rc_key, 'Req_Course')
+        rc_entity = __deserialize_key(rc_key).get()
         if rc_entity is None: # None if doesn't exist?
             return ERROR('Required course does not currently exist.')
     req_course_info = req_course_dict['req_course_dict']
@@ -536,7 +532,7 @@ def edit_req_course_in_rb(rc_entity, req_course_dict, rc_key = None):
 Removes Req_Course link from a Req_Box and removes Req_Course itself
 """
 def remove_req_course_from_rb(rc_key):
-    rc_entity = __entity_from_key_str(rc_key, 'Req_Course')
+    rc_entity = __deserialize_key(rc_key).get()
     if rc_entity != None: # None if doesn't exist?
         rb_entity = rc_entity.req_box.get()
         if rb_entity != None:

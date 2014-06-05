@@ -3,6 +3,14 @@ from google.appengine.ext import ndb
 class DictModel(ndb.Model):
     # Redefines to_dict() include serialized key of self, as well as keys
     # for all KeyProperties
+    def safe_convert_key_list(self, value):
+        key_strs = []
+        for elem in value:
+            if isinstance(elem, ndb.Key):
+                elem = elem.urlsafe()
+            key_strs.append(elem)
+        return key_strs
+
     def to_dict(self):
         output = ndb.Model.to_dict(self)
         output['key'] = self.key.urlsafe()
@@ -10,6 +18,8 @@ class DictModel(ndb.Model):
             value = getattr(self, key)
             if isinstance(value, ndb.Key):
                 output[key] = value.urlsafe()
+            elif isinstance(value, list):
+                output[key] = self.safe_convert_key_list(value)
         return output
 
 # stubs for all classes with cyclical references

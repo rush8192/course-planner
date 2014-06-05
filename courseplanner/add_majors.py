@@ -11,9 +11,9 @@ def main():
     #c = Req_Course(course_req_id = 0, allowed_courses = [course.key])
     #m.put()
     #c.put()
-    
     __add_gers()
     
+
 # Adds the program sheet for GERs (only applies to class of 2015 and earlier)
 def __add_gers():
     gerPlan = 'GER-PRE-2015'
@@ -29,15 +29,20 @@ def __add_gers():
                                 min_total_units=boxJson['min_total_units'], min_num_courses=boxJson['min_num_courses'],
                                 req_courses=[])
             boxModelKey = boxModel.put()
+            gerSheet.req_boxes.append(boxModelKey)
             for reqCourseJson in boxJson['req_box_courses']:
                 print "creating course box: " + reqCourseJson['req_course_info']
                 reqCourse = Req_Course(req_box = boxModelKey, req_course_info = reqCourseJson['req_course_info'],
-                                        min_grade=reqCourseJson['min_grade'], min_units=reqCourseJson['min_units'])
+                                        min_grade=reqCourseJson['min_req_grade'], min_units=reqCourseJson['min_req_units'])
                 reqCourseKey = reqCourse.put()
+                boxModel.req_courses.append(reqCourseKey)
                 for courseTitle in reqCourseJson['allowed_course_list']:
-                    print "adding course to box: " + courseTitle
+                    #print "adding course to box: " + courseTitle
                     courseModel = Course.query(Course.course_num == courseTitle).get()
-                    if courseModel == None:
-                        print "no matching course object for: " + courseTitle
-                    else:
-                        reqCourse.allowed_courses.append(courseModel)
+                    if courseModel != None:
+                        reqCourse.allowed_courses.append(courseModel.key)      
+                    #else:
+                        #print "no matching course object for: " + courseTitle
+                reqCourse.put()
+            boxModel.put()
+        gerSheet.put()
