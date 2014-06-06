@@ -117,13 +117,20 @@ class CandidateCourseHandler(webapp2.RequestHandler):
         if grade != '':
             grade = float(grade)
         else: grade = None
-        student_plan = self.request.get('student_plan')
-        if student_plan == '': student_plan = None
+
+        year = self.request.get('year')
+        if year != '':
+            year = int(year)
+        else: year = None
+
+        term = self.request.get('term')
+
         self.response.write(add_candidate_course(student_id=student_id,
                                                  course_key=course_key,
                                                  grade=grade,
                                                  units=units,
-                                                 student_plan=student_plan))
+                                                 year=year,
+                                                 term=term))
     @createStudent
     def get(self):
         student_id = users.get_current_user().user_id()
