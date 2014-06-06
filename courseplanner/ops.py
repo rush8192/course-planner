@@ -540,7 +540,6 @@ def remove_req_course_from_rb(rc_key):
 #-------------------------End Program Sheet Ops-------------------------#
 
 # convert letter grade from transcript to floating point value
-
 def gradeToFloat(gradeStr):
     if "A+" == gradeStr:
         return 4.3
@@ -560,8 +559,12 @@ def gradeToFloat(gradeStr):
         return 2.0
     elif "C-" == gradeStr:
         return 1.7
+    elif "D+" == gradeStr:
+        return 1.3
     elif "D" == gradeStr:
         return 1.0
+    elif "D-" == gradeStr:
+        return 0.7
     elif "F" == gradeStr:
         return 0.0
     print "No matching grade for: " + gradeStr
