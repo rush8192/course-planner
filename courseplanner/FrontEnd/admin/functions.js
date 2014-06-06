@@ -2,20 +2,24 @@ var course_keys = {}
 var ps_keys = {}
 
 var modifyCourseViewModal = function() {
-  var course_num = document.getElementById('course-search-box').value;
+  var course_num = document.getElementById('course-search-box').value.toUpperCase();
   document.getElementById("viewCourseModalLabel").innerHTML = course_num;
   var xhr = new XMLHttpRequest();
   course_key = course_keys[course_num];
   xhr.onreadystatechange = function() {
     if (xhr.readyState == 4) {
-      var json_str = "Program Sheet does not exist!";
+      var json_str = "";
       if (xhr.status === 200) {
         json_str = xhr.responseText;
+      }
+      else {
+        json_str = "Course does not exist!";
       }
       $("textarea#viewCourseTextAreaID").val(json_str);
     }
   }
   xhr.open("GET", "/api/course/" + course_key, true);
+  $("textarea#viewCourseTextAreaID").val("Please wait as we fetch the required JSON...");
   xhr.send();
 }
 
@@ -45,7 +49,6 @@ var createCourse = function() {
     window.alert("Course already exists!");
     return;
   }
-
   var xhr = new XMLHttpRequest();
   xhr.onreadystatechange = function() {
     if (xhr.readyState == 4) {
@@ -88,7 +91,7 @@ var deleteCourse = function() {
   }
   xhr.open("DELETE", "/api/course/" + course_key, true);
   xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-  xhr.send() 
+  xhr.send()
 }
 
 var modifyViewModal = function() {
@@ -104,14 +107,18 @@ var modifyViewModal = function() {
   var xhr = new XMLHttpRequest();
   xhr.onreadystatechange = function() {
     if (xhr.readyState == 4) {
-      var json_str = "Program Sheet does not exist!";
+      var json_str = "";
       if (xhr.status === 200) {
         json_str = xhr.responseText;
+      }
+      else {
+        json_str = "Program sheet does not exist!";
       }
       $("textarea#viewTextAreaID").val(json_str);
     }
   }
   xhr.open("GET", "/api/programsheet?ps_key=" + ps_key, true);
+  $("textarea#viewTextAreaID").val("Please wait as we get the required JSON...");
   xhr.send();
 }
 
@@ -169,7 +176,7 @@ var createProgramSheet = function() {
         }
       }
       send_xhr.open("POST", "/api/programsheet", true);
-      var params = "ps_json=" + ps_json_str;
+      var params = "ps_json=" + encodeURIComponent(ps_json_str);
       send_xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
       send_xhr.send(params)
     }

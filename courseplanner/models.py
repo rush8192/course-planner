@@ -71,7 +71,8 @@ class Req_Box(DictModel):
 # Required Course belonging to a Req_Box (major requirement or GER req)
 class Req_Course(DictModel):
     req_box = ndb.KeyProperty(Req_Box)
-    req_course_info = ndb.StringProperty()
+    req_course_name = ndb.StringProperty()
+    req_course_info = ndb.TextProperty()
     min_grade = ndb.FloatProperty()
     min_units = ndb.IntegerProperty()
     allowed_courses = ndb.KeyProperty(Course, repeated=True)
@@ -93,15 +94,56 @@ class Student(DictModel):
     student_id = ndb.StringProperty(required=True)
     academic_plans = ndb.KeyProperty(Student_Plan, repeated=True)
 
+class Req_Fullfillment(DictModel):
+    req_course = ndb.KeyProperty(Req_Course)
+    valid = ndb.BooleanProperty()
+    error_message = ndb.StringProperty()
+    program_sheet = ndb.KeyProperty(Student_Program_Sheet)
+
 class Candidate_Course(DictModel):
     course = ndb.KeyProperty(Course, required=True)
     student = ndb.KeyProperty(Student, required=True)
     student_plan = ndb.KeyProperty(Student_Plan)
     # (optional) requirement that course is being applied to
-    req_course = ndb.KeyProperty(Req_Course)
+    reqs_fulfilled = ndb.KeyProperty(Req_Fullfillment, repeated=True)
     term = ndb.StringProperty()
     year = ndb.IntegerProperty()
     grade = ndb.FloatProperty()
     units = ndb.IntegerProperty()
-    allow_petition = ndb.StringProperty()
 #-------------------End Student Models--------------------#
+
+
+"""
+Object for candidate course:
+
+    Candidate_course.to_dict()
+    course.course_num
+
+Object we return for front-end student program sheet:
+{
+    "ps_name" : ps_name,
+    "sps_key" : sps_key,
+    "req_boxes" :
+        [
+            {"req_box_name":req_box_name,
+             "req_box_key": req_box_key,
+             "min_total_units":min_total_units,
+             "min_num_courses":min_num_courses,
+             "req_courses": 
+                 [
+                      {
+                       "req_course_name":req_course_name,
+                       "req_course_info":req_course_info,
+                       "req_course_key":req_course_key,
+                       "cand_course_name": cand_course_name,
+                       "cand_course_key":cand_course_key,
+                       "cand_course_units":cand_course_units,
+                       "cand_course_gpa":cand_course_gpa,
+                      }
+                 ]
+            }
+        ]
+}
+
+
+"""

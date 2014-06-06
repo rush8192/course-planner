@@ -106,7 +106,7 @@
 
     <div id="program-sheet" style="position:absolute;left:30px;top:250px">
       <input id="program-sheet-search-box" class="typeahead" type="text" placeholder="Input Program Sheet">
-      <button class="btn btn-primary" data-toggle="modal" data-target="#viewModal">  <!--onclick="modifyViewModal()"> -->
+      <button class="btn btn-primary" data-toggle="modal" data-target="#viewModal" onclick="modifyViewModal()">
         View
       </button>
       <button class="btn btn-primary" data-toggle="modal" data-target="#createModal" onclick="modifyCreateModal()">
@@ -170,9 +170,6 @@
       </div>
     </div>
 
-
-
-
     <script type="text/javascript">
       $(document).ready(function() {
         var substringMatcher = function() {
@@ -183,7 +180,14 @@
                 if (xhr.readyState == 4) {
                   if (xhr.status === 200) {
                     var json_str = xhr.responseText;
-                    strs = jQuery.parseJSON(json_str);
+                    var objs = jQuery.parseJSON(json_str);
+                    for (var index in objs) {
+                      var obj = objs[index];
+                      for (var course_num in obj) {
+                        ps_keys[course_num.toUpperCase()] = obj[course_num];
+                        strs.push(course_num);
+                      }
+                    }
                   }
                   var matches, substringRegex;
                
@@ -234,7 +238,16 @@
                 if (xhr.readyState == 4) {
                   if (xhr.status === 200) {
                     var json_str = xhr.responseText;
-                    strs = jQuery.parseJSON(json_str);
+                    objs = jQuery.parseJSON(json_str);
+
+                    for (var x in objs) {
+                      var obj = objs[x];
+                      for (var y in obj) {
+                        course_keys[y.toUpperCase()] = obj[y];
+                        strs.push(y);
+                      }
+                    }
+
                   }
                   var matches, substringRegex;
                

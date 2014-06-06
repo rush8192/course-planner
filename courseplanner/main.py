@@ -24,6 +24,7 @@ from webapp2 import uri_for
 from ops import *
 from PSHandlers import *
 from decorators import *
+import reqs
 import cStringIO
 
 def outputMessage(self, result, send_data_back=True):
@@ -169,6 +170,7 @@ class CourseHandler(webapp2.RequestHandler):
 class CourseSearchHandler(webapp2.RequestHandler):
     @createStudent
     def get(self, prefix):
+        print 'Reached Search Handler'
         if len(prefix) > 0:
             self.response.write(get_course_listing_by_prefix(prefix))
 
@@ -252,8 +254,30 @@ class PlanHandler(webapp2.RequestHandler):
 
 class PlanVerificationHandler(webapp2.RequestHandler):
     @createStudent
-    def get(self):
-        print "unimplemented"
+    def get(self, sps_id, cc_id, req_id):
+        success, message = reqs.verifyCourseForBox(sps_id, cc_id, req_id)
+        print json.dumps(dict(success=success,message=message))
+        self.response.write(json.dumps(dict(success=success,message=message)))
+
+class AddCourseToPlanHandler(webapp2.RequestHandler):
+    @createStudent
+    def post(self, sps_id, cc_id, req_id):
+        status = reqs.addCourseForBox(sps_id, cc_id, req_id)
+        self.response.status = status
+        
+class PlanPetitionStatusHandler(webapp2.RequestHandler):
+    @createStudent
+    def get(self, sps_id, cc_id, req_id):
+        success, message = reqs.checkStatusForCourseInBox(sps_id, cc_id, req_id)
+        print json.dumps(dict(success=success,message=message))
+        self.response.write(json.dumps(dict(success=success,message=message)))
+        
+class BoxVerificationHandler(webapp2.RequestHandler):
+    @createStudent
+    def get(self, sps_id, box_id):
+        success, message = reqs.verifyBox(sps_id, box_id)
+        print json.dumps(dict(success=success,message=message))
+        self.response.write(json.dumps(dict(success=success,message=message)))
         
 # populates a few sample users into the db for testing purposes
 class PopHandler(webapp2.RequestHandler):
@@ -284,15 +308,17 @@ def __str_to_float(str):
 class ProgramSheetHandler(webapp2.RequestHandler):
     @createStudent
     def get(self):
-        outputMessage(self, get_program_sheet(ps_key=self.request.get('ps_key')))
+        result = get_program_sheet(ps_key=self.request.get('ps_key'))
+        print result
+        outputMessage(self, result)
 
     @createStudent
     def post(self):
         ps_dict = json.loads(self.request.get('ps_json'))
-        print ps_dict
         ps_name = ps_dict['ps_name']
         req_box_array = ps_dict['req_boxes']
-        outputMessage(self, add_program_sheet(ps_name, req_box_array), False)
+        result = add_program_sheet(ps_name, req_box_array)
+        outputMessage(self, result, False)
 
     @createStudent
     # ProgramSheet exist verifier
@@ -325,9 +351,12 @@ class ReqCourseHandler(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     ('/setupinitial7', MainHandler), 
     ('/api/trans/upload', TranscriptHandler), # Rush
+    ('/api/plan/verify/(.*)/(.*)/(.*)', PlanVerificationHandler), # Rush
+    ('/api/plan/verifybox/(.*)/(.*)', BoxVerificationHandler), # Rush
+    ('/api/plan/add/(.*)/(.*)/(.*)', AddCourseToPlanHandler), # Rush
+    ('/api/plan/petitionstatus/(.*)/(.*)/(.*)', PlanPetitionStatusHandler), # Rush
     ('/api/plan(/.*)?', PlanHandler), # Rush
     ('/api/populate', PopHandler), # Rush
-    ('/api/plan/verify', PlanVerificationHandler), # Rush
     ('/api/student', StudentHandler), # Ryan (test function)
     ('/api/student/course', CandidateCourseHandler), # Ryan
     ('/api/student/course/(.+)', CandidateCourseHandler), # Ryan
