@@ -11,29 +11,29 @@ angular.module('coursePlannerApp')
     $scope.chartObject = {};
 
     $scope.onions = [
-        {v: "Onions"},
+        {v: 'Onions'},
         {v: 100}
     ];
 
-    $scope.chartObject.data = {"cols": [
-        {id: "t", label: "Topping", type: "string"},
-        {id: "s", label: "Progress (%)", type: "number"}
-      ], "rows": [
+    $scope.chartObject.data = {'cols': [
+        {id: 't', label: 'Topping', type: 'string'},
+        {id: 's', label: 'Progress (%)', type: 'number'}
+      ], 'rows': [
         {c: [
-            {v: "Foo"},
+            {v: 'Foo'},
             {v: 3}
           ]},
-        {c: $scope.onions},
-        {c: [
-            {v: "Olives"},
+          {c: $scope.onions},
+          {c: [
+            {v: 'Olives'},
             {v: 10}
           ]},
         {c: [
-            {v: "Zucchini"},
+            {v: 'Zucchini'},
             {v: 1}
           ]},
         {c: [
-            {v: "Pepperoni"},
+            {v: 'Pepperoni'},
             {v: 2}
           ]}
     ]};
@@ -86,16 +86,22 @@ angular.module('coursePlannerApp')
             }
         });
     };
-
+    
     var AllCoursesModalInstanceCtrl = function ($scope, $modalInstance, courses) {
         $scope.courses = courses;
         $scope.ok = function () {
             $modalInstance.close();
         };
-
         $scope.cancel = function () {
             $modalInstance.dismiss('cancel');
         };
+    };
+
+    $scope.transcriptModal = function () {
+        var modalInstance = $modal.open({
+            templateUrl: 'uploadTranscriptModal.html',
+            controller: UploadInstanceCtrl
+        });
     };
 
     $scope.oneAtATime = false;
@@ -267,6 +273,15 @@ angular.module('coursePlannerApp')
             $log.info('Modal dismissed at: ' + new Date());
         });
     };
+            
+    var UploadInstanceCtrl = function ($scope, $modalInstance) {
+        $scope.ok = function () {
+            $modalInstance.close();
+        };
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+    };
 
     var ModalInstanceCtrl = function ($scope, $modalInstance, course) {
         $scope.course = course;
@@ -281,7 +296,7 @@ angular.module('coursePlannerApp')
 
     $scope.list1 = {title: 'AngularJS - Drag Me'};
     $scope.foo = true;
-
+  
     // Any function returning a promise object can be used to load values asynchronously
     $scope.getLocation = function(val) {
         return $http.get('http://maps.googleapis.com/maps/api/geocode/json', {
@@ -301,7 +316,6 @@ angular.module('coursePlannerApp')
     $scope.$watch('asyncSelected', function() {
         //$scope.asyncSelected = $scope.asyncSelected.toLowerCase().replace(/,+/g,'');
     });
-
 
     $scope.mm = [
         {
@@ -472,6 +486,33 @@ angular.module('coursePlannerApp')
             ]
         }
     ];
+})
+.controller('TransUploadCtrl', function ($scope, $http, $timeout, $upload) {
+    $scope.add = function() {
+      var f = document.getElementById('transFile').files[0];
+      var status = document.getElementById('statusSpan');
+      var button = document.getElementById('uploadTransButton');
+
+      button.disabled = true;
+
+      status.innerHTML = "Starting Upload";
+
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', "/api/trans/upload", true);
+      xhr.onreadystatechange = function(e) {
+            if ( 4 == this.readyState ) {
+                if ( 200 == this.status) {
+                    status.innerHTML = "Upload Success!";
+                } else {
+                    status.innerHTML = "Upload Failed! status is " + this.status;
+                }
+                button.disabled = false;
+            }
+      };
+      xhr.send(f);
+      
+      status.innerHTML = "Uploading. . .";
+    }
 })
 .directive('disableDrop', function () {
     return {

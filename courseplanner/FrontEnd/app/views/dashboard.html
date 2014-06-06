@@ -57,6 +57,22 @@
     </div>
 </script>
 
+<script type="text/ng-template" id="uploadTranscriptModal.html">
+    <div class="modal-header">
+        <h3>Upload a transcript</h3>
+    </div>
+    <div class="modal-body">
+        Please select a transcript pdf file to upload: <br /><br />
+        <div ng-controller="TransUploadCtrl">
+          <input type="file" id="transFile"><br />
+          <button id="uploadTransButton" ng-click="add()">Upload Transcript</button><br /><br />
+          Status: <span id="statusSpan">Waiting for upload</span>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="ok()">Done</button>
+    </div>
+</script>
 
 <div class="container-fluid">
     <div class="box">
@@ -64,7 +80,7 @@
         <div id="header">
             <ul class="nav nav-pills pull-right nav-container">
                 <li class="active" ng-click="addMM()"><a ng-href="#">Add Major/Minor</a></li>
-                <li class="active"><a ng-href="#">Upload</a></li>
+                <li class="active" ng-click="transcriptModal()"><a ng-href="#">Upload</a></li>
                 <li class="active"><a ng-href="#">Logout</a></li>
             </ul>
             <h3 class="logo">CoursePlanner</h3>

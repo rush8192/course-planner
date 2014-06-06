@@ -3,13 +3,23 @@ from google.appengine.ext import ndb
 class DictModel(ndb.Model):
     # Redefines to_dict() include serialized key of self, as well as keys
     # for all KeyProperties
+    def safe_convert_key_list(self, value):
+        key_strs = []
+        for elem in value:
+            if isinstance(elem, ndb.Key):
+                elem = elem.urlsafe()
+            key_strs.append(elem)
+        return key_strs
+
     def to_dict(self):
         output = ndb.Model.to_dict(self)
-        output['key'] = self.key.id()
+        output['key'] = self.key.urlsafe()
         for key, prop in output.iteritems():
             value = getattr(self, key)
             if isinstance(value, ndb.Key):
-                output[key] = value.id()
+                output[key] = value.urlsafe()
+            elif isinstance(value, list):
+                output[key] = self.safe_convert_key_list(value)
         return output
 
 # stubs for all classes with cyclical references
@@ -86,7 +96,7 @@ class Student(DictModel):
 class Candidate_Course(DictModel):
     course = ndb.KeyProperty(Course, required=True)
     student = ndb.KeyProperty(Student, required=True)
-    student_program_sheet = ndb.KeyProperty(Student_Program_Sheet)
+    student_plan = ndb.KeyProperty(Student_Plan)
     # (optional) requirement that course is being applied to
     req_course = ndb.KeyProperty(Req_Course)
     term = ndb.StringProperty()

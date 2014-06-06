@@ -36,5 +36,4 @@ def main():
                          course = c.key)
             o.put()
         c.put()
-        break
 

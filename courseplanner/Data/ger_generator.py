@@ -1,7 +1,7 @@
+
 import os
 import json
 
-courses_dict = json.loads(open('courses_json', 'r').read())
 old_req_dict = {'GER:DB-Hum':[], 'GER:DB-Math':[], 'GER:DB-SocSci':[], 'GER:DB-EngrAppSci':[], \
            'GER:DB-NatSci':[], 'GER:EC-EthicReas':[], 'GER:EC-GlobalCom':[], 'GER:EC-AmerCul':[], \
            'GER:EC-Gender':[], 'GER:IHUM-1':[], 'GER:IHUM-2':[], 'GER:IHUM-3':[], 'Language':[], 'Writing1':[], \
@@ -13,6 +13,7 @@ new_req_dict = {'WAY-A-II':[], 'WAY-AQR':[], 'WAY-CE':[], 'WAY-ED':[], 'WAY-ER':
 
 def populate_req_dicts():
     uncounted_reqs = 0
+    courses_dict = json.loads(open('courses_json', 'r').read())
     for course_key in courses_dict:
         course = courses_dict[course_key]
         for offering in course['offering']:
@@ -82,6 +83,13 @@ def create_old_req_ihum_pwr_json():
     f.write(json_str)
     f.close()
 
+def __view_gers():
+    gerSheetJson = json.load(open("old_req_json"))
+    print "Num Req Boxes: " + str(len(gerSheetJson['ps_req_boxes']))
+
 if __name__ == '__main__':
-    populate_req_dicts()
-    create_old_req_ihum_pwr_json()
+    __view_gers()
+    #populate_req_dicts()
+    #create_old_req_ihum_pwr_json()
+
+

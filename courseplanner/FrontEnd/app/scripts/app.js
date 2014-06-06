@@ -8,7 +8,8 @@ angular
     'ngRoute',
     'googlechart',
     'ui.bootstrap',
-    'ngDragDrop'
+    'ngDragDrop',
+    'angularFileUpload'
   ])
   .config(function ($routeProvider) {
     $routeProvider

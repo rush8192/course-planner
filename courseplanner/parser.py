@@ -16,7 +16,7 @@ PRINT_LOG = False
 # Set to true only if manually resolving transcript ambiguities
 MANUAL_RESOLVE = False
 
-
+COURSE_JSON = None
 
 def main(argv):
     import getopt
@@ -41,7 +41,7 @@ def getTransContent(fp, resultfp):
     print fp
     outfp = cStringIO.StringIO()
 
-	# This secontion contains pdf parsing boilerplate
+    # This secontion contains pdf parsing boilerplate
     password = ''
     pagenos = set()
     maxpages = 0
@@ -63,7 +63,7 @@ def getTransContent(fp, resultfp):
 
     interpreter = PDFPageInterpreter(rsrcmgr, device)
     for page in PDFPage.get_pages(fp, pagenos,
-                					maxpages=maxpages, password=password,
+                                    maxpages=maxpages, password=password,
                                       caching=caching, check_extractable=True):
         page.rotate = (page.rotate+rotation) % 360
         interpreter.process_page(page)
@@ -160,7 +160,7 @@ def parseTrans(transContent, outfp):
             transContent = transContent[m.start() + len(courseProf):]
             
             
-            outfp.write(currentCourse.id + "," + currentCourse.title +  "," + quarter.year + "," + quarter.quarter + "," + currentCourse.units + "," + currentCourse.unitsReceived + "," + currentCourse.grade + "," + courseProf + "\n")
+            outfp.write(currentCourse.id + "||" + currentCourse.title +  "||" + quarter.year + "||" + quarter.quarter + "||" + currentCourse.units + "||" + currentCourse.unitsReceived + "||" + currentCourse.grade + "||" + courseProf + "\n")
     #print transContent
     
     
@@ -195,115 +195,113 @@ def findCurQuarter(transContent, curAQ, yearPattern):
 
 # Resolves course ambiguities caused by the limitations of the pdf parser
 def resolveCourseIDAmbiguity(course, transContent, match):
-	if MANUAL_RESOLVE:
-		return manualResolveAmbiguity(course, transContent, match)
-	else:
-		charsToAdvance = autoResolveAmbiguity(course, transContent, match)
-		if charsToAdvance == -1:
-			return len(course.id)
-		return charsToAdvance
-			
-		
-		
+    if MANUAL_RESOLVE:
+        return manualResolveAmbiguity(course, transContent, match)
+    else:
+        charsToAdvance = autoResolveAmbiguity(course, transContent, match)
+        if charsToAdvance == -1:
+            return len(course.id)
+        return charsToAdvance
+            
+        
+        
 # prompts the user to manually resolve ambiguities from their course list
 def manualResolveAmbiguity(course, transContent, match):
-	if CMD_LINE:
-		courseId = course.id
-		startLen = len(courseId)
-		lastChar = courseId[len(courseId) - 1:]
-	
-		# this portion allows user to answer ambiguities by selecting how
-		# many alphabetic chars to accept at the end of the course ID
-		if (lastChar.isalpha()):
-			curChars = 1
-			while True:
-				courseId = transContent[match.start():match.start() + startLen - 1 + curChars]
-				lastChar = courseId[len(courseId) - curChars:]
-				log( "Course ID is currently " + courseId + ", ending portion is " + lastChar)
-				log( "press enter to accept, m to add more chars, l to add less chars to ending portion")
-				input = raw_input("--> ")
-				if input == "":
-					break
-				elif input == "l":
-					if curChars != 0:
-						curChars -= 1
-				elif input == "m":
-					curChars += 1
-				else:
-					break          
-		course.id = courseId
-		return len(course.id)
+    if CMD_LINE:
+        courseId = course.id
+        startLen = len(courseId)
+        lastChar = courseId[len(courseId) - 1:]
+    
+        # this portion allows user to answer ambiguities by selecting how
+        # many alphabetic chars to accept at the end of the course ID
+        if (lastChar.isalpha()):
+            curChars = 1
+            while True:
+                courseId = transContent[match.start():match.start() + startLen - 1 + curChars]
+                lastChar = courseId[len(courseId) - curChars:]
+                log( "Course ID is currently " + courseId + ", ending portion is " + lastChar)
+                log( "press enter to accept, m to add more chars, l to add less chars to ending portion")
+                input = raw_input("--> ")
+                if input == "":
+                    break
+                elif input == "l":
+                    if curChars != 0:
+                        curChars -= 1
+                elif input == "m":
+                    curChars += 1
+                else:
+                    break          
+        course.id = courseId
+        return len(course.id)
 
 # Uses JSON course data to attempt to automatically resolve ambiguities
 # in course titles.
 def autoResolveAmbiguity(course, transContent, match):
-	baseCourseId = getBaseCourseId(course.id)
-	shortenedBaseCourseId = ' '.join(baseCourseId.split())
-	numDeletedChars = len(baseCourseId) - len(shortenedBaseCourseId)
-	
-	baseCourseId = shortenedBaseCourseId
-	
-	courseList = getCourseList(baseCourseId)
-	
-	for numAlphaChars in range(0,4):
-		courseIdCand = transContent[match.start():match.start() + len(baseCourseId) + numDeletedChars + numAlphaChars]
-		courseIdCand = ' '.join(courseIdCand.split())
-		for courseObj in courseList:
-			#pprint(courseObj)
-			curCourseId = courseObj['course_num']
-			#TODO: check for correct course title for year
-			# currently just uses title from most recent offering
-			offerings = courseObj['offering']
-			courseTitle = offerings[-1]['course_title']
-			if curCourseId == courseIdCand and transcriptMatches(baseCourseId, numAlphaChars, courseTitle, transContent, match, numDeletedChars):
-				course.id = courseIdCand
-				log ("Selected course: " + curCourseId + " : " + courseTitle, True)
-				return len(curCourseId) + numDeletedChars
-	warn ("unable to resolve ambiguity for " + baseCourseId)
-	return -1
+    baseCourseId = getBaseCourseId(course.id)
+    shortenedBaseCourseId = ' '.join(baseCourseId.split())
+    numDeletedChars = len(baseCourseId) - len(shortenedBaseCourseId)
+    
+    baseCourseId = shortenedBaseCourseId
+    
+    courseList = getCourseList(baseCourseId)
+    
+    for numAlphaChars in range(0,4):
+        courseIdCand = transContent[match.start():match.start() + len(baseCourseId) + numDeletedChars + numAlphaChars]
+        courseIdCand = ' '.join(courseIdCand.split())
+        for courseObj in courseList:
+            #pprint(courseObj)
+            curCourseId = courseObj['course_num']
+            #TODO: check for correct course title for year
+            # currently just uses title from most recent offering
+            offerings = courseObj['offering']
+            courseTitle = offerings[-1]['course_title']
+            if curCourseId == courseIdCand and transcriptMatches(baseCourseId, numAlphaChars, courseTitle, transContent, match, numDeletedChars):
+                course.id = courseIdCand
+                log ("Selected course: " + curCourseId + " : " + courseTitle, True)
+                return len(curCourseId) + numDeletedChars
+    warn ("unable to resolve ambiguity for " + baseCourseId)
+    return -1
     
 # determines whether both the course ID terms match, and whether the start of the
 # ensuing transcript content matches the course title
 def transcriptMatches(courseId, numAlphaChars, courseTitle, transContent, match, numDeletedChars):
-	log ("Checking if course " + courseTitle + " matches transcript")
-	for ind in range(3,1,-1):
-		titleSnippet = courseTitle[:ind].lower()
-		endCourseIdIndex = match.start() + len(courseId) + numAlphaChars + numDeletedChars
-		transcriptSnippet = transContent[endCourseIdIndex : endCourseIdIndex + ind].lower()
-		log ("Examining candidate: " + transcriptSnippet + " for: " + titleSnippet)
-		log ("Course ID: " + courseId + " numAlpha: " + `numAlphaChars`)
-		if titleSnippet == transcriptSnippet:
-			if ind != 3:
-				warn ("Selected course with less than 3 matching chars: " + courseId + "" + titleSnippet)
-			return True
-	return False
+    log ("Checking if course " + courseTitle + " matches transcript")
+    for ind in range(3,1,-1):
+        titleSnippet = courseTitle[:ind].lower()
+        endCourseIdIndex = match.start() + len(courseId) + numAlphaChars + numDeletedChars
+        transcriptSnippet = transContent[endCourseIdIndex : endCourseIdIndex + ind].lower()
+        log ("Examining candidate: " + transcriptSnippet + " for: " + titleSnippet)
+        log ("Course ID: " + courseId + " numAlpha: " + `numAlphaChars`)
+        if titleSnippet == transcriptSnippet:
+            if ind != 3:
+                warn ("Selected course with less than 3 matching chars: " + courseId + "" + titleSnippet)
+            return True
+    return False
     
 # Returns the base course ID (the course ID minus any extra letters at the end)
 # i.e CS 106A  --> CS 106
 def getBaseCourseId(courseId):
     index = len(courseId) - 1
     while(courseId[index:].isalpha()):
-    	index = index - 1
-    	if index == -1:
-    		error("Course ID only contains alphabetic characters; this violates an assumption of this loop")
+        index = index - 1
+        if index == -1:
+            error("Course ID only contains alphabetic characters; this violates an assumption of this loop")
     return courseId[:(index+1)]
-    
-COURSE_DICT = None
     
 # Gets the list of possible matching courses for a given base course ID (ie. CS 106)
 def getCourseList(courseId):
-	courseList = []
-	json_data=open('Data/courses_json')
-	allCourses = json.load(json_data)
-	for courseCand in allCourses:
-		courseInfo = allCourses[courseCand]
-		#pprint(courseInfo)
-		if courseId in courseInfo["course_num"]:
-			log ("Adding to course list for " + courseId + ": " + courseInfo["course_num"])
-			courseList.append(courseInfo)
-	return courseList
-	
-	
+    global COURSE_JSON
+    courseList = []
+    if COURSE_JSON is None:
+        with open('Data/courses_json') as json_data:
+            COURSE_JSON = json.load(json_data)
+    for courseCand in COURSE_JSON:
+        courseInfo = COURSE_JSON[courseCand]
+        #pprint(courseInfo)
+        if courseId in courseInfo["course_num"]:
+            log ("Adding to course list for " + courseId + ": " + courseInfo["course_num"])
+            courseList.append(courseInfo)
+    return courseList
     
 # currently this just prints error message and exits. Should change
 # to log the error on the server side
@@ -313,12 +311,12 @@ def error(errorString):
     
 # Less serious than an error, but more important than just debug information
 def warn(errorString):
-	print "WARNING: " + errorString
+    print "WARNING: " + errorString
 
 # Log information for debugging, does not indicate an actual error though
 def log(logString, override = False):
     if (PRINT_LOG or override):
-    	print logString
+        print logString
 
 # Encapsulates all informaiton about a single academic quarter: year and the quarter name
 class AcademicQuarter:
