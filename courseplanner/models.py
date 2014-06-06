@@ -71,7 +71,8 @@ class Req_Box(DictModel):
 # Required Course belonging to a Req_Box (major requirement or GER req)
 class Req_Course(DictModel):
     req_box = ndb.KeyProperty(Req_Box)
-    req_course_info = ndb.StringProperty()
+    req_course_name = ndb.StringProperty()
+    req_course_info = ndb.TextProperty()
     min_grade = ndb.FloatProperty()
     min_units = ndb.IntegerProperty()
     allowed_courses = ndb.KeyProperty(Course, repeated=True)
@@ -109,6 +110,39 @@ class Candidate_Course(DictModel):
     year = ndb.IntegerProperty()
     grade = ndb.FloatProperty()
     units = ndb.IntegerProperty()
-    
-
 #-------------------End Student Models--------------------#
+
+
+"""
+Object for candidate course:
+
+    Candidate_course.to_dict()
+    course.course_num
+
+Object we return for front-end student program sheet:
+{
+    "ps_name" : ps_name,
+    "sps_key" : sps_key,
+    "req_boxes" :
+        [
+            {"req_box_name":req_box_name,
+             "req_box_key": req_box_key,
+             "min_total_units":min_total_units,
+             "min_num_courses":min_num_courses,
+             "req_courses": 
+                 [
+                      {
+                       "req_course_info":req_course_info,
+                       "req_course_key":req_course_key,
+                       "cand_course_name": cand_course_name,
+                       "cand_course_key":cand_course_key,
+                       "cand_course_units":cand_course_units,
+                       "cand_course_gpa":cand_course_gpa,
+                      }
+                 ]
+            }
+        ]
+}
+
+
+"""
