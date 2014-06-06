@@ -26,6 +26,7 @@ from PSHandlers import *
 from decorators import *
 import reqs
 import cStringIO
+import sps
 
 def outputMessage(self, result, send_data_back=True):
     if send_data_back:
@@ -247,7 +248,7 @@ class PlanHandler(webapp2.RequestHandler):
             return
 
         gerSheet = Program_Sheet.query(Program_Sheet.ps_name == GER_SHEET_NAME).get()
-        studentGerSheet = Student_Program_Sheet(program_sheet=[gerSheet.key],
+        studentGerSheet = Student_Program_Sheet(program_sheet=gerSheet.key,
                         cand_courses=[], allow_double_count=True)
         studentGerSheet.put()
         studentPlan = Student_Plan(student_plan_name=title, student_course_list=[], program_sheets=[ studentGerSheet.key ])
@@ -355,26 +356,18 @@ class ReqCourseHandler(webapp2.RequestHandler):
 
 #--------------End Program Sheet Handlers-----------------------#
 
+# returns the student program sheet json object used by the main frontend UI
 class SpsHandler(webapp2.RequestHandler):
     def get(self, sps_key):
-        sps = ndb.Key(urlsafe=sps_key).get()
-        if sps == None:
+        sps_obj = ndb.Key(urlsafe=sps_key).get()
+        if sps_obj == None:
             print "invalid sps key: no matching sps found"
             self.response.status = 400
             self.response.write("Invalid S.P.S. key")
+            return
             
-        sps_dict = {}
-        sps_dict['ps_name'] = sps.program_sheet.get().ps_name
-        sps_dict['sps_key'] = sps_key
-        
-        rect_box_array = []
-        
-        for req_box_key in sps.program_sheet.get().req_boxes:
-            req_box_dict = {}
-            
-            req_box = req_box_key.get()
-            req_box_dict['req_box_name'] = req_box_name
-            req_box_dict['req_box_key'] = req_box_key
+        sps_dict = sps.getSpsDict(sps_obj, sps_key)
+        self.response.write(json.dumps(sps_dict))
             
         
 
