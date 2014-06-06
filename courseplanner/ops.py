@@ -167,9 +167,11 @@ def add_candidate_course(student_id, course_key, grade, units, req_course=None,
         candidate_course = Candidate_Course(course=course.key,
                                             grade=grade, units=units, 
                                             student=student.key)
-    if student_plan:
-        student_plan_key = __deserialize_key(student_plan)
-        candidate_course.student_plan = student_plan_key
+    student_plan_entity = student.academic_plans[0].get()
+    student_plan_entity.student_course_list.append(candidate_course.key)
+    candidate_course.student_plan = student_plan_entity.key
+
+    student_plan_entity.put()
     candidate_course.put()
     return True
 

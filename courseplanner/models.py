@@ -132,6 +132,7 @@ Object we return for front-end student program sheet:
              "req_courses": 
                  [
                       {
+                       "req_course_name":req_course_name,
                        "req_course_info":req_course_info,
                        "req_course_key":req_course_key,
                        "cand_course_name": cand_course_name,
