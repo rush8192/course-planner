@@ -26,6 +26,7 @@ from PSHandlers import *
 from decorators import *
 import reqs
 import cStringIO
+import sps
 
 def outputMessage(self, result, send_data_back=True):
     if send_data_back:
@@ -202,8 +203,15 @@ class PlanHandler(webapp2.RequestHandler):
                 # not sure how to return a repeated ndb entity
                 #
                 print "Listing all plans for " + uid
-                self.response.write( student.academic_plans )
-                pass
+                planArray = []
+                plan = student.academic_plans[0].get()
+                for sheetKey in plan.program_sheets:
+                    sheet = sheetKey.get()
+                    planInfoDict = {}
+                    planInfoDict['sps_name'] = sheet.program_sheet.get().ps_name
+                    planInfoDict['sps_key'] = sheet.key.urlsafe()
+                    planArray.append(planInfoDict)
+                self.response.write(json.dumps(planArray))
             else:
                 # remove the "/" from planid
                 planid = planid[1:]
@@ -243,7 +251,7 @@ class PlanHandler(webapp2.RequestHandler):
             return
 
         gerSheet = Program_Sheet.query(Program_Sheet.ps_name == GER_SHEET_NAME).get()
-        studentGerSheet = Student_Program_Sheet(program_sheet=[gerSheet.key],
+        studentGerSheet = Student_Program_Sheet(program_sheet=gerSheet.key,
                         cand_courses=[], allow_double_count=True)
         studentGerSheet.put()
         studentPlan = Student_Plan(student_plan_name=title, student_course_list=[], program_sheets=[ studentGerSheet.key ])
@@ -351,6 +359,21 @@ class ReqCourseHandler(webapp2.RequestHandler):
 
 #--------------End Program Sheet Handlers-----------------------#
 
+# returns the student program sheet json object used by the main frontend UI
+class SpsHandler(webapp2.RequestHandler):
+    def get(self, sps_key):
+        sps_obj = ndb.Key(urlsafe=sps_key).get()
+        if sps_obj == None:
+            print "invalid sps key: no matching sps found"
+            self.response.status = 400
+            self.response.write("Invalid S.P.S. key")
+            return
+            
+        sps_dict = sps.getSpsDict(sps_obj, sps_key)
+        self.response.write(json.dumps(sps_dict))
+            
+        
+
 app = webapp2.WSGIApplication([
     ('/setupinitial7', MainHandler), 
     ('/api/trans/upload', TranscriptHandler), # Rush
@@ -360,6 +383,7 @@ app = webapp2.WSGIApplication([
     ('/api/plan/petitionstatus/(.*)/(.*)/(.*)', PlanPetitionStatusHandler), # Rush
     ('/api/plan(/.*)?', PlanHandler), # Rush
     ('/api/populate', PopHandler), # Rush
+    ('/api/sps/(.+)', SpsHandler),
     ('/api/student', StudentHandler), # Ryan (test function)
     ('/api/student/course', CandidateCourseHandler), # Ryan
     ('/api/student/course/(.+)', CandidateCourseHandler), # Ryan

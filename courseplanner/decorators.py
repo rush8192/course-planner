@@ -7,7 +7,15 @@ def createStudent(f):
         user = users.get_current_user()
         if not ops.__student_exists(user.user_id()):
             s = models.Student(student_id = user.user_id())
-            splan = models.Student_Plan(student_plan_name = "")
+            
+            GER_SHEET_NAME = "GER-PRE-2015"
+            gerSheet = models.Program_Sheet.query(models.Program_Sheet.ps_name == GER_SHEET_NAME).get()
+            studentGerSheet = models.Student_Program_Sheet(program_sheet=gerSheet.key,
+                        cand_courses=[], allow_double_count=True)
+            studentGerSheet.put()
+            
+
+            splan = models.Student_Plan(student_plan_name = "DefaultPlan", student_course_list=[], program_sheets=[ studentGerSheet.key ])
             splan.put()
             s.academic_plans.append(splan.key)
             s.put()
