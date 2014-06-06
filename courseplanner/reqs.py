@@ -70,6 +70,41 @@ def addCourseForBox(sps_id, cc_id, req_id):
     sps.put()
     return 200
     
+def deleteCourseForBox(sps_id, cc_id, req_id):
+    print "Adding course to box"
+    sps = ndb.Key(urlsafe=sps_id).get()
+    if sps == None:
+        print "No matching student program sheet found"
+        return 400
+    cc = ndb.Key(urlsafe=cc_id).get()
+    if cc == None:
+        print "No matching candidate course found"
+        return 400
+    req_box = ndb.Key(urlsafe=req_id).get()
+    if req_box == None:
+        print "No matching requirement box found"
+        return 400
+        
+    toDelete = None
+    for req_f_key in cc.reqs_fulfilled:
+        req_f = req_f_key.get()
+        if req_f == None:
+            continue
+        if req_f.req_course.urlsafe() == req_box.key.urlsafe():
+            toDelete = req_f_key
+            break
+            
+    if toDelete != None:
+        print "deleting"
+        print "had: " + str(len(cc.reqs_fulfilled))
+        cc.reqs_fulfilled.remove(toDelete)
+        print "now: " + str(len(cc.reqs_fulfilled))
+        toDelete.delete()
+        return 200
+    else:
+        print "passed in cc that doesnt currently fulfill supplied required course"
+        return 400
+    
 def checkStatusForCourseInBox(sps_id, cc_id, req_id):
     sps = ndb.Key(urlsafe=sps_id).get()
     if sps == None:

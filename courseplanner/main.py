@@ -107,7 +107,7 @@ class StudentHandler(webapp2.RequestHandler):
 
 class CandidateCourseHandler(webapp2.RequestHandler):
     @createStudent
-    def post(self, course_key):
+    def post(self):
         student_id = users.get_current_user().user_id()
         units = self.request.get('units')
         if units != '':
@@ -117,6 +117,8 @@ class CandidateCourseHandler(webapp2.RequestHandler):
         if grade != '':
             grade = float(grade)
         else: grade = None
+
+        course_key = self.request.get('course_key')
 
         year = self.request.get('year')
         if year != '':
@@ -276,6 +278,11 @@ class AddCourseToPlanHandler(webapp2.RequestHandler):
         status = reqs.addCourseForBox(sps_id, cc_id, req_id)
         self.response.status = status
         
+    @createStudent
+    def delete(self, sps_id, cc_id, req_id):
+        status = reqs.deleteCourseForBox(sps_id, cc_id, req_id)
+        self.response.status = status
+        
 class PlanPetitionStatusHandler(webapp2.RequestHandler):
     @createStudent
     def get(self, sps_id, cc_id, req_id):
@@ -371,21 +378,19 @@ class SpsHandler(webapp2.RequestHandler):
             
         sps_dict = sps.getSpsDict(sps_obj, sps_key)
         self.response.write(json.dumps(sps_dict))
-            
-        
 
 app = webapp2.WSGIApplication([
     ('/setupinitial7', MainHandler), 
     ('/api/trans/upload', TranscriptHandler), # Rush
     ('/api/plan/verify/(.*)/(.*)/(.*)', PlanVerificationHandler), # Rush
     ('/api/plan/verifybox/(.*)/(.*)', BoxVerificationHandler), # Rush
-    ('/api/plan/add/(.*)/(.*)/(.*)', AddCourseToPlanHandler), # Rush
+    ('/api/plan/add/(.*)/(.*)/(.*)', AddCourseToPlanHandler), # Rush (also deletes)
     ('/api/plan/petitionstatus/(.*)/(.*)/(.*)', PlanPetitionStatusHandler), # Rush
     ('/api/plan(/.*)?', PlanHandler), # Rush
     ('/api/populate', PopHandler), # Rush
     ('/api/sps/(.+)', SpsHandler),
     ('/api/student', StudentHandler), # Ryan (test function)
-    ('/api/student/course', CandidateCourseHandler), # Ryan
+    ('/api/student/course/', CandidateCourseHandler), # Ryan
     ('/api/student/course/(.+)', CandidateCourseHandler), # Ryan
     ('/api/course/search/(.*)', CourseSearchHandler), # Ryan
     ('/api/course/(.+)', CourseHandler), # Ryan
