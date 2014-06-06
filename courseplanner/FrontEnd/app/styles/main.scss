@@ -25,6 +25,14 @@ $icon-font-path: "/bower_components/bootstrap-sass-official/vendor/assets/fonts/
     border-top: 1px solid #e5e5e5;
 }*/
 
+.allCourses {
+  margin-bottom: 10px;
+}
+
+tr.spaceUnder > td {
+  padding-bottom: 10px;
+}
+
 .requirementGroup {
   vertical-align: top;
 }
@@ -71,7 +79,7 @@ html, body {
 #search-bar {
   top: 0px;
   margin-top: -38px;
-  margin-left: 50%;
+  margin-left: 40%;
   width: 30%;
   //margin-right: 500px;
 }
