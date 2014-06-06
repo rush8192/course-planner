@@ -44,8 +44,8 @@ class MainHandler(webapp2.RequestHandler):
     def get(self):
         self.response.write('Welcome to CoursePlanner!')
         # Add courses and majors to datastore on start up
-        #add_courses.main()
-        add_majors.main()
+        add_courses.main()
+        #add_majors.main()
 
 class TranscriptHandler(webapp2.RequestHandler):
     @createStudent
@@ -170,6 +170,7 @@ class CourseHandler(webapp2.RequestHandler):
 class CourseSearchHandler(webapp2.RequestHandler):
     @createStudent
     def get(self, prefix):
+        print 'Reached Search Handler'
         if len(prefix) > 0:
             self.response.write(get_course_listing_by_prefix(prefix))
 
@@ -333,8 +334,6 @@ class ProgramSheetHandler(webapp2.RequestHandler):
 class ProgramSheetSearchHandler(webapp2.RequestHandler):
     @createStudent
     def get(self):
-        print 'HIIII'
-        print self.request.get('ps_name_prefix')
         outputMessage(self, get_program_sheet_by_prefix(ps_name_prefix= self.request.get('ps_name_prefix')))
 
 class ReqBoxHandler(webapp2.RequestHandler):

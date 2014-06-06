@@ -35,9 +35,8 @@ def populate_req_dicts():
 
 def create_old_req_ihum_pwr_json():
     json_dict = {}
-    json_dict['req_name'] = 'Graduation Requirements (Class of 2015 and Before)'
-    json_dict['allow_double_count'] = 'y'
-    json_dict['conditional_ops'] = ''
+    json_dict['ps_name'] = 'GERs (Class of 2015 and Before)'
+    #json_dict['allow_double_count'] = 'y'
 
     req_boxes_json_array = []
     req_boxes = ['DB', 'EC', 'IHUM', 'Language', 'Writing']
@@ -45,6 +44,8 @@ def create_old_req_ihum_pwr_json():
         req_box_dict = {}
         req_box_dict['req_box_name'] = req_box_name
         req_box_dict['min_total_units'] = 0
+        req_box_dict['conditional_ops'] = ''
+
         if 'DB' in req_box_name:
             req_box_dict['min_num_courses'] = 5
         if 'EC' in req_box_name:
@@ -55,28 +56,28 @@ def create_old_req_ihum_pwr_json():
             req_box_dict['min_num_courses'] = 1
         if 'Writing' in req_box_name:
             req_box_dict['min_num_courses'] = 2
-        req_box_dict['req_box_courses'] = []
+        req_box_dict['req_courses'] = []
         req_boxes_json_array.append(req_box_dict)
 
     for key in old_req_dict:
         if 'DB' in key:
-            req_courses_array = req_boxes_json_array[0]['req_box_courses']
+            req_courses_array = req_boxes_json_array[0]['req_courses']
         if 'EC' in key:
-            req_courses_array = req_boxes_json_array[1]['req_box_courses']
+            req_courses_array = req_boxes_json_array[1]['req_courses']
         if 'IHUM' in key:
-            req_courses_array = req_boxes_json_array[2]['req_box_courses']
+            req_courses_array = req_boxes_json_array[2]['req_courses']
         if 'Language' in key:
-            req_courses_array = req_boxes_json_array[3]['req_box_courses']
+            req_courses_array = req_boxes_json_array[3]['req_courses']
         if 'Writing' in key and 'SLE' not in key:
-            req_courses_array = req_boxes_json_array[4]['req_box_courses']
+            req_courses_array = req_boxes_json_array[4]['req_courses']
         req_courses_dict = {}
         req_courses_dict['req_course_info'] = key
-        req_courses_dict['min_req_units'] = 0
-        req_courses_dict['min_req_grade'] = 1.7
-        req_courses_dict['allowed_course_list'] = old_req_dict[key]
+        req_courses_dict['min_units'] = 0
+        req_courses_dict['min_grade'] = 1.7
+        req_courses_dict['allowed_courses'] = list(set(old_req_dict[key]))
         req_courses_array.append(req_courses_dict)
 
-    json_dict['ps_req_boxes'] = req_boxes_json_array
+    json_dict['req_boxes'] = req_boxes_json_array
 
     f = open('old_req_json', 'w')
     json_str = json.dumps(json_dict, indent=2, sort_keys=True)
@@ -84,12 +85,12 @@ def create_old_req_ihum_pwr_json():
     f.close()
 
 def __view_gers():
-    gerSheetJson = json.load(open("old_req_json"))
+    #gerSheetJson = json.load(open("old_req_json"))
     print "Num Req Boxes: " + str(len(gerSheetJson['ps_req_boxes']))
 
 if __name__ == '__main__':
-    __view_gers()
-    #populate_req_dicts()
-    #create_old_req_ihum_pwr_json()
+    #__view_gers()
+    populate_req_dicts()
+    create_old_req_ihum_pwr_json()
 
 

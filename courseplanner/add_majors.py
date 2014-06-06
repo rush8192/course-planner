@@ -21,19 +21,19 @@ def __add_gers():
     if gerSheet == None:
         import json
         gerSheetJson = json.load(open("Data/old_req_json"))
-        gerSheet = Program_Sheet(ps_name = gerSheetJson['req_name'])
+        gerSheet = Program_Sheet(ps_name = gerSheetJson['ps_name'])
         gerSheetKey = gerSheet.put()
-        for boxJson in gerSheetJson['ps_req_boxes']:
+        for boxJson in gerSheetJson['req_boxes']:
             print "creating box: " + boxJson['req_box_name']
             boxModel = Req_Box(program_sheet=gerSheetKey, req_box_name=boxJson['req_box_name'],
                                 min_total_units=boxJson['min_total_units'], min_num_courses=boxJson['min_num_courses'],
                                 req_courses=[])
             boxModelKey = boxModel.put()
             gerSheet.req_boxes.append(boxModelKey)
-            for reqCourseJson in boxJson['req_box_courses']:
+            for reqCourseJson in boxJson['req_courses']:
                 print "creating course box: " + reqCourseJson['req_course_info']
                 reqCourse = Req_Course(req_box = boxModelKey, req_course_info = reqCourseJson['req_course_info'],
-                                        min_grade=reqCourseJson['min_req_grade'], min_units=reqCourseJson['min_req_units'])
+                                        min_grade=reqCourseJson['min_grade'], min_units=reqCourseJson['min_units'])
                 reqCourseKey = reqCourse.put()
                 boxModel.req_courses.append(reqCourseKey)
                 for courseTitle in reqCourseJson['allowed_course_list']:
