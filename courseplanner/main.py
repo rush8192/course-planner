@@ -289,6 +289,7 @@ class ProgramSheetHandler(webapp2.RequestHandler):
     @createStudent
     def post(self):
         ps_dict = json.loads(self.request.get('ps_json'))
+        print ps_dict
         ps_name = ps_dict['ps_name']
         req_box_array = ps_dict['req_boxes']
         outputMessage(self, add_program_sheet(ps_name, req_box_array), False)

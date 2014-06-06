@@ -1,0 +1,35 @@
+{
+    "ps_name": "Mathematics Minor",
+    "req_boxes": [
+        {
+            "req_box_name": "Minor Requirements",
+            "min_total_units": 24,
+            "min_num_courses": 0,
+            "conditional_ops": "",
+            "req_courses": [{
+                "req_course_info": "",
+                "min_units": 3,
+                "min_grade": 1.7,
+                "allowed_courses": [
+                    "MATH 51",
+                    "MATH 52",
+                    "MATH 53",
+                    "MATH 51H",
+                    "MATH 52H",
+                    "MATH 53H",
+                    "MATH 109",
+                    "MATH 110",
+                    "MATH 120",
+                    "MATH 171",
+                    "MATH 104",
+                    "MATH 113",
+                    "MATH 115",
+                    "MATH 116",
+                    "MATH 121",
+                    "MATH 122",
+                    "MATH 144"
+                ]
+            }]
+        }
+    ]
+}
