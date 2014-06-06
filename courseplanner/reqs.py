@@ -92,6 +92,52 @@ def checkStatusForCourseInBox(sps_id, cc_id, req_id):
     print "no candidate course found fulfilling supplied req_course for given plan"
     return False, "Candidate Course is not currently being used for given box"
         
+def verifyBox(sps_id, box_id):
+    sps = ndb.Key(urlsafe=sps_id).get()
+    if sps == None:
+        print "No matching student program sheet found"
+        return __fail("No matching student program sheet found")
+    box = ndb.Key(urlsafe=box_id).get()
+    if box == None:
+        print "No matching box found"
+        return __fail("No matching box found")
+        
+    boxCourses = []
+    print "sps has total courses numbering: " + str(len(sps.cand_courses))
+    for cc_key in sps.cand_courses:
+        cc = cc_key.get()
+        if cc == None or cc.reqs_fulfilled == None:
+            continue
+        for req_f_key in cc.reqs_fulfilled:
+            req_f = req_f_key.get()
+            if req_f.req_course.get().req_box.urlsafe() == box.key.urlsafe():
+                boxCourses.append(cc_key)
+                print "added course: " + cc.course.get().course_num
+
+    totalCourses = len(boxCourses)
+    if totalCourses < box.min_num_courses:
+        return __fail("Not enough courses in box; have " + str(totalCourses) + ", need " + str(box.min_num_courses))
+
+    totalUnits = 0
+    for course_key in boxCourses:
+        course = course_key.get()
+        totalUnits += course.units
+    if totalUnits < box.min_total_units:
+        return __fail("Insufficient units in box; have " + str(totalUnits) + ", need " + str(box.min_total_units))
+        
+    print "units: " + str(totalUnits) + " courses: " + str(totalCourses)
+        
+    condOpSuccess, message = __validateCondOps(sps, box)
+    if not condOpSuccess:
+        return __fail(message)
+        
+    return __success()
+        
+    
+def __validateCondOps(sps, box):
+    return True, ""
+    
+    
        
 def __fail(error):
     return False, error

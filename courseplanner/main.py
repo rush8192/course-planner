@@ -258,7 +258,7 @@ class PlanVerificationHandler(webapp2.RequestHandler):
         print json.dumps(dict(success=success,message=message))
         self.response.write(json.dumps(dict(success=success,message=message)))
 
-class PlanAddHandler(webapp2.RequestHandler):
+class AddCourseToPlanHandler(webapp2.RequestHandler):
     @createStudent
     def post(self, sps_id, cc_id, req_id):
         status = reqs.addCourseForBox(sps_id, cc_id, req_id)
@@ -268,6 +268,13 @@ class PlanPetitionStatusHandler(webapp2.RequestHandler):
     @createStudent
     def get(self, sps_id, cc_id, req_id):
         success, message = reqs.checkStatusForCourseInBox(sps_id, cc_id, req_id)
+        print json.dumps(dict(success=success,message=message))
+        self.response.write(json.dumps(dict(success=success,message=message)))
+        
+class BoxVerificationHandler(webapp2.RequestHandler):
+    @createStudent
+    def get(self, sps_id, box_id):
+        success, message = reqs.verifyBox(sps_id, box_id)
         print json.dumps(dict(success=success,message=message))
         self.response.write(json.dumps(dict(success=success,message=message)))
         
@@ -344,9 +351,10 @@ app = webapp2.WSGIApplication([
     ('/setupinitial7', MainHandler), 
     ('/api/trans/upload', TranscriptHandler), # Rush
     ('/api/plan/verify/(.*)/(.*)/(.*)', PlanVerificationHandler), # Rush
-    ('/api/plan/add/(.*)/(.*)/(.*)', PlanAddHandler), # Rush
-    ('/api/plan/petitionstatus/(.*)/(.*)/(.*)', PlanPetitionStatusHandler),
-    ('/api/plan(/.*)?', PlanAddHandler), # Rush
+    ('/api/plan/verifybox/(.*)/(.*)', BoxVerificationHandler), # Rush
+    ('/api/plan/add/(.*)/(.*)/(.*)', AddCourseToPlanHandler), # Rush
+    ('/api/plan/petitionstatus/(.*)/(.*)/(.*)', PlanPetitionStatusHandler), # Rush
+    ('/api/plan(/.*)?', PlanHandler), # Rush
     ('/api/populate', PopHandler), # Rush
     ('/api/student', StudentHandler), # Ryan (test function)
     ('/api/student/course', CandidateCourseHandler), # Ryan
