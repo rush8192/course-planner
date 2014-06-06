@@ -93,15 +93,22 @@ class Student(DictModel):
     student_id = ndb.StringProperty(required=True)
     academic_plans = ndb.KeyProperty(Student_Plan, repeated=True)
 
+class Req_Fullfillment(DictModel):
+    req_course = ndb.KeyProperty(Req_Course)
+    valid = ndb.BooleanProperty()
+    error_message = ndb.StringProperty()
+    program_sheet = ndb.KeyProperty(Student_Program_Sheet)
+
 class Candidate_Course(DictModel):
     course = ndb.KeyProperty(Course, required=True)
     student = ndb.KeyProperty(Student, required=True)
     student_plan = ndb.KeyProperty(Student_Plan)
     # (optional) requirement that course is being applied to
-    req_course = ndb.KeyProperty(Req_Course)
+    reqs_fulfilled = ndb.KeyProperty(Req_Fullfillment, repeated=True)
     term = ndb.StringProperty()
     year = ndb.IntegerProperty()
     grade = ndb.FloatProperty()
     units = ndb.IntegerProperty()
-    allow_petition = ndb.StringProperty()
+    
+
 #-------------------End Student Models--------------------#

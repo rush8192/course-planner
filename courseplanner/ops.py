@@ -585,4 +585,4 @@ def gradeToFloat(gradeStr):
     elif "F" == gradeStr:
         return 0.0
     print "No matching grade for: " + gradeStr
-    return None
+    return -1.0
