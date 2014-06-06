@@ -280,6 +280,11 @@ class AddCourseToPlanHandler(webapp2.RequestHandler):
         status = reqs.addCourseForBox(sps_id, cc_id, req_id)
         self.response.status = status
         
+    @createStudent
+    def delete(self, sps_id, cc_id, req_id):
+        status = reqs.deleteCourseForBox(sps_id, cc_id, req_id)
+        self.response.status = status
+        
 class PlanPetitionStatusHandler(webapp2.RequestHandler):
     @createStudent
     def get(self, sps_id, cc_id, req_id):
@@ -383,7 +388,7 @@ app = webapp2.WSGIApplication([
     ('/api/trans/upload', TranscriptHandler), # Rush
     ('/api/plan/verify/(.*)/(.*)/(.*)', PlanVerificationHandler), # Rush
     ('/api/plan/verifybox/(.*)/(.*)', BoxVerificationHandler), # Rush
-    ('/api/plan/add/(.*)/(.*)/(.*)', AddCourseToPlanHandler), # Rush
+    ('/api/plan/add/(.*)/(.*)/(.*)', AddCourseToPlanHandler), # Rush (also deletes)
     ('/api/plan/petitionstatus/(.*)/(.*)/(.*)', PlanPetitionStatusHandler), # Rush
     ('/api/plan(/.*)?', PlanHandler), # Rush
     ('/api/populate', PopHandler), # Rush
