@@ -38,9 +38,8 @@ def __deserialize_key(key_str):
     # Let's not crash on bad keys
     try: 
         return ndb.Key(urlsafe = key_str)
-    except Exception:
+    except:
         return None
-    
 
 # Checks existence of program sheet, true/false
 def __program_sheet_exists(ps_name):
@@ -235,15 +234,14 @@ def edit_course_listing(course_key, course_desc=None, course_title=None):
     course_listing_key = __deserialize_key(course_key)
     if course_listing_key is not None:
         course_listing_entity = course_listing_key.get()
-    if course_listing_entity is not None:
-        if course_desc:
-            course_listing_entity.course_desc = course_desc
-        if course_title:
-            course_listing_entity.course_title = course_title
-        course_listing_entity.put()
-        return True
-    else:
-        return ERROR('Course_num ' + course_num + ' not found.')
+        if course_listing_entity is not None:
+            if course_desc:
+                course_listing_entity.course_desc = course_desc
+            if course_title:
+                course_listing_entity.course_title = course_title
+            course_listing_entity.put()
+            return True
+    return ERROR('Course_num ' + course_num + ' not found.')
 
 # Remove course listing - return error if not found, True otherwise
 def remove_course_listing(course_key):
@@ -257,10 +255,12 @@ def remove_course_listing(course_key):
 # Return json dump of course information by course_num, or error
 # if not found.
 def get_course_listing(course_key, name=False):
-    course_listing_entity = __deserialize_key(course_key).get()
-    if (course_listing_entity is None):
-        return ERROR('Course_num ' + course_num + ' not found.')
-    return json.dumps(course_listing_entity.to_dict())
+    course_listing_key = __deserialize_key(course_key)
+    if course_listing_key:
+        course_listing_entity=course_listing_key.get()
+        if course_listing_entity is not None:
+            return json.dumps(course_listing_entity.to_dict())
+    return ERROR('Course_key ' + course_key + ' not found.')
 
 # Return json list of 10 courses with prefixes
 def get_course_listing_by_prefix(course_num_prefix):
