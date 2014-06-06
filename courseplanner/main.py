@@ -43,8 +43,8 @@ class MainHandler(webapp2.RequestHandler):
     def get(self):
         self.response.write('Welcome to CoursePlanner!')
         # Add courses and majors to datastore on start up
-        #add_courses.main()
-        add_majors.main()
+        add_courses.main()
+        #add_majors.main()
 
 class TranscriptHandler(webapp2.RequestHandler):
     @createStudent
@@ -56,34 +56,41 @@ class TranscriptHandler(webapp2.RequestHandler):
         print courseFp.getvalue()
         
         user = users.get_current_user();
-        uid = "rush8192"
-        #uid = user.nickname()
+        uid = user.user_id()
         
         matchingStudent = Student.query(Student.student_id == uid).get()
-        print matchingStudent
         for course in courseFp.getvalue().split("\n"):
             if course == "":
                 continue
             splitCourse = course.split("||")
             courseId = splitCourse[0]
             # second term is course title; we should be able to pull from DB
-            year = splitCourse[2]
+            year = int(splitCourse[2][0:4])
             term = splitCourse[3]
             # fourth term is units attempted; fifth is units earned
-            units = splitCourse[5]
-            grade = splitCourse[6]
+            units = int(float(splitCourse[5]))
+            grade = ops.gradeToFloat(splitCourse[6])
             matchingCourse = Course.query(Course.course_num == courseId).get()
             if matchingCourse == None:
                 print "possible error: no matching class: " + courseId
                 continue
-                for academicPlan in matchingStudent.academic_plans:
-                    plan = academicPlan.get()
-                    candCourse = Candidate_Course(course=matchingCourse.key, student=matchingStudent.key,
+            for academicPlan in matchingStudent.academic_plans:
+                plan = academicPlan.get()
+                alreadyHasCourse = False
+                for checkCandCourse in plan.student_course_list:
+                    if checkCandCourse.get().course.get().course_num == matchingCourse.course_num:
+                        alreadyHasCourse = True
+                        break
+                if alreadyHasCourse:
+                    print "student : " + uid + " already has course: " + matchingCourse.course_num
+                    continue
+                
+                candCourse = Candidate_Course(course=matchingCourse.key, student=matchingStudent.key,
                                     term=term, year=year, grade=grade, units=units)
-                    candCourse.put()
-                    plan.append(candCourse.key)
-                    plan.put()
-                    print "added course : " + courseId + " for student plan " + plan.student_plan_name
+                candCourse.put()
+                plan.student_course_list.append(candCourse.key)
+                plan.put()
+                print "added course : " + courseId + " for student plan " + plan.student_plan_name
             
 
     @createStudent
@@ -178,7 +185,7 @@ class PlanHandler(webapp2.RequestHandler):
         if (user == None):
             uid = self.request.get('uid')
         else:
-            uid = user.nickname()
+            uid = user.user_id()
         student = Student.query(Student.student_id == uid).get()
         if student == None:
             self.response.write('Error: no matching student record for student: ' + uid)
@@ -215,7 +222,7 @@ class PlanHandler(webapp2.RequestHandler):
         if (user == None):
             uid = self.request.get('uid')
         else:
-            uid = user.nickname()
+            uid = user.user_id()
         title = self.request.get('title')
         print "creating new plan for: " + uid + " with title: " + title
 

@@ -548,3 +548,31 @@ def remove_req_course_from_rb(rc_key):
             rb_entity.put()
         rc_entity.key.delete()
 #-------------------------End Program Sheet Ops-------------------------#
+
+# convert letter grade from transcript to floating point value
+
+def gradeToFloat(gradeStr):
+    if "A+" == gradeStr:
+        return 4.3
+    elif "A" == gradeStr:
+        return 4.0
+    elif "A-" == gradeStr:
+        return 3.7
+    elif "B+" == gradeStr:
+        return 3.3
+    elif "B" == gradeStr:
+        return 3.0
+    elif "B-" == gradeStr:
+        return 2.7
+    elif "C+" == gradeStr:
+        return 2.3
+    elif "C" == gradeStr:
+        return 2.0
+    elif "C-" == gradeStr:
+        return 1.7
+    elif "D" == gradeStr:
+        return 1.0
+    elif "F" == gradeStr:
+        return 0.0
+    print "No matching grade for: " + gradeStr
+    return None

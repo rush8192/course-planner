@@ -441,6 +441,9 @@ angular.module('coursePlannerApp')
     $scope.add = function() {
       var f = document.getElementById('transFile').files[0];
       var status = document.getElementById('statusSpan');
+      var button = document.getElementById('uploadTransButton');
+
+      button.disabled = true;
 
       status.innerHTML = "Starting Upload";
 
@@ -453,6 +456,7 @@ angular.module('coursePlannerApp')
                 } else {
                     status.innerHTML = "Upload Failed! status is " + this.status;
                 }
+                button.disabled = false;
             }
       };
       xhr.send(f);
