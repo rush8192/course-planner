@@ -366,6 +366,7 @@ class ReqCourseHandler(webapp2.RequestHandler):
 
 # returns the student program sheet json object used by the main frontend UI
 class SpsHandler(webapp2.RequestHandler):
+    @createStudent
     def get(self, sps_key):
         sps_obj = ndb.Key(urlsafe=sps_key).get()
         if sps_obj == None:
@@ -376,7 +377,36 @@ class SpsHandler(webapp2.RequestHandler):
             
         sps_dict = sps.getSpsDict(sps_obj, sps_key)
         self.response.write(json.dumps(sps_dict))
-            
+    
+    @createStudent
+    def post(self, ps_key):
+        ps_obj = ndb.Key(urlsafe=ps_key).get()
+        if ps_obj == None:
+            print "invalid program sheet key; no matching program sheet found"
+            self.response.status = 400
+            self.response.write("Invalid ps key")
+            return
+        uid = users.get_current_user().user_id()
+        allow_double = self.request.get('allow_double_count')
+        if allow_double == None or allow_double == "" or "false" in allow_double:
+            allow_double = False
+        else:
+            allow_double = True
+        self.response.status = sps.createSpsForProgramSheet(ps_obj, uid, allow_double)
+        print "attempted to create new sps; status code: " + self.response.status
+        
+        
+    @createStudent  
+    def delete(self, sps_key):
+        sps_obj = ndb.Key(urlsafe=sps_key).get()
+        if sps_obj == None:
+            print "invalid sps key: no matching sps found"
+            self.response.status = 400
+            self.response.write("Invalid S.P.S. key")
+            return
+
+        uid = users.get_current_user().user_id()
+        self.response.status = sps.deleteSps(sps_key, uid)
         
 
 app = webapp2.WSGIApplication([

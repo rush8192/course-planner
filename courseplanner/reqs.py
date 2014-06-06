@@ -98,6 +98,7 @@ def deleteCourseForBox(sps_id, cc_id, req_id):
         print "deleting"
         print "had: " + str(len(cc.reqs_fulfilled))
         cc.reqs_fulfilled.remove(toDelete)
+        cc.put()
         print "now: " + str(len(cc.reqs_fulfilled))
         toDelete.delete()
         return 200
