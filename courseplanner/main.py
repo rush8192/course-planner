@@ -26,17 +26,17 @@ from PSHandlers import *
 from decorators import *
 import cStringIO
 
-def outputMessage(self, result, get=True):
-    if get:
+def outputMessage(self, result, send_data_back=True):
+    if send_data_back:
         if 'errorMessage' not in json.loads(result):
             self.response.write(result)
         else:
             self.response.write('404 Error: ' + json.loads(result)['errorMessage'])
             self.response.set_status(404)
     else:
-        if type(result) is str and 'errorMessage' not in json.loads(result):
+        if type(result) is str and 'errorMessage' in json.loads(result):
             self.response.write('404 Error: ' + json.loads(result)['errorMessage'])
-            self.response.set_status(404)           
+            self.response.set_status(404)
 
 class MainHandler(webapp2.RequestHandler):
     @createStudent
@@ -147,14 +147,16 @@ class CourseHandler(webapp2.RequestHandler):
 
     @createStudent
     def post(self, course_num):
-        course_desc = self.request.get('course_desc')
-        course_title = self.request.get('course_title')
-        self.response.write(add_course_listing(course_num=course_num,
-                                                course_desc=course_desc,
-                                                course_title=course_title))
+        course_json = self.request.get('course_json')
+        course_dict = json.loads(course_json)
+        course_desc = course_dict['course_desc']
+        course_title = course_dict['course_title']
+        outputMessage(self, add_course_listing(course_num=course_num,
+                                         course_desc=course_desc,
+                                         course_title=course_title), False)
     @createStudent
     #TODO: make webapp2 support patch. But we're probably never using this
-    def patch(self, course_key):
+    def put(self, course_key):
         course_desc = self.request.get('course_desc')
         course_title = self.request.get('course_title')
         self.response.write(edit_course_listing(course_key=course_key,
@@ -282,85 +284,40 @@ def __str_to_float(str):
 class ProgramSheetHandler(webapp2.RequestHandler):
     @createStudent
     def get(self):
-        outputMessage(self, get_program_sheet(ps_name= self.request.get('ps_name')))
+        outputMessage(self, get_program_sheet(ps_key=self.request.get('ps_key')))
 
     @createStudent
     def post(self):
-        ps_name = self.request.get('ps_name')
-        req_box_array = json.loads(self.request.get('req_boxes'))
-        outputMessage(add_program_sheet(ps_name, req_box_array), False)
+        ps_dict = json.loads(self.request.get('ps_json'))
+        ps_name = ps_dict['ps_name']
+        req_box_array = ps_dict['req_boxes']
+        outputMessage(self, add_program_sheet(ps_name, req_box_array), False)
 
     @createStudent
+    # ProgramSheet exist verifier
     def put(self):
-        ps_key = self.request.get('ps_key')
-        new_ps_name = self.request.get('ps_name')
-        outputMessage(edit_program_sheet(ps_key, new_ps_name), False)
+        ps_name = self.request.get('ps_name')
+        outputMessage(self, program_sheet_exists(ps_name), send_data_back=True)
 
     @createStudent
     def delete(self):
-        ps_key = self.request.get('ps_key')
-        outputMessage(remove_program_sheet(ps_key), False)
+        ps_name = self.request.get('ps_name')
+        outputMessage(self, remove_program_sheet(ps_name), False)
 
 class ProgramSheetSearchHandler(webapp2.RequestHandler):
     @createStudent
     def get(self):
-        outputMessage(self, get_program_sheet_by_prefix(ps_name= self.request.get('ps_name_prefix')))
+        outputMessage(self, get_program_sheet_by_prefix(ps_name_prefix= self.request.get('ps_name_prefix')))
 
 class ReqBoxHandler(webapp2.RequestHandler):
     @createStudent
     def get(self):
-        outputMessage(get_program_sheet(rb_key = self.request.get('rb_key')))
-
-    # Note POST is always called with ps_key
-    @createStudent
-    def post(self):
-        ps_key = self.request.get('ps_key')
-        req_box_dict = json.loads(self.request.get('req_box'))
-        outputMessage(add_req_box_to_ps(ps_entity=None, ps_key=ps_key, \
-                                        req_box_dict=req_box_dict), False)
-
-    @createStudent
-    def put(self):
-        rb_key = self.request.get('rb_key')
-        req_box_dict = self.request.get('req_box_dict')
-        for key in req_box_dict:
-            if req_box_dict[key] == '':
-                req_box_dict[key] = None
-        outputMessage(edit_req_box_in_ps(rb_entity=None, rb_key=rb_key, \
-                                         req_box_dict=req_box_dict), False)
-
-    @createStudent
-    def delete(self):
-        rb_key = self.request.get('rb_key')
-        outputMessage(remove_req_box_from_ps(rb_key), False)
+        outputMessage(self, get_req_box(rb_key = self.request.get('rb_key')))
 
 class ReqCourseHandler(webapp2.RequestHandler):
     @createStudent
     def get(self):
-        outputMessage(get_program_sheet(rc_key = self.request.get('rc_key')))
-
-    # Note POST is always called with rb_key
-    @createStudent
-    def post(self):
-        rb_key = self.request.get('rb_key')
-        req_course_dict = json.loads(self.request.get('req_course'))
-        outputMessage(add_req_course_to_rb(rb_entity=None, rb_key=rb_key, \
-                                           req_course_dict=req_course_dict), False)
-
-    @createStudent
-    def put(self):
-        rc_key = self.request.get('rc_key')
-        req_course_dict = json.loads(self.request.get('req_course_dict'))
-        for key in req_course_dict:
-            if req_course_dict[key] == '':
-                req_course_dict[key] = None
-        outputMessage(edit_req_course_in_rb(rc_entity=None, rc_key=rc_key, \
-                                            req_course_dict=req_course_dict), False)
-
-    @createStudent
-    def delete(self):
-        rc_key = self.request.get('rc_key')
-        outputMessage(remove_req_course_from_rb(rc_key), False)
+        outputMessage(self, get_req_course(rc_key = self.request.get('rc_key')))
 
 #--------------End Program Sheet Handlers-----------------------#
 
