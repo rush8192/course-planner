@@ -561,5 +561,7 @@ angular.module('coursePlannerApp')
 .factory('Courses', function ($resource) {
     return $resource('/api/course/:key', {
         key:'@key'
+    }, {
+        save: {}
     });
 });
