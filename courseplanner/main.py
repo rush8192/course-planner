@@ -24,6 +24,7 @@ from webapp2 import uri_for
 from ops import *
 from PSHandlers import *
 from decorators import *
+import reqs
 import cStringIO
 
 def outputMessage(self, result, send_data_back=True):
@@ -43,8 +44,8 @@ class MainHandler(webapp2.RequestHandler):
     def get(self):
         self.response.write('Welcome to CoursePlanner!')
         # Add courses and majors to datastore on start up
-        add_courses.main()
-        #add_majors.main()
+        #add_courses.main()
+        add_majors.main()
 
 class TranscriptHandler(webapp2.RequestHandler):
     @createStudent
@@ -252,8 +253,23 @@ class PlanHandler(webapp2.RequestHandler):
 
 class PlanVerificationHandler(webapp2.RequestHandler):
     @createStudent
-    def get(self):
-        print "unimplemented"
+    def get(self, sps_id, cc_id, req_id):
+        success, message = reqs.verifyCourseForBox(sps_id, cc_id, req_id)
+        print json.dumps(dict(success=success,message=message))
+        self.response.write(json.dumps(dict(success=success,message=message)))
+
+class PlanAddHandler(webapp2.RequestHandler):
+    @createStudent
+    def post(self, sps_id, cc_id, req_id):
+        status = reqs.addCourseForBox(sps_id, cc_id, req_id)
+        self.response.status = status
+        
+class PlanPetitionStatusHandler(webapp2.RequestHandler):
+    @createStudent
+    def get(self, sps_id, cc_id, req_id):
+        success, message = reqs.checkStatusForCourseInBox(sps_id, cc_id, req_id)
+        print json.dumps(dict(success=success,message=message))
+        self.response.write(json.dumps(dict(success=success,message=message)))
         
 # populates a few sample users into the db for testing purposes
 class PopHandler(webapp2.RequestHandler):
@@ -329,9 +345,11 @@ class ReqCourseHandler(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     ('/setupinitial7', MainHandler), 
     ('/api/trans/upload', TranscriptHandler), # Rush
-    ('/api/plan(/.*)?', PlanHandler), # Rush
+    ('/api/plan/verify/(.*)/(.*)/(.*)', PlanVerificationHandler), # Rush
+    ('/api/plan/add/(.*)/(.*)/(.*)', PlanAddHandler), # Rush
+    ('/api/plan/petitionstatus/(.*)/(.*)/(.*)', PlanPetitionStatusHandler),
+    ('/api/plan(/.*)?', PlanAddHandler), # Rush
     ('/api/populate', PopHandler), # Rush
-    ('/api/plan/verify', PlanVerificationHandler), # Rush
     ('/api/student', StudentHandler), # Ryan (test function)
     ('/api/student/course', CandidateCourseHandler), # Ryan
     ('/api/student/course/(.+)', CandidateCourseHandler), # Ryan
