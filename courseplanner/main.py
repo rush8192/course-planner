@@ -140,11 +140,13 @@ class CourseHandler(webapp2.RequestHandler):
 
     @createStudent
     def post(self, course_num):
-        course_desc = self.request.get('course_desc')
-        course_title = self.request.get('course_title')
-        self.response.write(add_course_listing(course_num=course_num,
-                                                course_desc=course_desc,
-                                                course_title=course_title))
+        course_json = self.request.get('course_json')
+        course_dict = json.loads(course_json)
+        course_desc = course_dict['course_desc']
+        course_title = course_dict['course_title']
+        outputMessage(self, add_course_listing(course_num=course_num,
+                                         course_desc=course_desc,
+                                         course_title=course_title), False)
     @createStudent
     #TODO: make webapp2 support patch. But we're probably never using this
     def put(self, course_key):
@@ -277,7 +279,7 @@ def __str_to_float(str):
 class ProgramSheetHandler(webapp2.RequestHandler):
     @createStudent
     def get(self):
-        outputMessage(self, get_program_sheet(ps_key= self.request.get('ps_key')))
+        outputMessage(self, get_program_sheet(ps_key=self.request.get('ps_key')))
 
     @createStudent
     def post(self):

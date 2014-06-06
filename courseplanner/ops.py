@@ -309,7 +309,7 @@ Returns:
     Error message on failure
 """
 def get_program_sheet(ps_key):
-    ps_dict = __deserialize_key(ps_key).get()
+    ps_dict = __get_ps_dict(__deserialize_key(ps_key).get().ps_name)
     if type(ps_dict) != dict:
         return ERROR(ps_dict)
     return json.dumps(ps_dict, sort_keys=True, indent=4, separators=(',', ': '))
