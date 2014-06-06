@@ -1,0 +1,577 @@
+{
+   "ps_name":"Computer Science: Biocomputation",
+   "allow_double_count":"y",
+   "req_boxes":[
+      {
+         "req_box_name":"Mathematics",
+         "min_total_units":23,
+         "min_num_courses":0,
+         "conditional_ops": "",
+         "req_courses":[
+            {
+               "req_course_name":"MATH 41",
+               "req_course_info": "Math 40 sequence, 19 sequence, or AP/IB credit", 
+               "min_units":5,
+               "min_grade":0.7,
+               "allowed_courses":[
+                  "MATH 41, MATH 19, MATH 20"
+               ]
+            },
+            {
+               "req_course_name":"MATH 42",
+               "req_course_info": "Math 40 sequence, 19 sequence, or AP/IB credit", 
+               "min_units":5,
+               "min_grade":0.7,
+               "allowed_courses":[
+                  "MATH 42, MATH 21"
+               ]
+            },
+            {
+               "req_course_name":"CS 103",
+               "req_course_info":"",
+               "min_units":5,
+               "min_grade":0.7,
+               "allowed_courses":[
+                  "CS 103"
+               ]
+            },
+            {
+               "req_course_name":"CS 109",
+               "req_course_info":"",
+               "min_units":5,
+               "min_grade":0.7,
+               "allowed_courses":[
+                  "CS 109"
+               ]
+            },
+            {
+               "req_course_name":"Stats",
+               "req_course_info":"One of the follows:",
+               "min_units":0,
+               "min_grade":0.7,
+               "allowed_courses":[
+                  "STAT 141", 
+                  "STAT 203", 
+                  "STAT 205", 
+                  "STAT 215"
+               ]
+            }
+         ]
+      },
+      {
+         "req_box_name":"Science",
+         "min_total_units":22,
+         "min_num_courses":5,
+         "conditional_ops": "",
+         "req_courses":[
+            {
+               "req_course_name":"PHYSICS 41",
+               "req_course_info":"Physics 41 or 61",
+               "min_units":4,
+               "min_grade":0.7,
+               "allowed_courses":[
+                  "PHYSICS 41",
+                  "PHYSICS 61"
+               ]
+            },
+            {
+               "req_course_name":"Chemistry",
+               "req_course_info":"Chem 31A/B or 31X",
+               "min_units":4,
+               "min_grade":0.7,
+               "allowed_courses":[
+                  "CHEM 31A",
+                  "CHEM 31X"
+               ]
+            },
+            {
+               "req_course_name":"Chemistry",
+               "req_course_info":"Chem 31A/B or 31X",
+               "min_units":0,
+               "min_grade":0.7,
+               "allowed_courses":[
+                  "CHEM 31B"
+               ]
+            },
+            {
+               "req_course_name":"Biology 1",
+               "req_course_info":"BIO 40 sequence or HUMBIO 2-4",
+               "min_units":5,
+               "min_grade":0.7,
+               "allowed_courses":[
+                  "BIO 41",
+                  "HUMBIO 2A"
+               ]
+            },
+            {
+               "req_course_name":"Biology 2",
+               "req_course_info":"BIO 40 sequence or HUMBIO 2-4",
+               "min_units":5,
+               "min_grade":0.7,
+               "allowed_courses":[
+                  "BIO 42",
+                  "HUMBIO 3A"
+               ]
+            },
+            {
+               "req_course_name":"Biology 3",
+               "req_course_info":"BIO 40 sequence or HUMBIO 2-4",
+               "min_units":0,
+               "min_grade":0.7,
+               "allowed_courses":[
+                  "HUMBIO 4A"
+               ]
+            }
+         ]
+      },
+      {
+         "req_box_name":"Engineering Fundamentals",
+         "min_total_units":13,
+         "min_num_courses":3,
+         "conditional_ops": "",
+         "req_courses":[
+            {
+               "req_course_name":"CS 106B/X",
+               "req_course_info":"",
+               "min_units":5,
+               "min_grade":0.7,
+               "allowed_courses":[
+                  "CS 106B",
+                  "CS 106X"
+               ]
+            },
+            {
+               "req_course_name":"Elective",
+               "req_course_info":"Fundamentals Elevtive: any approved engineering fundamentals class besides CS106A/B",
+               "min_units":3,
+               "min_grade":0.7,
+               "allowed_courses":[
+                  "ENGR 10",
+                  "ENGR 14",
+                  "ENGR 15",
+                  "ENGR 20",
+                  "ENGR 25B",
+                  "ENGR 25E",
+                  "ENGR 30",
+                  "ENGR 40",
+                  "ENGR 40P",
+                  "ENGR 50",
+                  "ENGR 50E",
+                  "ENGR 50M",
+                  "ENGR 60",
+                  "ENGR 62",
+                  "ENGR 80",
+                  "ENGR 90"
+               ]
+            }
+         ]
+      },
+      {
+         "req_box_name":"Technology in Society",
+         "min_total_units":3,
+         "min_num_courses":1,
+         "conditional_ops": "",
+         "req_courses":[
+            {
+               "req_course_name":"TIS",
+               "req_course_info":"One of the approved Technology in Society courses:",
+               "min_units":3,
+               "min_grade":0.7,
+               "allowed_courses":[
+                  "BIOE 131",
+                  "CLASSART 113",
+                  "COMM 120W",
+                  "COMM 169",
+                  "CS 181",
+                  "CS 181W",
+                  "ENGR 130",
+                  "ENGR 131",
+                  "ENGR 145",
+                  "HUMBIO 174",
+                  "MS&E 181",
+                  "MS&E 193",
+                  "MS&E 193W",
+                  "MS&E 197",
+                  "POLISCI 114S",
+                  "PUBLPOL 122",
+                  "PUBLPOL 194"
+               ]
+            }
+          ]
+      },
+      {
+         "req_box_name":"Writing in the Major",
+         "min_total_units":3,
+         "min_num_courses":1,
+         "conditional_ops": "",
+         "req_courses":[
+            {
+               "req_course_name":"WIM",
+               "req_course_info":"One of the following Writing in the Major courses:",
+               "min_units":3,
+               "min_grade":0.7,
+               "allowed_courses":[
+                  "CS 181W",
+                  "CS 191W",
+                  "CS 194W",
+                  "CS 210B",
+                  "CS 294W"
+               ]
+            }
+         ]
+      },
+      {
+         "req_box_name":"Core",
+         "min_total_units":14,
+         "min_num_courses":4,
+         "conditional_ops": "",
+         "req_courses":[
+            {
+               "req_course_name":"CS 107",
+               "req_course_info":"",
+               "min_units":5,
+               "min_grade":0.7,
+               "allowed_courses":[
+                  "CS 107"
+               ]
+            },
+            {
+               "req_course_name":"CS 110",
+               "req_course_info":"",
+               "min_units":5,
+               "min_grade":0.7,
+               "allowed_courses":[
+                  "CS 110"
+               ]
+            },
+            {
+               "req_course_name":"CS 161",
+               "req_course_info":"",
+               "min_units":5,
+               "min_grade":0.7,
+               "allowed_courses":[
+                  "CS 161"
+               ]
+            },
+            {
+               "req_course_name":"Senior Project",
+               "req_course_info":"",
+               "min_units":3,
+               "min_grade":0.7,
+               "allowed_courses":[
+                  "CS 191",
+                  "CS 191W",
+                  "CS 194",
+                  "CS 194W",
+                  "CS 210B",
+                  "CS 294",
+                  "CS 294W"
+               ]
+            }
+         ]
+      },
+      {
+         "req_box_name":"Depth: Biocomputation",
+         "min_total_units":21,
+         "min_num_courses":6,
+         "conditional_ops": "",
+         "req_courses":[
+            {
+               "req_course_name":"AI",
+               "req_course_info":"One of the following:",
+               "min_units":4,
+               "min_grade":0.7,
+               "allowed_courses":[
+                  "CS 221",
+                  "CS 121",
+                  "CS 228",
+                  "CS 229",
+                  "CS 231A"
+               ]
+            },
+            {
+               "req_course_name":"Biocomputation",
+               "req_course_info":"One of the following:",
+               "min_units":3,
+               "min_grade":0.7,
+               "allowed_courses":[
+                  "CS 262",
+                  "CS 270",
+                  "CS 173",
+                  "CS 273",
+                  "CS 274",
+                  "CS 275",
+                  "CS 278",
+                  "CS 279"
+               ]
+            },
+            {
+               "req_course_name":"AI/BioComp",
+               "req_course_info":"One more from first two requirement lists",
+               "min_units":3,
+               "min_grade":0.7,
+               "allowed_courses":[
+                  "CS 221",
+                  "CS 121",
+                  "CS 228",
+                  "CS 229",
+                  "CS 231A",
+                  "CS 262",
+                  "CS 270",
+                  "CS 173",
+                  "CS 273",
+                  "CS 274",
+                  "CS 275",
+                  "CS 278",
+                  "CS 279"
+               ]
+            },
+            {
+               "req_course_name":"Restricted Elective",
+               "req_course_info":"One course from the general CS electives, BMC 'Informatics' electives list, or BioE 101",
+               "min_units":3,
+               "min_grade":0.7,
+               "allowed_courses":[
+                  "BIOE 101",
+                  "CS 173",
+                  "CS 273",
+                  "CS 274",
+                  "CS 275",
+                  "CS 278",
+                  "CS 279",
+                  "CS 374",
+                  "EE 263",
+                  "EE 364A",
+                  "MS&E 152",
+                  "MS&E 252",
+                  "STAT 206",
+                  "STAT 315A",
+                  "STAT 315B",
+                  "BIOCHEM 218",
+                  "BMI 260",
+                  "GENE 211",
+                  "CS 108",
+                  "CS 124",
+                  "CS 131",
+                  "CS 140",
+                  "CS 142",
+                  "CS 143",
+                  "CS 144",
+                  "CS 145",
+                  "CS 147",
+                  "CS 148",
+                  "CS 149",
+                  "CS 154",
+                  "CS 155",
+                  "CS 156",
+                  "CS 157",
+                  "CS 164",
+                  "CS 166",
+                  "CS 167",
+                  "CS 205A",
+                  "CS 205B",
+                  "CS 210A",
+                  "CS 222",
+                  "CS 223A",
+                  "CS 224M",
+                  "CS 224N",
+                  "CS 224S",
+                  "CS 224U",
+                  "CS 224W",
+                  "CS 225A",
+                  "CS 225B",
+                  "CS 226",
+                  "CS 227",
+                  "CS 227B",
+                  "CS 228",
+                  "CS 228T",
+                  "CS 229",
+                  "CS 229A",
+                  "CS 229T",
+                  "CS 231A",
+                  "CS 235",
+                  "CS 240",
+                  "CS 240H",
+                  "CS 241",
+                  "CS 242",
+                  "CS 243",
+                  "CS 244",
+                  "CS 244B",
+                  "CS 245",
+                  "CS 246",
+                  "CS 247",
+                  "CS 248",
+                  "CS 249A",
+                  "CS 249B",
+                  "CS 254",
+                  "CS 255",
+                  "CS 258",
+                  "CS 261",
+                  "CS 262",
+                  "CS 263",
+                  "CS 265",
+                  "CS 267",
+                  "CS 270",
+                  "CS 271",
+                  "CS 272",
+                  "CS 173",
+                  "CS 273A",
+                  "CS 274",
+                  "CS 276",
+                  "CS 277",
+                  "CS 295",
+                  "CME 108",
+                  "EE 108B",
+                  "EE 282"
+               ]
+            },
+            {
+               "req_course_name":"Informatics Elective",
+               "req_course_info":"One course from the BMC 'Informatics' electives list",
+               "min_units":3,
+               "min_grade":0.7,
+               "allowed_courses":[
+                  "CS 145",
+                  "CS 173",
+                  "CS 273",
+                  "CS 274",
+                  "CS 275",
+                  "CS 278",
+                  "CS 279",
+                  "CS 374",
+                  "EE 263",
+                  "EE 364A",
+                  "MS&E 152",
+                  "MS&E 252",
+                  "STAT 206",
+                  "STAT 315A",
+                  "STAT 315B",
+                  "BIOCHEM 218",
+                  "BMI 260",
+                  "GENE 211"
+               ]
+            },
+            {
+               "req_course_name":"Restricted Elective",
+               "req_course_info":"One course from the BMC 'Informatics', 'Cellular/Molecular', or 'Organs/Organisms' electives lists",
+               "min_units":3,
+               "min_grade":0.7,
+               "allowed_courses":[
+                  "CS 145",
+                  "CS 173",
+                  "CS 273",
+                  "CS 274",
+                  "CS 275",
+                  "CS 278",
+                  "CS 279",
+                  "CS 374",
+                  "EE 263",
+                  "EE 364A",
+                  "MS&E 152",
+                  "MS&E 252",
+                  "STAT 206",
+                  "STAT 315A",
+                  "STAT 315B",
+                  "BIOCHEM 218",
+                  "BMI 260",
+                  "GENE 211",
+                  "BIOE 45",
+                  "BIOE 222A",
+                  "BIOE 222B",
+                  "CHEME 150",
+                  "CHEME 174",
+                  "CS 262",
+                  "CS 279",
+                  "ME 239",
+                  "APPPHYS 294",
+                  "BIO 104",
+                  "BIO 118",
+                  "BIO 129A",
+                  "BIO 129B",
+                  "BIO 188",
+                  "BIO 189",
+                  "BIO 203",
+                  "BIO 214",
+                  "BIO 217",
+                  "BIO 230",
+                  "CHEM 135",
+                  "CHEM 171",
+                  "BIOCHEM 218",
+                  "BIOCHEM 241",
+                  "GENE 211",
+                  "SBIO 228",
+                  "BIOE 220",
+                  "BIOE 261",
+                  "ME 280",
+                  "ME 281",
+                  "BIO 112",
+                  "BIO 158",
+                  "BIO 183",
+                  "DB 210",
+                  "SURG 101"
+               ]
+            },
+            {
+               "req_course_name":"Restricted Elective",
+               "req_course_info":"One course from the BMC 'Informatics', 'Cellular/Molecular', or 'Organs/Organisms' electives lists",
+               "min_units":3, 
+               "min_grade":0.7,
+               "allowed_courses":[
+                  "CS 145",
+                  "CS 173",
+                  "CS 273",
+                  "CS 274",
+                  "CS 275",
+                  "CS 278",
+                  "CS 279",
+                  "CS 374",
+                  "EE 263",
+                  "EE 364A",
+                  "MS&E 152",
+                  "MS&E 252",
+                  "STAT 206",
+                  "STAT 315A",
+                  "STAT 315B",
+                  "BIOCHEM 218",
+                  "BMI 260",
+                  "GENE 211",
+                  "BIOE 45",
+                  "BIOE 222A",
+                  "BIOE 222B",
+                  "CHEME 150",
+                  "CHEME 174",
+                  "CS 262",
+                  "CS 279",
+                  "ME 239",
+                  "APPPHYS 294",
+                  "BIO 104",
+                  "BIO 118",
+                  "BIO 129A",
+                  "BIO 129B",
+                  "BIO 188",
+                  "BIO 189",
+                  "BIO 203",
+                  "BIO 214",
+                  "BIO 217",
+                  "BIO 230",
+                  "CHEM 135",
+                  "CHEM 171",
+                  "BIOCHEM 218",
+                  "BIOCHEM 241",
+                  "GENE 211",
+                  "SBIO 228",
+                  "BIOE 220",
+                  "BIOE 261",
+                  "ME 280",
+                  "ME 281",
+                  "BIO 112",
+                  "BIO 158",
+                  "BIO 183",
+                  "DB 210",
+                  "SURG 101"
+               ]
+            }
+         ]
+      }
+   ]
+}
