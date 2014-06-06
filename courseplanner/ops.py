@@ -137,8 +137,7 @@ def get_student():
 #       or major undecided)
 #    student_plan (optional): key str for Student_Plan to add course to. If not
 #       given, course 'floats' outside of any plan (fine for single plan model).
-def add_candidate_course(student_id, course_key, grade, units, req_course=None,
-                         student_plan=None):
+def add_candidate_course(student_id, course_key, grade, units, year, term):
     if student_id is None or student_id == '':
         return ERROR('Must provide student_id')
     else:
@@ -155,22 +154,13 @@ def add_candidate_course(student_id, course_key, grade, units, req_course=None,
     existing = Candidate_Course.query(Candidate_Course.course == course.key,  
                                       Candidate_Course.student == student.key).get() 
     if existing: existing.key.delete()   
-    if req_course:
-        req_course_key = __deserialize_key(req_course)
-        if not req_course:
-            return ERROR('Req_Course key ' + req_course + ' not found.')
-        candidate_course = Candidate_Course(course=course.key, 
-                                            req_course=req_course_key,
-                                            grade=grade, units=units, 
-                                            student=student.key)
-    else:
-        candidate_course = Candidate_Course(course=course.key,
-                                            grade=grade, units=units, 
-                                            student=student.key)
+    candidate_course = Candidate_Course(course=course.key, 
+                                        grade=grade, units=units, term=term, year=year, 
+                                        student=student.key)
+    candidate_course.put()
     student_plan_entity = student.academic_plans[0].get()
     student_plan_entity.student_course_list.append(candidate_course.key)
     candidate_course.student_plan = student_plan_entity.key
-
     student_plan_entity.put()
     candidate_course.put()
     return True
