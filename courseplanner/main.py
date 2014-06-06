@@ -308,6 +308,8 @@ class ProgramSheetHandler(webapp2.RequestHandler):
 class ProgramSheetSearchHandler(webapp2.RequestHandler):
     @createStudent
     def get(self):
+        print 'HIIII'
+        print self.request.get('ps_name_prefix')
         outputMessage(self, get_program_sheet_by_prefix(ps_name_prefix= self.request.get('ps_name_prefix')))
 
 class ReqBoxHandler(webapp2.RequestHandler):
