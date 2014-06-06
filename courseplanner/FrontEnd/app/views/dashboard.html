@@ -26,6 +26,37 @@
     </div>
 </script>
 
+<script type="text/ng-template" id="allCoursesModalContent.html">
+    <div class="modal-header">
+        <h2>View All Courses</h2>
+    </div>
+    <div class="modal-body">
+        <table cellspacing="0" cellpadding="0" style="width: 100%">
+            <tr class="spaceUnder" ng-repeat="course_group in courses">
+                <td ng-repeat="course in course_group">
+                    <button class="btn btn-primary" disabled="disabled">{{course.name}}</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="cancel()">Close</button>
+    </div>
+</script>
+
+<script type="text/ng-template" id="addPlanModal.html">
+    <div class="modal-header">
+        <h2>Add a Major or Minor</h2>
+    </div>
+    <div class="modal-body">
+        <input type="text" ng-model="asyncSelected" placeholder="Search for majors or minors" typeahead="address for address in getLocation($viewValue)" typeahead-loading="loadingLocations" class="form-control">
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">Add</button>
+        <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+    </div>
+</script>
+
 <script type="text/ng-template" id="uploadTranscriptModal.html">
     <div class="modal-header">
         <h3>Upload a transcript</h3>
@@ -48,6 +79,7 @@
     <div class="row header-row">
         <div id="header">
             <ul class="nav nav-pills pull-right nav-container">
+                <li class="active" ng-click="addMM()"><a ng-href="#">Add Major/Minor</a></li>
                 <li class="active" ng-click="transcriptModal()"><a ng-href="#">Upload</a></li>
                 <li class="active"><a ng-href="#">Logout</a></li>
             </ul>
@@ -58,6 +90,7 @@
     <div class="row content-row">
         <div id="sidebar" class="col-md-2 column">
             <div class="spacer"/>
+            <button class="btn btn-default col-md-offset-3 allCourses" ng-click="seeAllCourses()">My Courses</button>
             <accordion close-others="oneAtATime">
                 <accordion-group is-open="$first" ng-repeat="group in groups">
                     <accordion-heading>

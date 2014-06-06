@@ -34,10 +34,73 @@ var modifyCourseDeleteModal = function() {
   document.getElementById("deleteCourseModalLabel").innerHTML = ps_name;
 }
 
+var createCourse = function() {
+  course_num = document.getElementById('course-search-box').value.toUpperCase();
+  var course_json_str = document.getElementById('createCourseTextAreaID').value;
+  if (!isValidJson(course_json_str)) {
+    window.alert("Invalid JSON!");
+    return;
+  }
+  if ((course_num.toUpperCase() in course_keys) === true) {
+    window.alert("Course already exists!");
+    return;
+  }
+
+  var xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState == 4) {
+      if (xhr.status === 200) {
+        window.alert("Success!");
+        return;
+      }
+      else {
+        window.alert("Failed to Add Course :(");
+      }
+    }
+  }
+  xhr.open("POST", "/api/course/" + course_num, true);
+  var params = "course_json=" + course_json_str;
+  //Send the proper header information along with the request
+  xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  xhr.send(params);
+}
+
+var deleteCourse = function() {
+  orig_course_num = document.getElementById("deleteCourseModalLabel").innerHTML;
+  upper_course_num = orig_course_num.toUpperCase();
+  var xhr = new XMLHttpRequest();
+  if ((upper_course_num in course_keys) === false) {
+    window.alert("Course doesn't exist!");
+    return;
+  }
+  course_key = course_keys[upper_course_num];
+
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState == 4) {
+      if (xhr.status === 200) {
+        window.alert("Successfully deleted!");
+        return;
+      }
+      else {
+        window.alert("Program sheet does not exist");
+      }
+    }
+  }
+  xhr.open("DELETE", "/api/course/" + course_key, true);
+  xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  xhr.send() 
+}
+
 var modifyViewModal = function() {
-  var ps_name = document.getElementById('program-sheet-search-box').value;
-  ps_key = ps_keys[ps_name];
-  document.getElementById("viewModalLabel").innerHTML = ps_name;
+  var orig_ps_name = document.getElementById('program-sheet-search-box').value;
+  upper_ps_name = orig_ps_name.toUpperCase();
+  document.getElementById("viewModalLabel").innerHTML = orig_ps_name;
+  if ((upper_ps_name in ps_keys) === false) {
+    var text = "Program sheet does not exist!";
+    $("textarea#viewTextAreaID").val(text);
+    return;
+  }
+  ps_key = ps_keys[upper_ps_name];
   var xhr = new XMLHttpRequest();
   xhr.onreadystatechange = function() {
     if (xhr.readyState == 4) {

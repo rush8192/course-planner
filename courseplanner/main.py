@@ -305,6 +305,7 @@ class ProgramSheetHandler(webapp2.RequestHandler):
     @createStudent
     def post(self):
         ps_dict = json.loads(self.request.get('ps_json'))
+        print ps_dict
         ps_name = ps_dict['ps_name']
         req_box_array = ps_dict['req_boxes']
         outputMessage(self, add_program_sheet(ps_name, req_box_array), False)
@@ -323,6 +324,8 @@ class ProgramSheetHandler(webapp2.RequestHandler):
 class ProgramSheetSearchHandler(webapp2.RequestHandler):
     @createStudent
     def get(self):
+        print 'HIIII'
+        print self.request.get('ps_name_prefix')
         outputMessage(self, get_program_sheet_by_prefix(ps_name_prefix= self.request.get('ps_name_prefix')))
 
 class ReqBoxHandler(webapp2.RequestHandler):

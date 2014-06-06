@@ -74,7 +74,7 @@ def __get_req_box_dict(rb_key):
     req_course_keys = list(rb_dict['req_courses'])
     rb_dict['req_courses'] = []
     for rc_key in req_course_keys:
-        req_course_dict = __get_req_course_dict(rc_key)
+        req_course_dict = __get_req_course_dict(rc_key, get_courses=True)
         if type(req_course_dict) != dict:
             return req_course_dict
         rb_dict['req_courses'].append(req_course_dict)
@@ -259,7 +259,7 @@ def get_course_listing(course_key, name=False):
     if course_listing_key:
         course_listing_entity=course_listing_key.get()
         if course_listing_entity is not None:
-            return json.dumps(course_listing_entity.to_dict())
+            return json.dumps(course_listing_entity.to_dict(), sort_keys=True, indent=4, separators=(',', ': '))
     return ERROR('Course_key ' + course_key + ' not found.')
 
 # Return json list of 10 courses with prefixes
@@ -383,7 +383,7 @@ def add_req_box_to_ps(ps_entity, req_box_dict, ps_key=None):
     min_units = req_box_dict['min_total_units']
     min_num_courses = req_box_dict['min_num_courses']
     conditional_ops = req_box_dict['conditional_ops']
-    rb_entity = Req_Box(program_sheet=ps_entity, req_box_name=req_box_name, \
+    rb_entity = Req_Box(program_sheet=ps_entity.key, req_box_name=req_box_name, \
                       min_total_units=min_units, min_num_courses=min_num_courses, \
                       conditional_ops=conditional_ops)
     rb_entity.put()
@@ -394,7 +394,7 @@ def add_req_box_to_ps(ps_entity, req_box_dict, ps_key=None):
         if (result != True):
             return result
     rb_entity.put()
-    ps_entity.req_boxes.append(req_box_entity.key())
+    ps_entity.req_boxes.append(rb_entity.key)
     ps_entity.put()
     return True
 
@@ -446,13 +446,13 @@ Removes a Req_Box reference from a Program_Sheet
 and deletes the Req_Box itself
 """
 def remove_req_box_from_ps(rb_key):
-    rb_entity = __deserialize_key(rb_key).get()
+    rb_entity = rb_key.get()
     if rb_entity != None: # None if doesn't exist?
         ps_entity = rb_entity.program_sheet.get()
         if ps_entity != None:
             remove_index = -1
             for i in range(len(ps_entity.req_boxes)):
-                if ps_entity.req_boxes[i].urlsafe() == rb_entity.urlsafe():
+                if ps_entity.req_boxes[i].urlsafe() == rb_entity.key.urlsafe():
                     del ps_entity.req_boxes[i]
                     break
             ps_entity.put()
@@ -482,30 +482,19 @@ def add_req_course_to_rb(rb_entity, req_course_dict, rb_key = None):
     min_grade = req_course_dict['min_grade']
     allowed_courses = req_course_dict['allowed_courses']
 
-    rc_entity = Req_Course(req_box=rb_entity, req_course_info=req_course_info, \
+    rc_entity = Req_Course(req_box=rb_entity.key, req_course_info=req_course_info, \
                            min_units = min_units, min_grade=min_grade)
     for course_name in allowed_courses:
         course_listing = __get_course_listing_entity(course_name)
         if course_listing == None:
-            return ERROR('Course ' + course_name + ' does not exist')
-        rc_entity.allowed_courses.append(course_listing.key())
+            print ('Course ' + course_name + ' does not exist.')
+            #return ERROR('Course ' + course_name + ' does not exist')
+        else:
+            rc_entity.allowed_courses.append(course_listing.key)
     rc_entity.put()
-    rb_entity.req_courses.append(rc_entity.key())
+    rb_entity.req_courses.append(rc_entity.key)
     rb_entity.put()
     return True
-
-"""
-Fetches Required Course based on key (exact match)
-
-Returns:
-    Json dump on success
-    Error message on failure
-"""
-def get_req_course(rc_key):
-    rc_dict = __get_rc_dict(rc_key, True)
-    if rc_dict is None:
-        return ERROR('Required course not found.')
-    return json.dumps(rc_dict)
 
 """
 Adds a Req_Course to link to a Req_Box
@@ -546,13 +535,13 @@ def edit_req_course_in_rb(rc_entity, req_course_dict, rc_key = None):
 Removes Req_Course link from a Req_Box and removes Req_Course itself
 """
 def remove_req_course_from_rb(rc_key):
-    rc_entity = __deserialize_key(rc_key).get()
+    rc_entity = rc_key.get()
     if rc_entity != None: # None if doesn't exist?
         rb_entity = rc_entity.req_box.get()
         if rb_entity != None:
             remove_index = -1
             for i in range(len(rb_entity.req_courses)):
-                if rb_entity.req_courses[i].urlsafe() == rc_entity.urlsafe():
+                if rb_entity.req_courses[i].urlsafe() == rc_entity.key.urlsafe():
                     del rb_entity.req_courses[i]
                     break
             rb_entity.put()
