@@ -21,7 +21,7 @@
         {{course.description}}
     </div>
     <div class="modal-footer">
-        <button class="btn btn-danger" ng-click="ok()">Remove  Course</button>
+        <button class="btn btn-danger" ng-click="ok()">Remove Course</button>
         <button class="btn btn-default" ng-click="cancel()">Cancel</button>
     </div>
 </script>
@@ -31,11 +31,15 @@
         <h3>Upload a transcript</h3>
     </div>
     <div class="modal-body">
-        Please select a transcript pdf file to upload: <br />
-        
+        Please select a transcript pdf file to upload: <br /><br />
+        <div ng-controller="TransUploadCtrl">
+          <input type="file" id="transFile"><br />
+          <button ng-click="add()">Upload Transcript</button><br /><br />
+          Status: <span id="statusSpan">Waiting for upload</span>
+        </div>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-default" ng-click="cancel()">Done</button>
+        <button class="btn btn-default" ng-click="ok()">Done</button>
     </div>
 </script>
 

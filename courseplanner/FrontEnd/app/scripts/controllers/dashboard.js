@@ -205,12 +205,6 @@ angular.module('coursePlannerApp')
                 templateUrl: 'uploadTranscriptModal.html',
                 controller: UploadInstanceCtrl
             });
-
-            modalInstance.result.then(function () {
-                $scope.removeCourse(coursesGroup, selectedCourse);
-            }, function () {
-                $log.info('Modal dismissed at: ' + new Date());
-            });
         };
 
         $scope.open = function (coursesGroup, selectedCourse) {
@@ -442,6 +436,29 @@ angular.module('coursePlannerApp')
                 ]
             }
         ];
+  })
+  .controller('TransUploadCtrl', function ($scope, $http, $timeout, $upload) {
+    $scope.add = function() {
+      var f = document.getElementById('transFile').files[0];
+      var status = document.getElementById('statusSpan');
+
+      status.innerHTML = "Starting Upload";
+
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', "/api/trans/upload", true);
+      xhr.onreadystatechange = function(e) {
+            if ( 4 == this.readyState ) {
+                if ( 200 == this.status) {
+                    status.innerHTML = "Upload Success!";
+                } else {
+                    status.innerHTML = "Upload Failed! status is " + this.status;
+                }
+            }
+      };
+      xhr.send(f);
+      
+      status.innerHTML = "Uploading. . .";
+    }
   })
     .directive('disableDrop', function () {
         return {
