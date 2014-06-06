@@ -12,6 +12,20 @@
     </div>
 </script>
 
+<script type="text/ng-template" id="tryAddCourseModalContent.html">
+    <div class="modal-header">
+        <h2>{{course.course_num}}</h2>
+        <h3>{{course.course_title}}</h3>
+    </div>
+    <div class="modal-body">
+        {{course.course_desc}}
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">Add Course</button>
+        <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+    </div>
+</script>
+
 <script type="text/ng-template" id="confirmMajorDeletionModal.html">
     <div class="modal-header">
         <h2>{{course.designation}}</h2>
@@ -84,7 +98,7 @@
                 <li class="active"><a ng-href="#">Logout</a></li>
             </ul>
             <h3 class="logo">CoursePlanner</h3>
-            <input id="search-bar" class="form-control col-md-1 search-bar" type="text" ng-model="asyncSelected" placeholder="Add a course" typeahead="address for address in getLocation($viewValue)" typeahead-loading="loadingLocations" typeahead-editable="false">
+            <input id="search-bar" class="form-control col-md-1 search-bar" type="text" ng-model="asyncSelected" placeholder="Add a course" typeahead="course.designation for course in searchForCourses($viewValue)" typeahead-on-select="displayCourseInfo($item,$model,$label)" typeahead-editable="false">
         </div>
     </div>
     <div class="row content-row">

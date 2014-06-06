@@ -298,18 +298,45 @@ angular.module('coursePlannerApp')
     $scope.foo = true;
   
     // Any function returning a promise object can be used to load values asynchronously
-    $scope.getLocation = function(val) {
-        return $http.get('http://maps.googleapis.com/maps/api/geocode/json', {
-            params: {
-                address: val,
-                sensor: false
-            }
+    $scope.searchForCourses = function(val) {
+        var url = '/api/course/search/'+val;
+        return $http.get(url, {
+            
         }).then(function(res){
-            var addresses = [];
-            angular.forEach(res.data.results, function(item){
-                addresses.push(item.formatted_address);
+            var courses = [];
+            angular.forEach(res.data, function(item){
+                for (var key in item) {
+                    item.designation = key;
+                    item.key = item[key];
+                    delete item[key];
+                }
+                courses.push(item);
             });
-            return addresses;
+            return courses;
+        });
+    };
+
+    $scope.displayCourseInfo = function ($item, $model, $label) {
+        $log.log($item);
+        $scope.tryAddCourse($item);
+    };
+
+    $scope.tryAddCourse = function (selectedCourse) {
+
+        var modalInstance = $modal.open({
+            templateUrl: 'tryAddCourseModalContent.html',
+            controller: ModalInstanceCtrl,
+            resolve: {
+                course: function () {
+                    return Courses.get({key:selectedCourse.key});
+                }
+            }
+        });
+
+        modalInstance.result.then(function () {
+            $scope.removeCourse(coursesGroup, selectedCourse);
+        }, function () {
+            $log.info('Modal dismissed at: ' + new Date());
         });
     };
 
@@ -532,7 +559,7 @@ angular.module('coursePlannerApp')
     }
 })
 .factory('Courses', function ($resource) {
-    return $resource('http://cs194.apiary-mock.com/api/course/:key', {
+    return $resource('/api/course/:key', {
         key:'@key'
     });
 });
