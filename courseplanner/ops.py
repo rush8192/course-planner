@@ -51,18 +51,19 @@ def __program_sheet_exists(ps_name):
 
 # Converts Req_Course entity to dictionary, replaces allowed course keys
 # with course names
-def __get_req_course_dict(rc_key):
+def __get_req_course_dict(rc_key, get_courses=False):
     rc_entity = __deserialize_key(rc_key).get()
     if rc_entity is None:
         return 'Cannot find Req_Course'
     rc_dict = rc_entity.to_dict()
     allowed_course_keys = list(rc_dict['allowed_courses'])
     rc_dict['allowed_courses'] = []
-    for ac_key in allowed_course_keys:
-        ac_entity = __deserialize_key(ac_key).get()
-        if ac_entity is None:
-            return 'Cannot find course from allowed course list'
-        rc_dict['allowed_courses'].append(ac_entity.course_num)
+    if (get_courses):
+        for ac_key in allowed_course_keys:
+            ac_entity = __deserialize_key(ac_key).get()
+            if ac_entity is None:
+                return 'Cannot find course from allowed course list'
+            rc_dict['allowed_courses'].append(ac_entity.course_num)
     return rc_dict
 
 # Converts Req_Box entity to dictionary with Req_Courses filled in
@@ -185,7 +186,7 @@ def remove_candidate_course(student_id, course_key, student_plan):
     if not course:
         return ERROR('Course ' + course_key + ' not found')
     if student_plan:
-        student_plan_key = __deserialize_key(studen_plan)
+        student_plan_key = __deserialize_key(student_plan)
         candidate_courses = Candidate_Course.query(Candidate_Course.student == student.key,
                                                    Candidate_Course.course == course.key,
                                                    Candidate_Course.student_plan
@@ -255,7 +256,7 @@ def remove_course_listing(course_key):
 
 # Return json dump of course information by course_num, or error
 # if not found.
-def get_course_listing(course_key):
+def get_course_listing(course_key, name=False):
     course_listing_entity = __deserialize_key(course_key).get()
     if (course_listing_entity is None):
         return ERROR('Course_num ' + course_num + ' not found.')
@@ -266,10 +267,13 @@ def get_course_listing_by_prefix(course_num_prefix):
     course_num_prefix = __fix_course_num(course_num_prefix)
     courses = Course.query(ndb.AND(Course.course_num >= course_num_prefix, \
                                    Course.course_num <= course_num_prefix +'z'))\
-              .fetch(limit=15, projection=[Course.course_num])
+              .fetch(limit=5, projection=[Course.course_num])
     json_array = []
     for course in courses:
-        json_array.append(course.course_num)
+        course_dict = {}
+        key_str = course.key.urlsafe()
+        course_dict[course.course_num] = key_str
+        json_array.append(course_dict)
     return json.dumps(json_array)
 
 #------------------------End Course Listing Methods------------------------#
@@ -304,8 +308,8 @@ Returns:
     Json dump on success
     Error message on failure
 """
-def get_program_sheet(ps_name):
-    ps_dict = __get_ps_dict(ps_name)
+def get_program_sheet(ps_key):
+    ps_dict = __deserialize_key(ps_key).get()
     if type(ps_dict) != dict:
         return ERROR(ps_dict)
     return json.dumps(ps_dict, sort_keys=True, indent=4, separators=(',', ': '))
@@ -321,10 +325,13 @@ def program_sheet_exists(ps_name):
 def get_program_sheet_by_prefix(ps_name_prefix):
     program_sheets = Program_Sheet.query(ndb.AND(Program_Sheet.ps_name >= ps_name_prefix, \
                                                  Program_Sheet.ps_name <= ps_name_prefix +'z'))\
-                                  .fetch(limit=10, projection=[Program_Sheet.ps_name])
+                                  .fetch(limit=5, projection=[Program_Sheet.ps_name])
     json_array = []
     for ps in program_sheets:
-        json_array.append(ps.ps_name)
+        ps_dict = {}
+        key_str = ps.key.urlsafe()
+        ps_dict[ps.ps_name] = key_str
+        json_array.append(ps_dict)
     return json.dumps(json_array)
 
 """
@@ -495,7 +502,7 @@ Returns:
     Error message on failure
 """
 def get_req_course(rc_key):
-    rc_dict = __get_rc_dict(rc_key)
+    rc_dict = __get_rc_dict(rc_key, True)
     if rc_dict is None:
         return ERROR('Required course not found.')
     return json.dumps(rc_dict)

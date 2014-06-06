@@ -277,7 +277,7 @@ def __str_to_float(str):
 class ProgramSheetHandler(webapp2.RequestHandler):
     @createStudent
     def get(self):
-        outputMessage(self, get_program_sheet(ps_name= self.request.get('ps_name')))
+        outputMessage(self, get_program_sheet(ps_key= self.request.get('ps_key')))
 
     @createStudent
     def post(self):
@@ -287,7 +287,7 @@ class ProgramSheetHandler(webapp2.RequestHandler):
         outputMessage(self, add_program_sheet(ps_name, req_box_array), False)
 
     @createStudent
-    # ProgramSheet exists
+    # ProgramSheet exist verifier
     def put(self):
         ps_name = self.request.get('ps_name')
         outputMessage(self, program_sheet_exists(ps_name), send_data_back=True)
@@ -295,7 +295,6 @@ class ProgramSheetHandler(webapp2.RequestHandler):
     @createStudent
     def delete(self):
         ps_name = self.request.get('ps_name')
-        print 'PS_NAME: ' + ps_name
         outputMessage(self, remove_program_sheet(ps_name), False)
 
 class ProgramSheetSearchHandler(webapp2.RequestHandler):
@@ -306,58 +305,12 @@ class ProgramSheetSearchHandler(webapp2.RequestHandler):
 class ReqBoxHandler(webapp2.RequestHandler):
     @createStudent
     def get(self):
-        outputMessage(self, get_program_sheet(rb_key = self.request.get('rb_key')))
-
-    # Note POST is always called with ps_key
-    @createStudent
-    def post(self):
-        ps_key = self.request.get('ps_key')
-        req_box_dict = json.loads(self.request.get('req_box'))
-        outputMessage(self, add_req_box_to_ps(ps_entity=None, ps_key=ps_key, \
-                                        req_box_dict=req_box_dict), False)
-
-    @createStudent
-    def put(self):
-        rb_key = self.request.get('rb_key')
-        req_box_dict = self.request.get('req_box_dict')
-        for key in req_box_dict:
-            if req_box_dict[key] == '':
-                req_box_dict[key] = None
-        outputMessage(self, edit_req_box_in_ps(rb_entity=None, rb_key=rb_key, \
-                                         req_box_dict=req_box_dict), False)
-
-    @createStudent
-    def delete(self):
-        rb_key = self.request.get('rb_key')
-        outputMessage(self, remove_req_box_from_ps(rb_key), False)
+        outputMessage(self, get_req_box(rb_key = self.request.get('rb_key')))
 
 class ReqCourseHandler(webapp2.RequestHandler):
     @createStudent
     def get(self):
-        outputMessage(self, get_program_sheet(rc_key = self.request.get('rc_key')))
-
-    # Note POST is always called with rb_key
-    @createStudent
-    def post(self):
-        rb_key = self.request.get('rb_key')
-        req_course_dict = json.loads(self.request.get('req_course'))
-        outputMessage(self, add_req_course_to_rb(rb_entity=None, rb_key=rb_key, \
-                                           req_course_dict=req_course_dict), False)
-
-    @createStudent
-    def put(self):
-        rc_key = self.request.get('rc_key')
-        req_course_dict = json.loads(self.request.get('req_course_dict'))
-        for key in req_course_dict:
-            if req_course_dict[key] == '':
-                req_course_dict[key] = None
-        outputMessage(self, edit_req_course_in_rb(rc_entity=None, rc_key=rc_key, \
-                                            req_course_dict=req_course_dict), False)
-
-    @createStudent
-    def delete(self):
-        rc_key = self.request.get('rc_key')
-        outputMessage(self, remove_req_course_from_rb(rc_key), False)
+        outputMessage(self, get_req_course(rc_key = self.request.get('rc_key')))
 
 #--------------End Program Sheet Handlers-----------------------#
 
