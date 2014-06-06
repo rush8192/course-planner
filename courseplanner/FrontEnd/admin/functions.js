@@ -81,13 +81,14 @@ var createCourse = function() {
 }
 
 var deleteCourse = function() {
-  course_num = document.getElementById("deleteCourseModalLabel").innerHTML.toUpperCase();
+  orig_course_num = document.getElementById("deleteCourseModalLabel").innerHTML;
+  upper_course_num = orig_course_num.toUpperCase();
   var xhr = new XMLHttpRequest();
-  if ((course_num in course_keys) === false) {
+  if ((upper_course_num in course_keys) === false) {
     window.alert("Course doesn't exist!");
     return;
   }
-  course_key = course_keys[course_num];
+  course_key = course_keys[upper_course_num];
 
   xhr.onreadystatechange = function() {
     if (xhr.readyState == 4) {
@@ -106,14 +107,15 @@ var deleteCourse = function() {
 }
 
 var modifyViewModal = function() {
-  var ps_name = document.getElementById('program-sheet-search-box').value.toUpperCase();
-  document.getElementById("viewModalLabel").innerHTML = ps_name;
-  if ((ps_name.toUpperCase() in ps_keys) === false) {
+  var orig_ps_name = document.getElementById('program-sheet-search-box').value;
+  upper_ps_name = orig_ps_name.toUpperCase()
+  document.getElementById("viewModalLabel").innerHTML = orig_ps_name;
+  if ((upper_ps_name in ps_keys) === false) {
     var text = "Program sheet does not exist!";
     $("textarea#viewTextAreaID").val(text);
     return;
   }
-  ps_key = ps_keys[ps_name.toUpperCase()];
+  ps_key = ps_keys[upper_ps_name];
   var xhr = new XMLHttpRequest();
   xhr.onreadystatechange = function() {
     if (xhr.readyState == 4) {
@@ -144,8 +146,8 @@ var modifyDeleteModal = function() {
 }
 
 var createProgramSheet = function() {
-  ps_name = document.getElementById("createModalLabel").innerHTML;
-  var ps_json_str = document.getElementById('createTextAreaID').value.toUpperCase();
+  ps_name = document.getElementById("createModalLabel").innerHTML.toUpperCase();
+  var ps_json_str = document.getElementById('createTextAreaID').value;
   if (!isValidJson(ps_json_str)) {
     window.alert("Invalid JSON");
     return;
@@ -186,7 +188,7 @@ var createProgramSheet = function() {
 }
 
 var deleteProgramSheet = function() {
-  ps_name = document.getElementById("deleteModalLabel").innerHTML.toUpperCase();
+  ps_name = document.getElementById("deleteModalLabel").innerHTML;
   var xhr = new XMLHttpRequest();
   xhr.onreadystatechange = function() {
     if (xhr.readyState == 4) {
