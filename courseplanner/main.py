@@ -136,16 +136,12 @@ class CandidateCourseHandler(webapp2.RequestHandler):
         self.response.write(get_candidate_courses(student_id=student_id))
 
     @createStudent
-    def delete(self, course_key):
+    def delete(self, cand_course_key):
         student_id = users.get_current_user().user_id()
         if student_id == '':
             student_id = None
-        course_num = self.request.get('course_num')
-        student_plan = self.request.get('student_plan')
-        if student_plan == '': student_plan = None
         self.response.write(remove_candidate_course(student_id=student_id,
-                                                    course_key=course_key,
-                                                    student_plan=student_plan))
+                                                    cand_course_key=cand_course_key))
 
 class CourseHandler(webapp2.RequestHandler):
     @createStudent
