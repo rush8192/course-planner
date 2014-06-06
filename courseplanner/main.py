@@ -147,7 +147,7 @@ class CourseHandler(webapp2.RequestHandler):
                                                 course_title=course_title))
     @createStudent
     #TODO: make webapp2 support patch. But we're probably never using this
-    def patch(self, course_key):
+    def put(self, course_key):
         course_desc = self.request.get('course_desc')
         course_title = self.request.get('course_title')
         self.response.write(edit_course_listing(course_key=course_key,

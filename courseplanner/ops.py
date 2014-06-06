@@ -35,7 +35,12 @@ def __fix_course_num(course_num):
 
 # Helper to deserialize key
 def __deserialize_key(key_str):
-    return ndb.Key(urlsafe = key_str)
+    # Let's not crash on bad keys
+    try: 
+        return ndb.Key(urlsafe = key_str)
+    except Exception:
+        return None
+    
 
 # Checks existence of program sheet, true/false
 def __program_sheet_exists(ps_name):
@@ -226,7 +231,9 @@ def add_course_listing(course_num, course_desc, course_title):
 # Edit course listing: can change description or title. If either is None, left unaffected
 # TODO: more advanced editing e.g. Offerings
 def edit_course_listing(course_key, course_desc=None, course_title=None):
-    course_listing_entity = __deserialize_key(course_key).get()
+    course_listing_key = __deserialize_key(course_key)
+    if course_listing_key is not None:
+        course_listing_entity = course_listing_key.get()
     if course_listing_entity is not None:
         if course_desc:
             course_listing_entity.course_desc = course_desc
@@ -238,10 +245,10 @@ def edit_course_listing(course_key, course_desc=None, course_title=None):
         return ERROR('Course_num ' + course_num + ' not found.')
 
 # Remove course listing - return error if not found, True otherwise
-def remove_course_listing(course_num):
-    course_listing_entity = __deserialize_key(course_key).get()
-    if course_listing_entity is not None:
-        course.key.delete()
+def remove_course_listing(course_key):
+    course_listing_key = __deserialize_key(course_key)
+    if course_listing_key is not None:
+        course_listing_key.delete()
         return True
     else:
         return ERROR('Course_key ' + course_key + ' not found.')
