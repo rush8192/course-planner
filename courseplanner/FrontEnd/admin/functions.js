@@ -88,12 +88,12 @@ var deleteCourse = function() {
   }
   xhr.open("DELETE", "/api/course/" + course_key, true);
   xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-  xhr.send() 
+  xhr.send()
 }
 
 var modifyViewModal = function() {
   var orig_ps_name = document.getElementById('program-sheet-search-box').value;
-  upper_ps_name = orig_ps_name.toUpperCase();
+  upper_ps_name = orig_ps_name.toUpperCase()
   document.getElementById("viewModalLabel").innerHTML = orig_ps_name;
   if ((upper_ps_name in ps_keys) === false) {
     var text = "Program sheet does not exist!";
@@ -169,7 +169,7 @@ var createProgramSheet = function() {
         }
       }
       send_xhr.open("POST", "/api/programsheet", true);
-      var params = "ps_json=" + ps_json_str;
+      var params = "ps_json=" + encodeURIComponent(ps_json_str);
       send_xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
       send_xhr.send(params)
     }
