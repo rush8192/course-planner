@@ -71,7 +71,8 @@ def create_old_req_ihum_pwr_json():
         if 'Writing' in key and 'SLE' not in key:
             req_courses_array = req_boxes_json_array[4]['req_courses']
         req_courses_dict = {}
-        req_courses_dict['req_course_info'] = key
+        req_courses_dict['req_course_info'] = "Graduation Requirements for: " + key
+        req_courses_dict['req_course_name'] = key
         req_courses_dict['min_units'] = 0
         req_courses_dict['min_grade'] = 1.7
         req_courses_dict['allowed_courses'] = list(set(old_req_dict[key]))

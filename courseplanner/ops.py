@@ -477,13 +477,14 @@ def add_req_course_to_rb(rb_entity, req_course_dict, rb_key = None):
         rb_entity = __deserialize_key(rb_key).get()
         if rb_entity is None: # None if doesn't exist?
             return ERROR('Required box does not currently exist.')
+    req_course_name = req_course_dict['req_course_name']
     req_course_info = req_course_dict['req_course_info']
     min_units = req_course_dict['min_units']
     min_grade = req_course_dict['min_grade']
     allowed_courses = req_course_dict['allowed_courses']
 
     rc_entity = Req_Course(req_box=rb_entity.key, req_course_info=req_course_info, \
-                           min_units = min_units, min_grade=min_grade)
+                           min_units = min_units, min_grade=min_grade, req_course_name=req_course_name)
     for course_name in allowed_courses:
         course_listing = __get_course_listing_entity(course_name)
         if course_listing == None:
