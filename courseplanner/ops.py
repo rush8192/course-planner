@@ -239,10 +239,10 @@ def edit_course_listing(course_key, course_desc=None, course_title=None):
         return ERROR('Course_num ' + course_num + ' not found.')
 
 # Remove course listing - return error if not found, True otherwise
-def remove_course_listing(course_num):
+def remove_course_listing(course_key):
     course_listing_entity = __deserialize_key(course_key).get()
     if course_listing_entity is not None:
-        course.key.delete()
+        course_listing_entity.key.delete()
         return True
     else:
         return ERROR('Course_key ' + course_key + ' not found.')
@@ -253,7 +253,7 @@ def get_course_listing(course_key, name=False):
     course_listing_entity = __deserialize_key(course_key).get()
     if (course_listing_entity is None):
         return ERROR('Course_num ' + course_num + ' not found.')
-    return json.dumps(course_listing_entity.to_dict())
+    return json.dumps(course_listing_entity.to_dict(), sort_keys=True, indent=4, separators=(',', ': '))
 
 # Return json list of 10 courses with prefixes
 def get_course_listing_by_prefix(course_num_prefix):
@@ -302,7 +302,7 @@ Returns:
     Error message on failure
 """
 def get_program_sheet(ps_key):
-    ps_dict = __deserialize_key(ps_key).get()
+    ps_dict = __get_ps_dict(__deserialize_key(ps_key).get().ps_name)
     if type(ps_dict) != dict:
         return ERROR(ps_dict)
     return json.dumps(ps_dict, sort_keys=True, indent=4, separators=(',', ': '))
