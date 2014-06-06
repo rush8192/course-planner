@@ -307,15 +307,17 @@ def __str_to_float(str):
 class ProgramSheetHandler(webapp2.RequestHandler):
     @createStudent
     def get(self):
-        outputMessage(self, get_program_sheet(ps_key=self.request.get('ps_key')))
+        result = get_program_sheet(ps_key=self.request.get('ps_key'))
+        print result
+        outputMessage(self, result)
 
     @createStudent
     def post(self):
         ps_dict = json.loads(self.request.get('ps_json'))
-        print ps_dict
         ps_name = ps_dict['ps_name']
         req_box_array = ps_dict['req_boxes']
-        outputMessage(self, add_program_sheet(ps_name, req_box_array), False)
+        result = add_program_sheet(ps_name, req_box_array)
+        outputMessage(self, result, False)
 
     @createStudent
     # ProgramSheet exist verifier

@@ -181,11 +181,11 @@
                   if (xhr.status === 200) {
                     var json_str = xhr.responseText;
                     var objs = jQuery.parseJSON(json_str);
-                    for (var x in objs) {
-                      var obj = objs[x];
-                      for (var y in obj) {
-                        ps_keys[y.toUpperCase()] = obj[y];
-                        strs.push(y);
+                    for (var index in objs) {
+                      var obj = objs[index];
+                      for (var course_num in obj) {
+                        ps_keys[course_num.toUpperCase()] = obj[course_num];
+                        strs.push(course_num);
                       }
                     }
                   }
