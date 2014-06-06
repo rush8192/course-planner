@@ -202,7 +202,12 @@ def get_candidate_courses(student_id):
         return ERROR('Student with id ' + student_id + ' not found')
     candidate_courses = Candidate_Course.query(Candidate_Course.student ==  
                                                student.key).fetch()
-    return json.dumps([cc.to_dict() for cc in candidate_courses])
+    json_array = []
+    for cc in candidate_courses:
+        cc_dict = cc.to_dict()
+        cc_dict['course_num'] = cc.course.get().course_num
+        json_array.append(cc_dict)
+    return json.dumps(json_array)
 
 #------------------------End Student Methods------------------------#
 
