@@ -107,7 +107,7 @@ class StudentHandler(webapp2.RequestHandler):
 
 class CandidateCourseHandler(webapp2.RequestHandler):
     @createStudent
-    def post(self, course_key):
+    def post(self):
         student_id = users.get_current_user().user_id()
         units = self.request.get('units')
         if units != '':
@@ -117,6 +117,8 @@ class CandidateCourseHandler(webapp2.RequestHandler):
         if grade != '':
             grade = float(grade)
         else: grade = None
+
+        course_key = self.request.get('course_key')
 
         year = self.request.get('year')
         if year != '':
@@ -407,7 +409,6 @@ class SpsHandler(webapp2.RequestHandler):
 
         uid = users.get_current_user().user_id()
         self.response.status = sps.deleteSps(sps_key, uid)
-        
 
 app = webapp2.WSGIApplication([
     ('/setupinitial7', MainHandler), 
@@ -420,7 +421,7 @@ app = webapp2.WSGIApplication([
     ('/api/populate', PopHandler), # Rush
     ('/api/sps/(.+)', SpsHandler),
     ('/api/student', StudentHandler), # Ryan (test function)
-    ('/api/student/course', CandidateCourseHandler), # Ryan
+    ('/api/student/course/', CandidateCourseHandler), # Ryan
     ('/api/student/course/(.+)', CandidateCourseHandler), # Ryan
     ('/api/course/search/(.*)', CourseSearchHandler), # Ryan
     ('/api/course/(.+)', CourseHandler), # Ryan
