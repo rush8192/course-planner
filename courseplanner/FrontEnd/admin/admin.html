@@ -210,7 +210,7 @@
                   cb(matches);
                 }
             }
-            xhr.open("GET", "/api/programsheet/search?ps_name_prefix=" + q, true);
+            xhr.open("GET", "/api/programsheet/search/" + q, true);
             xhr.send();
           };
         };

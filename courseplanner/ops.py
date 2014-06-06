@@ -188,6 +188,17 @@ def remove_candidate_course(student_id, cand_course_key):
 # student's program sheet).
 #
 # Returns: json dump or error message
+
+def term_to_int(term):
+    if (term.lower() == "autumn"):
+        return 0;
+    if (term.lower() == "winter"):
+        return 1;
+    if (term.lower() == "spring"):
+        return 2;
+    else:
+        return 3;
+
 def get_candidate_courses(student_id):
     student = Student.query(Student.student_id == student_id).fetch(1)
     if len(student) > 0: student = student[0]
@@ -195,11 +206,22 @@ def get_candidate_courses(student_id):
         return ERROR('Student with id ' + student_id + ' not found')
     candidate_courses = Candidate_Course.query(Candidate_Course.student ==  
                                                student.key).fetch()
-    json_array = []
+    grouping_dict = {}
     for cc in candidate_courses:
         cc_dict = cc.to_dict()
         cc_dict['course_num'] = cc.course.get().course_num
-        json_array.append(cc_dict)
+        year = cc_dict['year']
+        term_int = term_to_int(cc_dict['term'])
+        title_name = str(year) + " " + str(term_int)
+        if title_name in grouping_dict:
+            grouping_dict[title_name].append(cc_dict)
+        else:
+            grouping_dict[title_name] = [cc_dict]
+
+    json_array = []
+    for title,courses in grouping_dict.items():
+        json_array.append({"title":title, "courses":courses})
+    json_array = sorted(json_array, key=lambda x: x['title'])
     return json.dumps(json_array)
 
 #------------------------End Student Methods------------------------#
@@ -343,7 +365,6 @@ def edit_program_sheet(ps_key, new_ps_name):
 Deletes program sheet name given key to program sheet
 """
 def remove_program_sheet(ps_name):
-    print ps_name
     if (__program_sheet_exists(ps_name)):
         ps_entity = Program_Sheet.query(Program_Sheet.ps_name == ps_name).get()
         req_boxes_copy = list(ps_entity.req_boxes)
