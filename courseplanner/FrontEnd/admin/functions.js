@@ -1,28 +1,14 @@
 var course_keys = {}
 var ps_keys = {}
 
-var isValidJson = function(json) {
-    try {
-        JSON.parse(json);
-        return true;
-    } catch (e) {
-        return false;
-    }
-}
-
 var modifyCourseViewModal = function() {
-  var course_num = document.getElementById('course-search-box').value.toUpperCase();
+  var course_num = document.getElementById('course-search-box').value;
   document.getElementById("viewCourseModalLabel").innerHTML = course_num;
-  if ((course_num in course_keys) === false) {
-    var text = "Course does not exist!";
-    $("textarea#viewCourseTextAreaID").val(text);
-    return;
-  }
   var xhr = new XMLHttpRequest();
   course_key = course_keys[course_num];
   xhr.onreadystatechange = function() {
-    var json_str = "";
     if (xhr.readyState == 4) {
+      var json_str = "Program Sheet does not exist!";
       if (xhr.status === 200) {
         json_str = xhr.responseText;
       }
@@ -34,12 +20,11 @@ var modifyCourseViewModal = function() {
 }
 
 var modifyCourseCreateModal = function() {
-  var course_num = document.getElementById('course-search-box').value;
-  document.getElementById("createCourseModalLabel").innerHTML = course_num;
+  var ps_name = document.getElementById('course-search-box').value;
+  document.getElementById("createCourseModalLabel").innerHTML = ps_name;
   var json_str = '{\n' +
-                 '  \"course_num\":' + '\"' + course_num + '\",\n' +
-                 '  \"course_title\":\"\",\n' +
-                 '  \"course_desc\":\"\"\n' +
+                 '\"course_num\":' + '\"' + ps_name + '\",\n' +
+                 '\"other_things\":[]\n' +
                  '}';
   $("textarea#createCourseTextAreaID").val(json_str);
 }
@@ -119,7 +104,7 @@ var modifyViewModal = function() {
   var xhr = new XMLHttpRequest();
   xhr.onreadystatechange = function() {
     if (xhr.readyState == 4) {
-      var json_str = "";
+      var json_str = "Program Sheet does not exist!";
       if (xhr.status === 200) {
         json_str = xhr.responseText;
       }
@@ -134,8 +119,8 @@ var modifyCreateModal = function() {
   var ps_name = document.getElementById('program-sheet-search-box').value;
   document.getElementById("createModalLabel").innerHTML = ps_name;
   var json_str = '{\n' +
-                 '  \"ps_name\":' + '\"' + ps_name + '\",\n' +
-                 '  \"req_boxes\":[]\n' +
+                 '\"ps_name\":' + '\"' + ps_name + '\",\n' +
+                 '\"req_boxes\":[]\n' +
                  '}';
   $("textarea#createTextAreaID").val(json_str);
 }
@@ -145,8 +130,17 @@ var modifyDeleteModal = function() {
   document.getElementById("deleteModalLabel").innerHTML = ps_name;
 }
 
+var isValidJson = function(json) {
+    try {
+        JSON.parse(json);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
 var createProgramSheet = function() {
-  ps_name = document.getElementById("createModalLabel").innerHTML.toUpperCase();
+  ps_name = document.getElementById("createModalLabel").innerHTML;
   var ps_json_str = document.getElementById('createTextAreaID').value;
   if (!isValidJson(ps_json_str)) {
     window.alert("Invalid JSON");

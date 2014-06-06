@@ -21,6 +21,10 @@
     <script src="http://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.2/typeahead.bundle.min.js"></script>
   </head>
 
+  <script type="text/javascript">
+  </script>
+
+
   <body>
     <div class="container-fluid">
       <div class="box">
@@ -102,7 +106,7 @@
 
     <div id="program-sheet" style="position:absolute;left:30px;top:250px">
       <input id="program-sheet-search-box" class="typeahead" type="text" placeholder="Input Program Sheet">
-      <button class="btn btn-primary" data-toggle="modal" data-target="#viewModal" onclick="modifyViewModal()">
+      <button class="btn btn-primary" data-toggle="modal" data-target="#viewModal">  <!--onclick="modifyViewModal()"> -->
         View
       </button>
       <button class="btn btn-primary" data-toggle="modal" data-target="#createModal" onclick="modifyCreateModal()">
@@ -166,6 +170,9 @@
       </div>
     </div>
 
+
+
+
     <script type="text/javascript">
       $(document).ready(function() {
         var substringMatcher = function() {
@@ -176,16 +183,7 @@
                 if (xhr.readyState == 4) {
                   if (xhr.status === 200) {
                     var json_str = xhr.responseText;
-                    objs = jQuery.parseJSON(json_str);
-                    strs = [];
-                    keys = [];
-                    for (var x in objs) {
-                      single_obj = objs[x];
-                      for (var y in single_obj) {
-                        strs.push(y);
-                        ps_keys[y.toUpperCase()] = single_obj[y];
-                      }
-                    }
+                    strs = jQuery.parseJSON(json_str);
                   }
                   var matches, substringRegex;
                
@@ -236,16 +234,7 @@
                 if (xhr.readyState == 4) {
                   if (xhr.status === 200) {
                     var json_str = xhr.responseText;
-                    objs = jQuery.parseJSON(json_str);
-                    strs = [];
-                    keys = [];
-                    for (var x in objs) {
-                      single_obj = objs[x];
-                      for (var y in single_obj) {
-                        strs.push(y);
-                        course_keys[y.toUpperCase()] = single_obj[y];
-                      }
-                    }
+                    strs = jQuery.parseJSON(json_str);
                   }
                   var matches, substringRegex;
                
