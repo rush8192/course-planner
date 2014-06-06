@@ -199,8 +199,15 @@ class PlanHandler(webapp2.RequestHandler):
                 # not sure how to return a repeated ndb entity
                 #
                 print "Listing all plans for " + uid
-                self.response.write( student.academic_plans )
-                pass
+                planArray = []
+                plan = student.academic_plans[0].get()
+                for sheetKey in plan.program_sheets:
+                    sheet = sheetKey.get()
+                    planInfoDict = {}
+                    planInfoDict['sps_name'] = sheet.program_sheet.get().ps_name
+                    planInfoDict['sps_key'] = sheet.key.urlsafe()
+                    planArray.append(planInfoDict)
+                self.response.write(json.dumps(planArray))
             else:
                 # remove the "/" from planid
                 planid = planid[1:]
@@ -348,6 +355,29 @@ class ReqCourseHandler(webapp2.RequestHandler):
 
 #--------------End Program Sheet Handlers-----------------------#
 
+class SpsHandler(webapp2.RequestHandler):
+    def get(self, sps_key):
+        sps = ndb.Key(urlsafe=sps_key).get()
+        if sps == None:
+            print "invalid sps key: no matching sps found"
+            self.response.status = 400
+            self.response.write("Invalid S.P.S. key")
+            
+        sps_dict = {}
+        sps_dict['ps_name'] = sps.program_sheet.get().ps_name
+        sps_dict['sps_key'] = sps_key
+        
+        rect_box_array = []
+        
+        for req_box_key in sps.program_sheet.get().req_boxes:
+            req_box_dict = {}
+            
+            req_box = req_box_key.get()
+            req_box_dict['req_box_name'] = req_box_name
+            req_box_dict['req_box_key'] = req_box_key
+            
+        
+
 app = webapp2.WSGIApplication([
     ('/setupinitial7', MainHandler), 
     ('/api/trans/upload', TranscriptHandler), # Rush
@@ -357,6 +387,7 @@ app = webapp2.WSGIApplication([
     ('/api/plan/petitionstatus/(.*)/(.*)/(.*)', PlanPetitionStatusHandler), # Rush
     ('/api/plan(/.*)?', PlanHandler), # Rush
     ('/api/populate', PopHandler), # Rush
+    ('/api/sps/(.+)', SpsHandler),
     ('/api/student', StudentHandler), # Ryan (test function)
     ('/api/student/course', CandidateCourseHandler), # Ryan
     ('/api/student/course/(.+)', CandidateCourseHandler), # Ryan
