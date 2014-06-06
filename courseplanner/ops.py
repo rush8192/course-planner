@@ -259,7 +259,7 @@ def get_course_listing(course_key, name=False):
     if course_listing_key:
         course_listing_entity=course_listing_key.get()
         if course_listing_entity is not None:
-            return json.dumps(course_listing_entity.to_dict())
+            return json.dumps(course_listing_entity.to_dict(), sort_keys=True, indent=4, separators=(',', ': '))
     return ERROR('Course_key ' + course_key + ' not found.')
 
 # Return json list of 10 courses with prefixes
