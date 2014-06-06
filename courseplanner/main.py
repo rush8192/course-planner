@@ -139,11 +139,10 @@ class CandidateCourseHandler(webapp2.RequestHandler):
         self.response.write(get_candidate_courses(student_id=student_id))
 
     @createStudent
-    def delete(self):
+    def delete(self, cand_course_key):
         student_id = users.get_current_user().user_id()
         if student_id == '':
             student_id = None
-        cand_course_key = self.request.get('cand_course_key')
         self.response.write(remove_candidate_course(student_id=student_id,
                                                     cand_course_key=cand_course_key))
 
@@ -391,8 +390,8 @@ app = webapp2.WSGIApplication([
     ('/api/populate', PopHandler), # Rush
     ('/api/sps/(.+)', SpsHandler),
     ('/api/student', StudentHandler), # Ryan (test function)
-    ('/api/student/course', CandidateCourseHandler), # Ryan
-    #('/api/student/course/(.+)', CandidateCourseHandler), # Ryan
+    ('/api/student/course/', CandidateCourseHandler), # Ryan
+    ('/api/student/course/(.+)', CandidateCourseHandler), # Ryan
     ('/api/course/search/(.*)', CourseSearchHandler), # Ryan
     ('/api/course/(.+)', CourseHandler), # Ryan
     ('/api/programsheet', ProgramSheetHandler), # Kevin
