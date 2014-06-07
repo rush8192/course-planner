@@ -66,8 +66,8 @@ angular.module('coursePlannerApp')
             var group = groups[i];
             var group_courses = group.courses;
             for (var j = 0; j < group_courses.length; j++) {
-                if (total % 6 == 0) courses.push([])
-                courses[courses.length-1].push({name: group_courses[j].designation});
+                if (total % 4 == 0) courses.push([])
+                courses[courses.length-1].push({course_num: group_courses[j].course_num});
                 total++;
             }
         }
@@ -272,13 +272,16 @@ angular.module('coursePlannerApp')
             controller: ModalInstanceCtrl,
             resolve: {
                 course: function () {
-                    return Courses.get({key:selectedCourse.key});
+                    return selectedCourse;
                 }
             }
         });
 
         modalInstance.result.then(function () {
-            $scope.removeCourse(coursesGroup, selectedCourse);
+            //call delete on the server
+            Courses.remove({cand_course_key:selectedCourse.key}).$promise.then(function() {
+                $scope.removeCourse(coursesGroup, selectedCourse);   
+            });
         }, function () {
             $log.info('Modal dismissed at: ' + new Date());
         });
@@ -635,11 +638,13 @@ angular.module('coursePlannerApp')
 .factory('Courses', function ($resource) {
     var foo = $resource('/api/student/course/ ', { // only GET and POST are defined
         course_key:'@course_key',
-        prefix:'@prefix'
+        prefix:'@prefix',
+        cand_course_key:'@cand_course_key'
     }, {
         describe: {method:'GET',url:'/api/course/:course_key'}, // show general description info for a course
         search: {method:'GET',url:'/api/course/search/:prefix',isArray:true}, // search for a course
-        add: {method:'POST',headers:{'Content-Type': 'application/x-www-form-urlencoded'}} // add a course
+        add: {method:'POST',headers:{'Content-Type': 'application/x-www-form-urlencoded'}}, // add a course
+        remove: {method:'DELETE',url:'/api/student/course/:cand_course_key'} // delete a course 
     });
     return foo;
 })
