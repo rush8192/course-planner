@@ -328,7 +328,6 @@ class ProgramSheetHandler(webapp2.RequestHandler):
     @createStudent
     def get(self):
         result = get_program_sheet(ps_key=self.request.get('ps_key'))
-        print result
         outputMessage(self, result)
 
     @createStudent

@@ -14,7 +14,9 @@
                "min_units":5,
                "min_grade":0.7,
                "allowed_courses":[
-                  "MATH 41, MATH 19, MATH 20"
+                  "MATH 41",
+                  "MATH 19",
+                  "MATH 20"
                ]
             },
             {
@@ -23,7 +25,8 @@
                "min_units":5,
                "min_grade":0.7,
                "allowed_courses":[
-                  "MATH 42, MATH 21"
+                  "MATH 42",
+                  "MATH 21"
                ]
             },
             {
@@ -50,10 +53,10 @@
                "min_units":0,
                "min_grade":0.7,
                "allowed_courses":[
-                  "STAT 141", 
-                  "STAT 203", 
-                  "STAT 205", 
-                  "STAT 215"
+                  "STATS 141", 
+                  "STATS 203", 
+                  "STATS 205", 
+                  "STATS 215"
                ]
             }
          ]
@@ -344,9 +347,9 @@
                   "EE 364A",
                   "MS&E 152",
                   "MS&E 252",
-                  "STAT 206",
-                  "STAT 315A",
-                  "STAT 315B",
+                  "STATS 206",
+                  "STATS 315A",
+                  "STATS 315B",
                   "BIOCHEM 218",
                   "BMI 260",
                   "GENE 211",
@@ -443,9 +446,9 @@
                   "EE 364A",
                   "MS&E 152",
                   "MS&E 252",
-                  "STAT 206",
-                  "STAT 315A",
-                  "STAT 315B",
+                  "STATS 206",
+                  "STATS 315A",
+                  "STATS 315B",
                   "BIOCHEM 218",
                   "BMI 260",
                   "GENE 211"
@@ -469,9 +472,9 @@
                   "EE 364A",
                   "MS&E 152",
                   "MS&E 252",
-                  "STAT 206",
-                  "STAT 315A",
-                  "STAT 315B",
+                  "STATS 206",
+                  "STATS 315A",
+                  "STATS 315B",
                   "BIOCHEM 218",
                   "BMI 260",
                   "GENE 211",
@@ -529,9 +532,9 @@
                   "EE 364A",
                   "MS&E 152",
                   "MS&E 252",
-                  "STAT 206",
-                  "STAT 315A",
-                  "STAT 315B",
+                  "STATS 206",
+                  "STATS 315A",
+                  "STATS 315B",
                   "BIOCHEM 218",
                   "BMI 260",
                   "GENE 211",

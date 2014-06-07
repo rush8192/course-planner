@@ -10,20 +10,23 @@
          "req_courses":[
             {
                "req_course_name":"MATH 41",
-               "req_course_info":"Math 40 sequence, 19 sequence, or AP/IB credit",
+               "req_course_info": "Math 40 sequence, 19 sequence, or AP/IB credit", 
                "min_units":5,
                "min_grade":0.7,
                "allowed_courses":[
-                  "MATH 41, MATH 19, MATH 20"
+                  "MATH 41",
+                  "MATH 19",
+                  "MATH 20"
                ]
             },
             {
                "req_course_name":"MATH 42",
-               "req_course_info":"Math 40 sequence, 19 sequence, or AP/IB credit",
+               "req_course_info": "Math 40 sequence, 19 sequence, or AP/IB credit", 
                "min_units":5,
                "min_grade":0.7,
                "allowed_courses":[
-                  "MATH 42, MATH 21"
+                  "MATH 42",
+                  "MATH 21"
                ]
             },
             {

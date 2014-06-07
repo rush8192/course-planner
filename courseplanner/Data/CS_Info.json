@@ -14,7 +14,9 @@
                "min_units":5,
                "min_grade":0.7,
                "allowed_courses":[
-                  "MATH 41, MATH 19, MATH 20"
+                  "MATH 41",
+                  "MATH 19",
+                  "MATH 20"
                ]
             },
             {
@@ -23,7 +25,8 @@
                "min_units":5,
                "min_grade":0.7,
                "allowed_courses":[
-                  "MATH 42, MATH 21"
+                  "MATH 42",
+                  "MATH 21"
                ]
             },
             {
