@@ -1,5 +1,7 @@
 
 import json
+import models
+from google.appengine.ext import ndb
 
 """ returns an object of the following form:
 {
@@ -82,3 +84,32 @@ def getSpsDict(sps, sps_key):
         
     sps_dict['req_boxes'] = rect_box_array
     return sps_dict
+    
+def createSpsForProgramSheet(ps_obj, uid, allow_double):
+    user = models.Student.query(models.Student.student_id == uid).get()
+    if user == None:
+        print "no matching student for sps creation query: " + uid
+        return 400
+    
+    sps_obj = models.Student_Program_Sheet(program_sheet=ps_obj.key, allow_double_count=allow_double,
+                                            cand_courses = [])
+    sps_obj.put()
+    
+    plan = user.academic_plans[0].get()
+    plan.program_sheets.append(sps_obj.key)
+    plan.put()
+    return 200
+    
+def deleteSps(sps_key, uid):
+    user = models.Student.query(models.Student.student_id == uid).get()
+    if user == None:
+        print "no matching student for sps creation query: " + uid
+        return 400
+    
+    sps_key = ndb.Key(urlsafe=sps_key)
+    plan = user.academic_plans[0].get()
+    plan.program_sheets.remove(sps_key)
+    plan.put()
+    sps_key.delete()
+    return 200
+    
