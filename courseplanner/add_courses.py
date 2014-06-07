@@ -16,7 +16,7 @@ def main():
                    rankings_tally = course['rankings_tally'],
                    hpw_sum =  course['hpw_sum'],
                    hpw_tally = course['hpw_tally'])
-        c.put_async()
+        c.put()
 
         # Add Information about each Offering for a Course
         for offering in course['offering']:
