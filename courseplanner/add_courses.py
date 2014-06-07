@@ -1,4 +1,4 @@
-from google.appengine.ext import db
+from google.appengine.ext import ndb
 import json
 from models import *
 
@@ -16,7 +16,7 @@ def main():
                    rankings_tally = course['rankings_tally'],
                    hpw_sum =  course['hpw_sum'],
                    hpw_tally = course['hpw_tally'])
-        c.put()
+        c.put_async()
 
         # Add Information about each Offering for a Course
         for offering in course['offering']:
@@ -34,6 +34,6 @@ def main():
                          year = offering['year'],
                          units = offering['units'],
                          course = c.key)
-            o.put()
-        c.put()
+            o.put_async()
+        c.put_async()
 

@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('coursePlannerApp')
-  .controller('DashboardCtrl', function ($scope, $modal, $log, $http, Courses) {
+  .controller('DashboardCtrl', function ($scope, $modal, $log, $http, Courses, RefreshService) {
     $scope.awesomeThings = [
       'HTML5 Boilerplate',
       'AngularJS',
@@ -105,7 +105,12 @@ angular.module('coursePlannerApp')
     };
 
     $scope.oneAtATime = false;
-    $scope.groups = [
+    $scope.groups = Courses.query();
+    $scope.groups.refresh = function() {
+        $scope.groups = Courses.query();
+    };
+    RefreshService.register($scope.groups);
+    $scope.foobar = [
         {
             title: "Fall - 2010",
             courses: [
@@ -250,12 +255,17 @@ angular.module('coursePlannerApp')
         }
     ];
 
+    $scope.refresh = function() {
+        $log.info("Refreshed course list");
+        $scope.groups = Courses.query();
+    }
+
     $scope.removeCourse = function(courses, course) {
         var i = courses.indexOf(course);
         courses.splice(i,1);
     };
 
-    $scope.open = function (coursesGroup, selectedCourse) {
+    $scope.openCourse = function (coursesGroup, selectedCourse) {
 
         var modalInstance = $modal.open({
             templateUrl: 'courseDetailsModalContent.html',
@@ -328,6 +338,9 @@ angular.module('coursePlannerApp')
             resolve: {
                 course: function () {
                     return selectedCourse.$describe();
+                },
+                groups: function () {
+                    return $scope.groups;
                 }
             }
         });
@@ -339,7 +352,7 @@ angular.module('coursePlannerApp')
         });
     };
 
-    var TryAddCourseCtrl = function ($scope, $modalInstance, course) {
+    var TryAddCourseCtrl = function ($scope, $modalInstance, course, groups) {
         $scope.course = course;
         $scope.terms = [
                         {name:"Autumn",value:"autumn"},
@@ -389,11 +402,14 @@ angular.module('coursePlannerApp')
 
         $scope.ok = function (term, year, grade, units) {
             var data = $.param({term: term, year: year, grade: grade, units: units, course_key: course.key});
-            Courses.add(data);
+            Courses.add(data).$promise.then(RefreshService.refresh);
+            //groups = Courses.query();
             $modalInstance.close();
         };
 
         $scope.cancel = function () {
+            //$log.log(groups);
+            //var gots = Courses.query();
             $modalInstance.dismiss('cancel');
         };
     };
@@ -617,12 +633,24 @@ angular.module('coursePlannerApp')
     }
 })
 .factory('Courses', function ($resource) {
-    return $resource('/api/student/course/ ', { // only GET and POST are defined
+    var foo = $resource('/api/student/course/ ', { // only GET and POST are defined
         course_key:'@course_key',
         prefix:'@prefix'
     }, {
-        describe: {method:'GET',url:'/api/course/:course_key'},
-        search: {method:'GET',url:'/api/course/search/:prefix',isArray:true},
-        add: {method:'POST',headers:{'Content-Type': 'application/x-www-form-urlencoded'}}
+        describe: {method:'GET',url:'/api/course/:course_key'}, // show general description info for a course
+        search: {method:'GET',url:'/api/course/search/:prefix',isArray:true}, // search for a course
+        add: {method:'POST',headers:{'Content-Type': 'application/x-www-form-urlencoded'}} // add a course
     });
+    return foo;
+})
+.service('RefreshService', function() {
+    var toRefresh = [];
+    this.register = function(item) {
+        toRefresh.push(item);
+    };
+    this.refresh = function() {
+        for (var i in toRefresh) {
+            toRefresh[i].refresh();
+        }
+    };
 });
