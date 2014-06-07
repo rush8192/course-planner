@@ -216,6 +216,8 @@ def get_candidate_courses(student_id):
     for cc in candidate_courses:
         cc_dict = cc.to_dict()
         cc_dict['course_num'] = cc.course.get().course_num
+        cc_dict['course_title'] = cc.course.get().course_title
+        cc_dict['course_desc'] = cc.course.get().course_desc
         year = cc_dict['year']
         term_int = term_to_int(cc_dict['term'])
         title_name = str(year) + " " + str(term_int)
