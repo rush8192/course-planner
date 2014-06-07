@@ -299,16 +299,16 @@ angular.module('coursePlannerApp')
   
     // Any function returning a promise object can be used to load values asynchronously
     $scope.searchForCourses = function(val) {
-        var url = '/api/course/search/'+val;
-        return $http.get(url, {
-            
-        }).then(function(res){
+        return Courses.search({prefix:val})
+        .$promise.then(function(res){
             var courses = [];
-            angular.forEach(res.data, function(item){
+            angular.forEach(res, function(item){
                 for (var key in item) {
-                    item.designation = key;
-                    item.key = item[key];
-                    delete item[key];
+                    if (key.indexOf("$") !== 0) {
+                        item.designation = key;
+                        item.course_key = item[key];
+                        delete item[key];
+                    }
                 }
                 courses.push(item);
             });
@@ -317,7 +317,6 @@ angular.module('coursePlannerApp')
     };
 
     $scope.displayCourseInfo = function ($item, $model, $label) {
-        $log.log($item);
         $scope.tryAddCourse($item);
     };
 
@@ -325,19 +324,85 @@ angular.module('coursePlannerApp')
 
         var modalInstance = $modal.open({
             templateUrl: 'tryAddCourseModalContent.html',
-            controller: ModalInstanceCtrl,
+            controller: TryAddCourseCtrl,
             resolve: {
                 course: function () {
-                    return Courses.get({key:selectedCourse.key});
+                    return selectedCourse.$describe();
                 }
             }
         });
 
         modalInstance.result.then(function () {
-            $scope.removeCourse(coursesGroup, selectedCourse);
+            $log.info('Course Added');
         }, function () {
             $log.info('Modal dismissed at: ' + new Date());
         });
+    };
+
+    var TryAddCourseCtrl = function ($scope, $modalInstance, course) {
+        $scope.course = course;
+        $scope.terms = [
+                        {name:"Autumn",value:"autumn"},
+                        {name:"Winter",value:"winter"},
+                        {name:"Spring",value:"spring"},
+                        {name:"Summer",value:"summer"}
+                       ];
+        $scope.term = $scope.terms[0];
+        $scope.years = [
+                        {name:"2010",value:"2010"},
+                        {name:"2011",value:"2011"},
+                        {name:"2012",value:"2012"},
+                        {name:"2013",value:"2013"},
+                        {name:"2014",value:"2014"}
+                       ];
+        $scope.year = $scope.years[0];
+        $scope.grades = [
+                        {name:"A+",value:"4.3"},
+                        {name:"A",value:"4.0"},
+                        {name:"A-",value:"3.7"},
+                        {name:"B+",value:"3.3"},
+                        {name:"B",value:"3.0"},
+                        {name:"B-",value:"2.7"},
+                        {name:"C+",value:"2.3"},
+                        {name:"C",value:"2.0"},
+                        {name:"C-",value:"1.7"},
+                        {name:"D+",value:"1.3"},
+                        {name:"D",value:"1.0"},
+                        {name:"D-",value:"0.7"},
+                        {name:"F",value:"0.0"},
+                        {name:"N/A",value:"-1"}
+                       ];
+        $scope.grade = $scope.grades[0];
+        $scope.unit_opts = [
+                        {name:"1",value:"1"},
+                        {name:"2",value:"2"},
+                        {name:"3",value:"3"},
+                        {name:"4",value:"4"},
+                        {name:"5",value:"5"},
+                        {name:"6",value:"6"},
+                        {name:"7",value:"7"},
+                        {name:"8",value:"8"},
+                        {name:"9",value:"9"},
+                        {name:"10",value:"10"}
+                       ];
+        $scope.units = $scope.unit_opts[3];
+
+        $scope.ok = function (term, year, grade, units) {
+            $log.log(term,year,grade,units);
+            //course.term = term;
+            //course.year = year;
+            //course.grade = grade;
+            //course.units = units;
+            //course.course_key = course.key;
+            $log.log(course);
+            var data = $.param({term: term, year: year, grade: grade, units: units, course_key: course.key});
+            Courses.add(data);
+            $modalInstance.close();
+        };
+
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
     };
 
     $scope.$watch('asyncSelected', function() {
@@ -559,9 +624,12 @@ angular.module('coursePlannerApp')
     }
 })
 .factory('Courses', function ($resource) {
-    return $resource('/api/course/:key', {
-        key:'@key'
+    return $resource('/api/student/course/', { // only GET and POST are defined
+        course_key:'@course_key',
+        prefix:'@prefix'
     }, {
-        save: {}
+        describe: {method:'GET',url:'/api/course/:course_key'},
+        search: {method:'GET',url:'/api/course/search/:prefix',isArray:true},
+        add: {method:'POST',headers:{'Content-Type': 'application/x-www-form-urlencoded'}}
     });
 });

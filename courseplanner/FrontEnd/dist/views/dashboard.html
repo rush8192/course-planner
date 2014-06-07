@@ -19,9 +19,32 @@
     </div>
     <div class="modal-body">
         {{course.course_desc}}
+        <div class="spacer"></div>
+        <form class="form-inline">
+            <div class="form-group">
+                <label for="termSelector">Term</label>
+                <select ng-options="t.name for t in terms" ng-model="term" class="form-control" id="termSelector">
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="yearSelector">Year</label>
+                <select ng-options="y.name for y in years" ng-model="year" class="form-control" id="yearSelector">
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="gradeSelector">Grade</label>
+                <select ng-options="g.name for g in grades" ng-model="grade" class="form-control" id="gradeSelector">
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="unitSelector">Units</label>
+                <select ng-options="u.name for u in unit_opts" ng-model="units" class="form-control" id="unitSelector">
+                </select>
+            </div>
+        </form>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-primary" ng-click="ok()">Add Course</button>
+        <button class="btn btn-primary" ng-click="ok(term.value,year.value,grade.value,units.value)">Add Course</button>
         <button class="btn btn-default" ng-click="cancel()">Cancel</button>
     </div>
 </script>
