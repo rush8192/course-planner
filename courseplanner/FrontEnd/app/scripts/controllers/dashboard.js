@@ -388,13 +388,6 @@ angular.module('coursePlannerApp')
         $scope.units = $scope.unit_opts[3];
 
         $scope.ok = function (term, year, grade, units) {
-            $log.log(term,year,grade,units);
-            //course.term = term;
-            //course.year = year;
-            //course.grade = grade;
-            //course.units = units;
-            //course.course_key = course.key;
-            $log.log(course);
             var data = $.param({term: term, year: year, grade: grade, units: units, course_key: course.key});
             Courses.add(data);
             $modalInstance.close();
@@ -624,7 +617,7 @@ angular.module('coursePlannerApp')
     }
 })
 .factory('Courses', function ($resource) {
-    return $resource('/api/student/course/', { // only GET and POST are defined
+    return $resource('/api/student/course/ ', { // only GET and POST are defined
         course_key:'@course_key',
         prefix:'@prefix'
     }, {

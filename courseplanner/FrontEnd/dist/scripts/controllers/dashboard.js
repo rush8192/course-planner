@@ -624,7 +624,7 @@ angular.module('coursePlannerApp')
     }
 })
 .factory('Courses', function ($resource) {
-    return $resource('/api/student/course/', { // only GET and POST are defined
+    return $resource('/api/student/course/ ', { // only GET and POST are defined
         course_key:'@course_key',
         prefix:'@prefix'
     }, {
