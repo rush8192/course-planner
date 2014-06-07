@@ -26,6 +26,7 @@ from PSHandlers import *
 from decorators import *
 import reqs
 import cStringIO
+import sps
 
 def outputMessage(self, result, send_data_back=True):
     if send_data_back:
@@ -106,7 +107,7 @@ class StudentHandler(webapp2.RequestHandler):
 
 class CandidateCourseHandler(webapp2.RequestHandler):
     @createStudent
-    def post(self, course_key):
+    def post(self):
         student_id = users.get_current_user().user_id()
         units = self.request.get('units')
         if units != '':
@@ -116,6 +117,8 @@ class CandidateCourseHandler(webapp2.RequestHandler):
         if grade != '':
             grade = float(grade)
         else: grade = None
+
+        course_key = self.request.get('course_key')
 
         year = self.request.get('year')
         if year != '':
@@ -136,16 +139,12 @@ class CandidateCourseHandler(webapp2.RequestHandler):
         self.response.write(get_candidate_courses(student_id=student_id))
 
     @createStudent
-    def delete(self, course_key):
+    def delete(self, cand_course_key):
         student_id = users.get_current_user().user_id()
         if student_id == '':
             student_id = None
-        course_num = self.request.get('course_num')
-        student_plan = self.request.get('student_plan')
-        if student_plan == '': student_plan = None
         self.response.write(remove_candidate_course(student_id=student_id,
-                                                    course_key=course_key,
-                                                    student_plan=student_plan))
+                                                    cand_course_key=cand_course_key))
 
 class CourseHandler(webapp2.RequestHandler):
     @createStudent
@@ -206,8 +205,15 @@ class PlanHandler(webapp2.RequestHandler):
                 # not sure how to return a repeated ndb entity
                 #
                 print "Listing all plans for " + uid
-                self.response.write( student.academic_plans )
-                pass
+                planArray = []
+                plan = student.academic_plans[0].get()
+                for sheetKey in plan.program_sheets:
+                    sheet = sheetKey.get()
+                    planInfoDict = {}
+                    planInfoDict['sps_name'] = sheet.program_sheet.get().ps_name
+                    planInfoDict['sps_key'] = sheet.key.urlsafe()
+                    planArray.append(planInfoDict)
+                self.response.write(json.dumps(planArray))
             else:
                 # remove the "/" from planid
                 planid = planid[1:]
@@ -247,7 +253,7 @@ class PlanHandler(webapp2.RequestHandler):
             return
 
         gerSheet = Program_Sheet.query(Program_Sheet.ps_name == GER_SHEET_NAME).get()
-        studentGerSheet = Student_Program_Sheet(program_sheet=[gerSheet.key],
+        studentGerSheet = Student_Program_Sheet(program_sheet=gerSheet.key,
                         cand_courses=[], allow_double_count=True)
         studentGerSheet.put()
         studentPlan = Student_Plan(student_plan_name=title, student_course_list=[], program_sheets=[ studentGerSheet.key ])
@@ -270,6 +276,11 @@ class AddCourseToPlanHandler(webapp2.RequestHandler):
     @createStudent
     def post(self, sps_id, cc_id, req_id):
         status = reqs.addCourseForBox(sps_id, cc_id, req_id)
+        self.response.status = status
+        
+    @createStudent
+    def delete(self, sps_id, cc_id, req_id):
+        status = reqs.deleteCourseForBox(sps_id, cc_id, req_id)
         self.response.status = status
         
 class PlanPetitionStatusHandler(webapp2.RequestHandler):
@@ -355,17 +366,62 @@ class ReqCourseHandler(webapp2.RequestHandler):
 
 #--------------End Program Sheet Handlers-----------------------#
 
+# returns the student program sheet json object used by the main frontend UI
+class SpsHandler(webapp2.RequestHandler):
+    @createStudent
+    def get(self, sps_key):
+        sps_obj = ndb.Key(urlsafe=sps_key).get()
+        if sps_obj == None:
+            print "invalid sps key: no matching sps found"
+            self.response.status = 400
+            self.response.write("Invalid S.P.S. key")
+            return
+            
+        sps_dict = sps.getSpsDict(sps_obj, sps_key)
+        self.response.write(json.dumps(sps_dict))
+    
+    @createStudent
+    def post(self, ps_key):
+        ps_obj = ndb.Key(urlsafe=ps_key).get()
+        if ps_obj == None:
+            print "invalid program sheet key; no matching program sheet found"
+            self.response.status = 400
+            self.response.write("Invalid ps key")
+            return
+        uid = users.get_current_user().user_id()
+        allow_double = self.request.get('allow_double_count')
+        if allow_double == None or allow_double == "" or "false" in allow_double:
+            allow_double = False
+        else:
+            allow_double = True
+        self.response.status = sps.createSpsForProgramSheet(ps_obj, uid, allow_double)
+        print "attempted to create new sps; status code: " + self.response.status
+        
+        
+    @createStudent  
+    def delete(self, sps_key):
+        sps_obj = ndb.Key(urlsafe=sps_key).get()
+        if sps_obj == None:
+            print "invalid sps key: no matching sps found"
+            self.response.status = 400
+            self.response.write("Invalid S.P.S. key")
+            return
+
+        uid = users.get_current_user().user_id()
+        self.response.status = sps.deleteSps(sps_key, uid)
+
 app = webapp2.WSGIApplication([
     ('/setupinitial7', MainHandler), 
     ('/api/trans/upload', TranscriptHandler), # Rush
     ('/api/plan/verify/(.*)/(.*)/(.*)', PlanVerificationHandler), # Rush
     ('/api/plan/verifybox/(.*)/(.*)', BoxVerificationHandler), # Rush
-    ('/api/plan/add/(.*)/(.*)/(.*)', AddCourseToPlanHandler), # Rush
+    ('/api/plan/add/(.*)/(.*)/(.*)', AddCourseToPlanHandler), # Rush (also deletes)
     ('/api/plan/petitionstatus/(.*)/(.*)/(.*)', PlanPetitionStatusHandler), # Rush
     ('/api/plan(/.*)?', PlanHandler), # Rush
     ('/api/populate', PopHandler), # Rush
+    ('/api/sps/(.+)', SpsHandler),
     ('/api/student', StudentHandler), # Ryan (test function)
-    ('/api/student/course', CandidateCourseHandler), # Ryan
+    ('/api/student/course/', CandidateCourseHandler), # Ryan
     ('/api/student/course/(.+)', CandidateCourseHandler), # Ryan
     ('/api/course/search/(.*)', CourseSearchHandler), # Ryan
     ('/api/course/(.+)', CourseHandler), # Ryan

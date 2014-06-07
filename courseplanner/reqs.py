@@ -4,6 +4,7 @@ import models
 from models import Req_Fullfillment
 from google.appengine.ext import ndb
 
+# verifcation at the lowest level: whether a course fulfills a requirement within a box
 def verifyCourseForBox(sps_id, cc_id, req_id):
     sps = ndb.Key(urlsafe=sps_id).get()
     if sps == None:
@@ -45,6 +46,7 @@ def verifyCourseForBox(sps_id, cc_id, req_id):
         
     return __success()
     
+# mark a candidate course as fulfilling a given course requirement in a box
 def addCourseForBox(sps_id, cc_id, req_id):
     print "Adding course to box"
     sps = ndb.Key(urlsafe=sps_id).get()
@@ -59,7 +61,8 @@ def addCourseForBox(sps_id, cc_id, req_id):
     if req_box == None:
         print "No matching requirement box found"
         return 400
-        
+    
+    # get verification status so that we can store it for later retrieval
     success, message = verifyCourseForBox(sps_id, cc_id, req_id)
     
     req_f = Req_Fullfillment(req_course=req_box.key, valid=success, error_message=message, program_sheet=sps.key)
@@ -69,7 +72,45 @@ def addCourseForBox(sps_id, cc_id, req_id):
     sps.cand_courses.append(cc.key)
     sps.put()
     return 200
-    
+ 
+# remove assocation between a given course and a given requirement
+def deleteCourseForBox(sps_id, cc_id, req_id):
+    print "Adding course to box"
+    sps = ndb.Key(urlsafe=sps_id).get()
+    if sps == None:
+        print "No matching student program sheet found"
+        return 400
+    cc = ndb.Key(urlsafe=cc_id).get()
+    if cc == None:
+        print "No matching candidate course found"
+        return 400
+    req_box = ndb.Key(urlsafe=req_id).get()
+    if req_box == None:
+        print "No matching requirement box found"
+        return 400
+        
+    toDelete = None
+    for req_f_key in cc.reqs_fulfilled:
+        req_f = req_f_key.get()
+        if req_f == None:
+            continue
+        if req_f.req_course.urlsafe() == req_box.key.urlsafe():
+            toDelete = req_f_key
+            break
+            
+    if toDelete != None:
+        print "deleting"
+        print "had: " + str(len(cc.reqs_fulfilled))
+        cc.reqs_fulfilled.remove(toDelete)
+        cc.put()
+        print "now: " + str(len(cc.reqs_fulfilled))
+        toDelete.delete()
+        return 200
+    else:
+        print "passed in cc that doesnt currently fulfill supplied required course"
+        return 400
+
+# check verifcation status for a course that has already been marked as fulfilling a requirement    
 def checkStatusForCourseInBox(sps_id, cc_id, req_id):
     sps = ndb.Key(urlsafe=sps_id).get()
     if sps == None:
@@ -92,6 +133,7 @@ def checkStatusForCourseInBox(sps_id, cc_id, req_id):
     print "no candidate course found fulfilling supplied req_course for given plan"
     return False, "Candidate Course is not currently being used for given box"
         
+# verification at the box level: make sure all classes total sufficient units/number of classes
 def verifyBox(sps_id, box_id):
     sps = ndb.Key(urlsafe=sps_id).get()
     if sps == None:
@@ -132,13 +174,10 @@ def verifyBox(sps_id, box_id):
         return __fail(message)
         
     return __success()
-        
-    
+
 def __validateCondOps(sps, box):
     return True, ""
-    
-    
-       
+        
 def __fail(error):
     return False, error
     

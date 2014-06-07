@@ -168,24 +168,17 @@ def add_candidate_course(student_id, course_key, grade, units, year, term):
 # Removes course from student's program sheet (in all places that it occurs). Optional
 # parameter student_plan specifies Student_Plan by key str. If not given, course taken off 
 # all plans found w/ student
-def remove_candidate_course(student_id, course_key, student_plan):
+def remove_candidate_course(student_id, cand_course_key):
     student = Student.query(Student.student_id == student_id).fetch(1)
     if len(student) > 0: student = student[0]
     else:
         return ERROR('Student with id ' + student_id + ' not found')
-    course = __deserialize_key(course_key).get()
-    if not course:
-        return ERROR('Course ' + course_key + ' not found')
-    if student_plan:
-        student_plan_key = __deserialize_key(student_plan)
-        candidate_courses = Candidate_Course.query(Candidate_Course.student == student.key,
-                                                   Candidate_Course.course == course.key,
-                                                   Candidate_Course.student_plan
-                                                    == studen_plan_key).fetch()
-    else:
-        candidate_courses = Candidate_Course.query(Candidate_Course.student == student.key,
-                                                   Candidate_Course.course == course.key
-                                                   ).fetch()
+    cand_course = __deserialize_key(cand_course_key).get()
+    if not cand_course:
+        return ERROR('Course ' + cand_course_key + ' not found')
+    candidate_courses = Candidate_Course.query(Candidate_Course.student == student.key,
+                                               Candidate_Course.course == cand_course.course
+                                               ).fetch()
     for course in candidate_courses:
         course.key.delete()
     return True
@@ -547,7 +540,6 @@ def remove_req_course_from_rb(rc_key):
 #-------------------------End Program Sheet Ops-------------------------#
 
 # convert letter grade from transcript to floating point value
-
 def gradeToFloat(gradeStr):
     if "A+" == gradeStr:
         return 4.3
@@ -567,8 +559,12 @@ def gradeToFloat(gradeStr):
         return 2.0
     elif "C-" == gradeStr:
         return 1.7
+    elif "D+" == gradeStr:
+        return 1.3
     elif "D" == gradeStr:
         return 1.0
+    elif "D-" == gradeStr:
+        return 0.7
     elif "F" == gradeStr:
         return 0.0
     print "No matching grade for: " + gradeStr

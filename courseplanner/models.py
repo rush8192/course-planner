@@ -80,7 +80,7 @@ class Req_Course(DictModel):
 
 #------------------Begin Student Models------------------#
 class Student_Program_Sheet(DictModel):
-    program_sheet = ndb.KeyProperty(Program_Sheet, repeated=True)
+    program_sheet = ndb.KeyProperty(Program_Sheet)
     allow_double_count = ndb.BooleanProperty()
     cand_courses = ndb.KeyProperty(Candidate_Course, repeated=True)
 
@@ -137,6 +137,7 @@ Object we return for front-end student program sheet:
                        "req_course_key":req_course_key,
                        "cand_course_name": cand_course_name,
                        "cand_course_key":cand_course_key,
+                       "course_key":course_key,
                        "cand_course_units":cand_course_units,
                        "cand_course_gpa":cand_course_gpa,
                       }

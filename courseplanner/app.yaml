@@ -15,6 +15,7 @@ handlers:
 
 - url: /api/.*
   script: main.app
+  login: required
   auth_fail_action: unauthorized
 
 - url: /admin
