@@ -3,6 +3,7 @@ import json
 import re
 from models import *
 from google.appengine.api import users
+from google.appengine.api import memcache
 
 """
 This is where all for CRUD operations will live. Potential list:
@@ -287,15 +288,19 @@ def get_course_listing(course_key, name=False):
 # Return json list of 10 courses with prefixes
 def get_course_listing_by_prefix(course_num_prefix):
     course_num_prefix = __fix_course_num(course_num_prefix)
-    courses = Course.query(ndb.AND(Course.course_num >= course_num_prefix, \
+    json_array = memcache.get(course_num_prefix)
+    if json_array is None:
+        courses = Course.query(ndb.AND(Course.course_num >= course_num_prefix, \
                                    Course.course_num <= course_num_prefix +'z'))\
               .fetch(limit=5, projection=[Course.course_num])
-    json_array = []
-    for course in courses:
-        course_dict = {}
-        key_str = course.key.urlsafe()
-        course_dict[course.course_num] = key_str
-        json_array.append(course_dict)
+        json_array = []
+        for course in courses:
+            course_dict = {}
+            key_str = course.key.urlsafe()
+            course_dict[course.course_num] = key_str
+            json_array.append(course_dict)
+        if not memcache.add(course_num_prefix,json_array):
+            logging.error('Memcache set failed')
     return json.dumps(json_array)
 
 #------------------------End Course Listing Methods------------------------#
@@ -346,8 +351,8 @@ def program_sheet_exists(ps_name):
 # Return json list of 10 program sheets with prefixes
 def get_program_sheet_by_prefix(ps_name_prefix):
     program_sheets = Program_Sheet.query(ndb.AND(Program_Sheet.ps_name >= ps_name_prefix, \
-                                                 Program_Sheet.ps_name <= ps_name_prefix +'z'))\
-                                  .fetch(limit=5, projection=[Program_Sheet.ps_name])
+                                             Program_Sheet.ps_name <= ps_name_prefix +'z'))\
+                              .fetch(limit=5, projection=[Program_Sheet.ps_name])
     json_array = []
     for ps in program_sheets:
         ps_dict = {}
