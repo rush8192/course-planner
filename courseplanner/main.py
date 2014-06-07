@@ -26,6 +26,7 @@ from PSHandlers import *
 from decorators import *
 import reqs
 import cStringIO
+import urllib
 import sps
 
 def outputMessage(self, result, send_data_back=True):
@@ -327,12 +328,12 @@ class ProgramSheetHandler(webapp2.RequestHandler):
     @createStudent
     def get(self):
         result = get_program_sheet(ps_key=self.request.get('ps_key'))
-        print result
         outputMessage(self, result)
 
     @createStudent
     def post(self):
-        ps_dict = json.loads(self.request.get('ps_json'))
+        ps_json = urllib.unquote(self.request.get('ps_json')).decode('utf8') 
+        ps_dict = json.loads(ps_json)
         ps_name = ps_dict['ps_name']
         req_box_array = ps_dict['req_boxes']
         result = add_program_sheet(ps_name, req_box_array)
@@ -351,8 +352,8 @@ class ProgramSheetHandler(webapp2.RequestHandler):
 
 class ProgramSheetSearchHandler(webapp2.RequestHandler):
     @createStudent
-    def get(self):
-        outputMessage(self, get_program_sheet_by_prefix(ps_name_prefix= self.request.get('ps_name_prefix')))
+    def get(self, ps_name_prefix):
+        outputMessage(self, get_program_sheet_by_prefix(ps_name_prefix))
 
 class ReqBoxHandler(webapp2.RequestHandler):
     @createStudent
@@ -426,7 +427,7 @@ app = webapp2.WSGIApplication([
     ('/api/course/search/(.*)', CourseSearchHandler), # Ryan
     ('/api/course/(.+)', CourseHandler), # Ryan
     ('/api/programsheet', ProgramSheetHandler), # Kevin
-    ('/api/programsheet/search', ProgramSheetSearchHandler), # Kevin
+    ('/api/programsheet/search/(.+)', ProgramSheetSearchHandler), # Kevin
     ('/api/programsheet/reqbox', ReqBoxHandler), # Kevin
     ('/api/programsheet/reqbox/reqcourses', ReqCourseHandler) # Kevin
 ], debug=True)

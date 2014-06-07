@@ -13,6 +13,11 @@ def check_html_validity(html_str):
 # Soup and parse course number
 def parsed_course_number(course):
   course_num = course.find('span', {'class': 'courseNumber'}).renderContents()
+  if '&' in course_num:
+    print course_num
+  course_num = course_num.replace('amp;', '')
+  if '&' in course_num:
+    print course_num
   return course_num.replace(':', '')
 
 # Soup and parse course title
@@ -146,11 +151,10 @@ def create_json_array(html_dir):
                                             course_desc, \
                                             course_offering_dict)
   json_str = json.dumps(courses_json_dict)
-  with open('courses_json', 'w') as outfile:
-    outfile.write(json_str)
+  return json_str
 
 def parse_html_to_json(html_dir, filename):
   json_object_array = create_json_array(html_dir)
   f = open(filename, 'w')
-  f.write(json.dumps(json_object_array))
+  f.write(json_object_array)
   f.close()
