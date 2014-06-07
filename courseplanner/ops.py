@@ -199,6 +199,12 @@ def term_to_int(term):
     else:
         return 3;
 
+def create_title(cc_dict):
+    year = cc_dict['year']
+    term = cc_dict['term']
+    term = term[0].upper() + term[1:].lower()
+    return term + "-" + str(year)
+
 def get_candidate_courses(student_id):
     student = Student.query(Student.student_id == student_id).fetch(1)
     if len(student) > 0: student = student[0]
@@ -222,6 +228,8 @@ def get_candidate_courses(student_id):
     for title,courses in grouping_dict.items():
         json_array.append({"title":title, "courses":courses})
     json_array = sorted(json_array, key=lambda x: x['title'])
+    for elem in json_array:
+        elem["title"] = create_title(elem)
     return json.dumps(json_array)
 
 #------------------------End Student Methods------------------------#
