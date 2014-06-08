@@ -137,9 +137,10 @@ Object we return for front-end student program sheet:
                        "req_course_key":req_course_key,
                        "cand_course_name": cand_course_name,
                        "cand_course_key":cand_course_key,
-                       "course_key":course_key,
                        "cand_course_units":cand_course_units,
                        "cand_course_gpa":cand_course_gpa,
+                       "cand_course_valid":true|false
+                       "cand_course_error":error message
                       }
                  ]
             }

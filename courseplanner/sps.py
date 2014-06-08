@@ -1,6 +1,7 @@
 
 import json
 import models
+import reqs
 from google.appengine.ext import ndb
 
 """ returns an object of the following form:
@@ -23,6 +24,8 @@ from google.appengine.ext import ndb
                        "cand_course_key":cand_course_key,
                        "cand_course_units":cand_course_units,
                        "cand_course_gpa":cand_course_gpa,
+                       "cand_course_valid":true|false
+                       "cand_course_error":error message
                       }
                  ]
             }
@@ -70,11 +73,18 @@ def getSpsDict(sps, sps_key):
                 if req_cc != None:
                     break;
             
+            if req_cc != None:
+                valid, message = reqs.checkStatusForCourseInBox(sps_key, req_cc.key.urlsafe(), req_course_key.urlsafe())
+            
             req_course_dict['cand_course_name'] = req_cc.course.get().course_num if req_cc != None else ""
             req_course_dict['cand_course_key'] = req_cc.key.urlsafe() if req_cc != None else ""
             req_course_dict['cand_course_units'] = req_cc.units if req_cc != None else 0
             req_course_dict['cand_course_gpa'] = req_cc.grade if req_cc != None else 0
+            req_course_dict['cand_course_valid'] = valid if req_cc != None else False
+            req_course_dict['cand_course_error'] = message if req_cc != None else ""
             req_course_dict['course_key'] = req_cc.course.urlsafe() if req_cc != None else ""
+            
+            
             
             req_course_array.append(req_course_dict)
             
