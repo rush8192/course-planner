@@ -448,7 +448,15 @@ angular.module('coursePlannerApp')
         //$scope.asyncSelected = $scope.asyncSelected.toLowerCase().replace(/,+/g,'');
     });
 
-    $scope.mm = [
+    $scope.mm = MM.describe();
+    $log.log($scope.mm);
+    $scope.mm.refresh = function() {
+        $scope.mm = MM.describe();
+    };
+
+    $log.log($scope.mm);
+
+    $scope.mmOLD = [
         {
             name: "Computer Science",
             requirement_groups: [
@@ -675,12 +683,14 @@ angular.module('coursePlannerApp')
     });
     return foo;
 })
+
 .factory('MM', function ($resource) {
     return $resource('/api/programsheet/search/:prefix', {
         prefix:'@prefix',
         ps_key:'@ps_key'
     }, {
         add: {method:'POST',url:'/api/sps/:ps_key'}
+        describe: {method:'GET',url:'/api/sps/all',isArray:true}
     });
 })
 .service('RefreshService', function() {

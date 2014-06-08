@@ -81,20 +81,13 @@
     </div>
 </script>
 
-<script type="text/ng-template" id="addMMModal.html">
+<script type="text/ng-template" id="addPlanModal.html">
     <div class="modal-header">
         <h2>Add a Major or Minor</h2>
     </div>
     <div class="modal-body">
-        <input type="text" ng-model="foobar" placeholder="Search for majors or minors" typeahead="mm.designation for mm in searchForMM($viewValue)" typeahead-on-select="addToSelected($item,$model,$label)" typeahead-editable="false" class="form-control">
-        <div class="spacer"></div>
-        <ul class="list-group" style="margin-bottom:-5px">
-            <li class="list-group-item" ng-repeat="mm in selectedMM track by $index">
-                {{mm.designation}}
-            </li>
-        </ul>
+        <input type="text" ng-model="asyncSelected" placeholder="Search for majors or minors" typeahead="address for address in getLocation($viewValue)" typeahead-loading="loadingLocations" class="form-control">
     </div>
-
     <div class="modal-footer">
         <button class="btn btn-primary" ng-click="ok()">Add</button>
         <button class="btn btn-default" ng-click="cancel()">Cancel</button>
@@ -125,7 +118,7 @@
             <ul class="nav nav-pills pull-right nav-container">
                 <li class="active" ng-click="addMM()"><a ng-href="#">Add Major/Minor</a></li>
                 <li class="active" ng-click="transcriptModal()"><a ng-href="#">Upload</a></li>
-                <li class="active"><a ng-href="/api/logout">Logout</a></li>
+                <li class="active"><a ng-href="/logout">Logout</a></li>
             </ul>
             <h3 class="logo">CoursePlanner</h3>
             <input id="search-bar" class="form-control col-md-1 search-bar" type="text" ng-model="asyncSelected" placeholder="Add a course" typeahead="course.designation for course in searchForCourses($viewValue)" typeahead-on-select="displayCourseInfo($item,$model,$label)" typeahead-editable="false">
@@ -159,25 +152,51 @@
             <tabset>
                 <tab ng-repeat="m in mm" active="m.active">
                     <tab-heading ng-mouseenter="m.hover = true" ng-mouseleave="m.hover = false">
-                        {{m.name}}
-                        <span ng-show="m.hover" ng-click="removeTab($index)" class="glyphicon glyphicon-remove"></span>
+                        {{m.ps_name}}
+                        <span ng-show="m.hover && m.ps_name !== 'GERs'" ng-click="removeTab($index)" class="glyphicon glyphicon-remove"></span>
                     </tab-heading>
                     <div class="well well-large reqContainer">
+                        <div class="row row-left">
+                        GPA: {{m.ps_gpa}}
+                        </div>
+
                         <div class="row row-centered">
-                            <div ng-repeat="group in m.requirement_groups" ng-class="{notFirstGroup: !$first}" class="thumbnail col-md-3 col-lg-2 col-centered requirementGroup">
-                                <h4 class="requirement-group-heading">{{ group.name }}</h4>
-                                <div ng-repeat="requirement in group.requirements" class="well well-sm individual-requirement">
+                            <div ng-repeat="group in m.req_boxes" ng-class="{notFirstGroup: !$first}" class="thumbnail col-md-3 col-lg-2 col-centered requirementGroup">
+                                <h4 class="requirement-group-heading">{{ group.req_box_name }}</h4>
+                                <div ng-repeat="requirement in group.req_courses" class="well well-sm individual-requirement">
                                     <div data-drop="true" ng-model='requirement.fulfilling' disable-drop="requirement.fulfilling" jqyoui-droppable="{multiple:false}">
                                         <table style="width: 100%;">
                                             <tr>
                                                 <td style="text-align: center; vertical-align: middle;">
-                                                    <div class="individual-requirement-placeholder" ng-hide="requirement.fulfilling">{{requirement.name}}</div>
+                                                    <div class="individual-requirement-placeholder" ng-hide="requirement.fulfilling">{{requirement.req_course_name}}</div>
                                                     <div class="btn btn-success individual-requirement-btn" ng-show="requirement.fulfilling" data-drag="false" data-jqyoui-options="{revert: 'invalid', helper: 'clone'}" ng-model="requirement">{{requirement.fulfilling.designation}}</div>
                                                 </td>
                                             </tr>
                                         </table>
                                     </div>
                                 </div>
+                                    <table style="width: 100%;">
+                                        <tr>
+                                            <td style="text-align: center; vertical-align: middle;">
+                                                <table style="width: 45%;">
+                                                    <tr>
+                                                        <td style="text-align: center; vertical-align: middle;">
+                                                            <div class="req-box-stats" ng-hide="requirement.fulfilling">{{group.total_units}} / {{group.min_total_units}} Units</div>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                            <td style="text-align: center; vertical-align: middle;">
+                                                <table style="width: 45%;">
+                                                    <tr>
+                                                        <td style="text-align: center; vertical-align: middle;">
+                                                            <div class="req-box-stats" ng-hide="requirement.fulfilling">{{group.num_courses}} / {{group.min_num_courses}} Courses</div>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>        
                             </div>
                         </div>
                     </div>

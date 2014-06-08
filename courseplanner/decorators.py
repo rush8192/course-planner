@@ -15,6 +15,7 @@ def createStudent(f):
             studentGerSheet.put()
             splan = models.Student_Plan(student_plan_name = "DefaultPlan", student_course_list=[], program_sheets=[ studentGerSheet.key ])
 
+            splan = models.Student_Plan(student_plan_name = "DefaultPlan", student_course_list=[], program_sheets=[])
             splan.put()
             s.academic_plans.append(splan.key)
             s.put()
