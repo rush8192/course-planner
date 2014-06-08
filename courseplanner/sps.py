@@ -32,7 +32,7 @@ from google.appengine.ext import ndb
 def getSpsDict(sps, sps_key):
     sps_dict = {}
     sps_dict['ps_name'] = sps.program_sheet.get().ps_name
-    sps_dict['sps_key'] = sps_key
+    sps_dict['sps_key'] = sps_key.urlsafe()
     
     rect_box_array = []
     
