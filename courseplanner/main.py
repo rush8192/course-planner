@@ -376,7 +376,7 @@ class SpsHandler(webapp2.RequestHandler):
             print "invalid sps key: no matching sps found"
             self.response.status = 400
             self.response.write("Invalid S.P.S. key")
-            return      
+            return
         sps_dict = sps.getSpsDict(sps_obj, sps_key)
         self.response.write(json.dumps(sps_dict))
     
@@ -413,7 +413,8 @@ class SpsHandler(webapp2.RequestHandler):
 # Logout Handler.
 class LogoutHandler(webapp2.RequestHandler):
     def get(self):
-        self.response.write(users.create_logout_url("/"))
+        print "ssup"
+        self.redirect(users.create_logout_url("/"))
 
 app = webapp2.WSGIApplication([
     ('/setupinitial7', MainHandler), 
