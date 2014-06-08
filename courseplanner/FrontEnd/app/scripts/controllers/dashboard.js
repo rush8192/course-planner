@@ -53,7 +53,7 @@ angular.module('coursePlannerApp')
         });
     };
 
-    var AddMMModalInstanceCtrl = function ($scope, $modalInstance) {
+    var AddMMModalInstanceCtrl = function ($scope, $modalInstance, $timeout) {
         //$scope.selectedMM = [{designation:"FOO"},{designation:"BAR"}];
         $scope.selectedMM = [];
         $scope.addToSelected = function($item,$model,$label) {
@@ -65,7 +65,9 @@ angular.module('coursePlannerApp')
                 calls.push(MM.add({ps_key:$scope.selectedMM[i].ps_key}));
             }
             $q.all(calls).then(function() {
-                RefreshService.refresh("AddMMModal");
+                $timeout(function() {
+                    RefreshService.refresh("AddMMModal");
+                },1000);
             });
             $modalInstance.close();
         };
