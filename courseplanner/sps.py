@@ -106,8 +106,9 @@ def getSpsDict(sps, sps_key):
     totalUnits = 0
     for box in sps_dict['req_boxes']:
         for course in box['req_courses']:
-            totalGrade += course['cand_course_gpa']
-            totalUnits += course['cand_course_units']
+            units = course['cand_course_units']
+            totalGrade += units * course['cand_course_gpa']
+            totalUnits += units
     if totalUnits == 0:
         gpa = 0.0
     else: 
