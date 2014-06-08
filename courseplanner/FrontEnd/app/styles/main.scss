@@ -55,6 +55,10 @@ tr.spaceUnder > td {
   margin-right:-4px;
 }
 
+.row-left {
+  text-align:left;
+}
+
 // http://stackoverflow.com/questions/16369718/enable-two-scroll-bars-with-bootstrap
 
 html, body {
@@ -162,6 +166,11 @@ html, body {
 .individual-requirement-placeholder {
   text-align: center;
   color: #e8e8e8;
+}
+
+.req-box-stats {
+  text-align: center;
+  color: #000000;
 }
 
 .individual-requirement-btn {

@@ -7948,30 +7948,35 @@ tr.spaceUnder > td {
   margin-right: -4px;
 }
 
-/* line 60, ../../app/styles/main.scss */
+/* line 58, ../../app/styles/main.scss */
+.row-left {
+  text-align: left;
+}
+
+/* line 64, ../../app/styles/main.scss */
 html, body {
   height: 100%;
   width: 100%;
 }
 
-/* line 65, ../../app/styles/main.scss */
+/* line 69, ../../app/styles/main.scss */
 .nav-container {
   margin-top: 5px;
 }
 
-/* line 69, ../../app/styles/main.scss */
+/* line 73, ../../app/styles/main.scss */
 .nav-container li {
   margin-right: 15px;
 }
 
-/* line 73, ../../app/styles/main.scss */
+/* line 77, ../../app/styles/main.scss */
 .logo {
   color: white;
   padding-top: 10px;
   padding-left: 35px;
 }
 
-/* line 79, ../../app/styles/main.scss */
+/* line 83, ../../app/styles/main.scss */
 #search-bar {
   top: 0px;
   margin-top: -38px;
@@ -7979,7 +7984,7 @@ html, body {
   width: 30%;
 }
 
-/* line 88, ../../app/styles/main.scss */
+/* line 92, ../../app/styles/main.scss */
 #header {
   height: 50px;
   background-color: #432F21;
@@ -7987,51 +7992,51 @@ html, body {
   top: 0;
 }
 
-/* line 97, ../../app/styles/main.scss */
+/* line 101, ../../app/styles/main.scss */
 .spacer {
   height: 10px;
 }
 
-/* line 101, ../../app/styles/main.scss */
+/* line 105, ../../app/styles/main.scss */
 #footer {
   height: 25px;
   background-color: red;
 }
 
-/* line 106, ../../app/styles/main.scss */
+/* line 110, ../../app/styles/main.scss */
 #sidebar {
   padding-right: 0px;
 }
 
-/* line 110, ../../app/styles/main.scss */
+/* line 114, ../../app/styles/main.scss */
 .content-row {
   height: 100%;
 }
 
-/* line 114, ../../app/styles/main.scss */
+/* line 118, ../../app/styles/main.scss */
 .header-row, .content-row, .footer-row {
   margin-left: 0;
   margin-right: 0;
 }
 
-/* line 119, ../../app/styles/main.scss */
+/* line 123, ../../app/styles/main.scss */
 .column:before, .column:after {
   content: "";
   display: table;
 }
 
-/* line 124, ../../app/styles/main.scss */
+/* line 128, ../../app/styles/main.scss */
 .column:after {
   clear: both;
 }
 
-/* line 128, ../../app/styles/main.scss */
+/* line 132, ../../app/styles/main.scss */
 .column {
   height: 100%;
   overflow: auto;
 }
 
-/* line 133, ../../app/styles/main.scss */
+/* line 137, ../../app/styles/main.scss */
 .box {
   bottom: 60px;
   /* increase for footer use */
@@ -8044,35 +8049,41 @@ html, body {
 /*.full {
   width: 100%;
 }*/
-/* line 148, ../../app/styles/main.scss */
+/* line 152, ../../app/styles/main.scss */
 .accordion-group-container {
   text-align: center;
 }
 
-/* line 152, ../../app/styles/main.scss */
+/* line 156, ../../app/styles/main.scss */
 .requirement-group-heading {
   text-align: center;
 }
 
-/* line 156, ../../app/styles/main.scss */
+/* line 160, ../../app/styles/main.scss */
 .individual-requirement {
   margin-left: 10px;
   margin-right: 10px;
   background-color: #d2bcab;
 }
 
-/* line 162, ../../app/styles/main.scss */
+/* line 166, ../../app/styles/main.scss */
 .individual-requirement-placeholder {
   text-align: center;
   color: #e8e8e8;
 }
 
-/* line 173, ../../app/styles/main.scss */
+/* line 171, ../../app/styles/main.scss */
+.req-box-stats {
+  text-align: center;
+  color: #000000;
+}
+
+/* line 182, ../../app/styles/main.scss */
 .spaceBottom {
   margin-bottom: 7px;
 }
 
-/* line 177, ../../app/styles/main.scss */
+/* line 186, ../../app/styles/main.scss */
 .reqContainer {
   background-color: #d2d2d2;
 }
