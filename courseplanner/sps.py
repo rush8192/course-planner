@@ -113,13 +113,14 @@ def getSpsDict(sps, sps_key):
     for box in sps_dict['req_boxes']:
         for course in box['req_courses']:
             units = course['cand_course_units']
-            totalGrade += units * course['cand_course_gpa']
-            totalUnits += units
+            if course['cand_course_gpa'] > 0:
+                totalGrade += units * course['cand_course_gpa']
+                totalUnits += units
     if totalUnits == 0:
         gpa = 0.0
     else: 
         gpa = totalGrade/totalUnits
-    sps_dict['ps_gpa'] = gpa    
+    sps_dict['ps_gpa'] = int(gpa * 100) / 100.0    
     return sps_dict
     
 def createSpsForProgramSheet(ps_obj, uid, allow_double):
