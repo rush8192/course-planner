@@ -465,7 +465,7 @@ class AllSpsHandler(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     ('/setupinitial7', MainHandler), 
     ('/api/trans/upload', TranscriptHandler), # Rush
-    ('/api/plan/verify/(.*)/(.*)/(.*)', PlanVerificationHandler), # Rush
+    ('/api/plan/verify/(.*)/(.*)/(.*)', PlanVerificationHandler), # Rush sps_key, candidate_course_key, required_course_key
     ('/api/plan/verifybox/(.*)/(.*)', BoxVerificationHandler), # Rush
     ('/api/plan/add/(.*)/(.*)/(.*)', AddCourseToPlanHandler), # Rush (also deletes)
     ('/api/plan/petitionstatus/(.*)/(.*)/(.*)', PlanPetitionStatusHandler), # Rush                        

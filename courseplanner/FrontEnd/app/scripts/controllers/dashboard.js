@@ -38,6 +38,76 @@ angular.module('coursePlannerApp')
           ]}
     ]};
 
+    $scope.testing = function($event) {
+        $event.stopPropagation();
+        alert("GREEN THING");
+    }
+
+    $scope.testing2 = function() {
+        alert("BACKGROUND");
+    }
+
+    $scope.testy = function(event,d,requirement,fulfilling,ps) {
+        //$log.log(requirement);
+        //$log.log(fulfilling);
+        //$log.log(ps);
+        MM.verify({sps_key:ps.sps_key,cc_key:fulfilling.key,rc_key:requirement.req_course_key})
+        .$promise.then(function(resp) {
+            if (resp.success != true) {
+                $scope.addAnyway(resp,fulfilling, ps.sps_key, requirement.req_course_key);
+            } else {
+                MM.fulfill({sps_key:ps.sps_key,cc_key:fulfilling.key,rc_key:requirement.req_course_key})
+                .$promise.then(function(resp) {
+                    $log.info("Fulfilled requirement with course");
+                    RefreshService.refresh();
+                });
+            }
+        });
+    };
+
+    $scope.addAnyway = function (resp, fulfilling, sps_key, req_course_key) {
+        var modalInstance = $modal.open({
+            templateUrl: 'addErrorModalContent.html',
+            controller: AddErrorModalInstanceCtrl,
+            resolve: {
+                message: function() {
+                    return resp.message;
+                },
+                fulfilling: function() {
+                    $log.log(fulfilling);
+                    return fulfilling;
+                },
+                sps_key: function() {
+                    return sps_key;
+                },
+                req_course_key: function() {
+                    return req_course_key;
+                }
+            }
+        });
+        modalInstance.result.then(function () {
+
+        }, function () {
+            $log.info('Modal dismissed at: ' + new Date());
+            RefreshService.refresh();
+        });
+    };
+
+    var AddErrorModalInstanceCtrl = function ($scope, $modalInstance, message, fulfilling, sps_key, req_course_key) {
+        $scope.message = message;
+        $scope.fulfilling = fulfilling;
+        $scope.ok = function () {
+            $modalInstance.close();
+            MM.fulfill({sps_key:sps_key,cc_key:fulfilling.key,rc_key:req_course_key})
+            .$promise.then(function(resp) {
+                RefreshService.refresh();
+            });
+        };
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+    };
+
     $scope.addMM = function () {
         var getAll = $scope.getAllCourses;
         var modalInstance = $modal.open({
@@ -448,7 +518,6 @@ angular.module('coursePlannerApp')
         };
 
         $scope.cancel = function () {
-            //$log.log(groups);
             //var gots = Courses.query();
             $modalInstance.dismiss('cancel');
         };
@@ -552,10 +621,15 @@ angular.module('coursePlannerApp')
         prefix:'@prefix',
         ps_key:'@ps_key',
         sps_key:'@sps_key',
+        cc_key:'@cc_key', //candidate course key
+        rc_key:'@rc_key' //required course key
     }, {
         add: {method:'POST',url:'/api/sps/:ps_key'},
         describe: {method:'GET',url:'/api/sps/all',isArray:true},
-        remove: {method:'DELETE',url:'/api/sps/:sps_key'}
+        remove: {method:'DELETE',url:'/api/sps/:sps_key'},
+        verify: {method:'GET',url:'/api/plan/verify/:sps_key/:cc_key/:rc_key'},
+        fulfill: {method:'POST',url:'/api/plan/add/:sps_key/:cc_key/:rc_key'},
+        unfulfill: {method:'DELETE',url:'/api/plan/add/:sps_key/:cc_key/:rc_key'}
     });
 })
 

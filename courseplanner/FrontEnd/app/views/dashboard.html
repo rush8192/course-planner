@@ -12,6 +12,20 @@
     </div>
 </script>
 
+<script type="text/ng-template" id="addErrorModalContent.html">
+    <div class="modal-header">
+        <h2>Danger</h2>
+    </div>
+    <div class="modal-body">
+        {{message}}
+        Would you like to proceed?
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-danger" ng-click="ok()">Yes</button>
+        <button class="btn btn-default" ng-click="cancel()">No</button>
+    </div>
+</script>
+
 <script type="text/ng-template" id="tryAddCourseModalContent.html">
     <div class="modal-header">
         <h2>{{course.course_num}}</h2>
@@ -184,13 +198,13 @@
                         <div class="row row-centered">
                             <div ng-repeat="group in m.req_boxes" ng-class="{notFirstGroup: !$first}" class="thumbnail col-md-3 col-lg-2 col-centered requirementGroup">
                                 <h4 class="requirement-group-heading">{{ group.req_box_name }}</h4>
-                                <div ng-repeat="requirement in group.req_courses" class="well well-sm individual-requirement">
-                                    <div data-drop="true" ng-model='requirement.fulfilling' disable-drop="requirement.fulfilling" jqyoui-droppable="{multiple:false}">
+                                <div ng-click="testing2()" ng-repeat="requirement in group.req_courses" class="well well-sm individual-requirement">
+                                    <div data-drop="true" ng-model='requirement.fulfilling' disable-drop="requirement.fulfilling" jqyoui-droppable="{multiple:false, onDrop:'testy(requirement,requirement.fulfilling,m)'}">
                                         <table style="width: 100%;">
                                             <tr>
                                                 <td style="text-align: center; vertical-align: middle;">
                                                     <div class="individual-requirement-placeholder" ng-hide="requirement.fulfilling">{{requirement.req_course_name}}</div>
-                                                    <div class="btn btn-success individual-requirement-btn" ng-show="requirement.fulfilling" data-drag="false" data-jqyoui-options="{revert: 'invalid', helper: 'clone'}" ng-model="requirement">{{requirement.fulfilling.designation}}</div>
+                                                    <div class="btn btn-success individual-requirement-btn" ng-click="testing($event)" ng-show="requirement.fulfilling" data-drag="false" data-jqyoui-options="{revert: 'invalid', helper: 'clone'}" ng-model="requirement">{{requirement.fulfilling.course_num}}</div>
                                                 </td>
                                             </tr>
                                         </table>
