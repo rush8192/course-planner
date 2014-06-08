@@ -59,7 +59,6 @@ angular.module('coursePlannerApp')
             for (var i in $scope.selectedMM) {
                 MM.add({ps_key:$scope.selectedMM[i].ps_key});
             }
-            RefreshService.refresh();
         };
 
         $scope.cancel = function () {
@@ -282,10 +281,10 @@ angular.module('coursePlannerApp')
         }
     ];
 
-    $scope.refresh = function() {
+    /*$scope.refresh = function() {
         $log.info("Refreshed course list");
         $scope.groups = Courses.query();
-    }
+    }*/
 
     $scope.removeCourse = function(courses, course) {
         var i = courses.indexOf(course);
@@ -689,7 +688,7 @@ angular.module('coursePlannerApp')
         prefix:'@prefix',
         ps_key:'@ps_key'
     }, {
-        add: {method:'POST',url:'/api/sps/:ps_key'}
+        add: {method:'POST',url:'/api/sps/:ps_key'},
         describe: {method:'GET',url:'/api/sps/all',isArray:true}
     });
 })

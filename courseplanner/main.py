@@ -42,12 +42,11 @@ def outputMessage(self, result, send_data_back=True):
             self.response.set_status(404)
 
 class MainHandler(webapp2.RequestHandler):
-    @createStudent
     def get(self):
         self.response.write('Welcome to CoursePlanner!')
         # Add courses and majors to datastore on start up
-        add_courses.main()
-        #add_majors.main()
+        #add_courses.main()
+        add_majors.main()
 
 class TranscriptHandler(webapp2.RequestHandler):
     @createStudent
