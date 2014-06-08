@@ -136,6 +136,10 @@ html, body {
   clear: both;
 }
 
+#indentedAllowedCourses{
+  padding-left: 12px;
+}
+
 .column {
   height: 100%;
   overflow: auto;
@@ -165,6 +169,7 @@ html, body {
 }
 
 .individual-requirement {
+  cursor: pointer;
   margin-left: 10px;
   margin-right: 10px;
   background-color: #d2bcab;
