@@ -100,6 +100,20 @@
     </div>
 </script>
 
+<script type="text/ng-template" id="DeleteMMModal.html">
+    <div class="modal-header">
+        <h2>Remove a Major or Minor</h2>
+    </div>
+    <div class="modal-body">
+        Are you sure you want to remove {{ps_name}} from your list of majors and minors?
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">Remove</button>
+        <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+    </div>
+</script>
+
+
 <script type="text/ng-template" id="uploadTranscriptModal.html">
     <div class="modal-header">
         <h3>Upload a transcript</h3>
@@ -159,11 +173,12 @@
                 <tab ng-repeat="m in mm" active="m.active">
                     <tab-heading ng-mouseenter="m.hover = true" ng-mouseleave="m.hover = false">
                         {{m.ps_name}}
-                        <span ng-show="m.hover && m.ps_name !== 'GERs'" ng-click="removeTab($index)" class="glyphicon glyphicon-remove"></span>
+                        <span ng-show="m.hover && m.ps_name !== 'GERs'" ng-click="deleteMM(m.sps_key, m.ps_name)" class="glyphicon glyphicon-remove"></span>
                     </tab-heading>
                     <div class="well well-large reqContainer">
                         <div class="row row-left">
-                        GPA: {{m.ps_gpa}}
+                        <div id="gpa">
+                            GPA: {{m.ps_gpa}}
                         </div>
 
                         <div class="row row-centered">
@@ -181,22 +196,24 @@
                                         </table>
                                     </div>
                                 </div>
-                                    <table style="width: 100%;">
+                                   <table style="width: 100%; border-top: thin dashed #d2bcab;">
                                         <tr>
-                                            <td style="text-align: center; vertical-align: middle;">
-                                                <table style="width: 45%;">
+                                            <td style="text-align: right; padding-top: 5px;">
+                                                <table style="width: 100%;">
                                                     <tr>
-                                                        <td style="text-align: center; vertical-align: middle;">
-                                                            <div class="req-box-stats" ng-hide="requirement.fulfilling">{{group.total_units}} / {{group.min_total_units}} Units</div>
+                                                        <td style="text-align: right;">
+                                                            <div class="req-box-stats" ng-hide="requirement.fulfilling">Units: {{group.total_units}} / {{group.min_total_units}}</div>
                                                         </td>
                                                     </tr>
                                                 </table>
                                             </td>
-                                            <td style="text-align: center; vertical-align: middle;">
-                                                <table style="width: 45%;">
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align: right;">
+                                                <table style="width: 100%;">
                                                     <tr>
-                                                        <td style="text-align: center; vertical-align: middle;">
-                                                            <div class="req-box-stats" ng-hide="requirement.fulfilling">{{group.num_courses}} / {{group.min_num_courses}} Courses</div>
+                                                        <td style="text-align: right;">
+                                                            <div class="req-box-stats" ng-hide="requirement.fulfilling">Courses: {{group.num_courses}} / {{group.min_num_courses}} </div>
                                                         </td>
                                                     </tr>
                                                 </table>

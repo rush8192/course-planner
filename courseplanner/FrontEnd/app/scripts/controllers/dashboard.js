@@ -463,175 +463,27 @@ angular.module('coursePlannerApp')
         $scope.mm = MM.describe();
     };
     RefreshService.register($scope.mm);
-    $scope.mmOLD = [
-        {
-            name: "Computer Science",
-            requirement_groups: [
-                {
-                    name: "Mathematics",
-                    requirements: [
-                        {
-                            name: "MATH 41",
-                            fulfilling: null
-                        },
-                        {
-                            name: "MATH 42",
-                            fulfilling: null
-                        },
-                        {
-                            name: "CS 103",
-                            fulfilling: null
-                        },
-                        {
-                            name: "CS 109",
-                            fulfilling: null
-                        },
-                        {
-                            name: "Elective",
-                            fulfilling: null
-                        },
-                        {
-                            name: "Elective",
-                            fulfilling: null
-                        }
-                    ]
-                },
-                {
-                    name: "Science",
-                    requirements: [
-                        {
-                            name: "PHYS 41",
-                            fulfilling: null
-                        },
-                        {
-                            name: "PHYS 43",
-                            fulfilling: null
-                        },
-                        {
-                            name: "Elective",
-                            fulfilling: null
-                        }
-                    ]
-                },
-                {
-                    name: "Technology in Society",
-                    requirements: [
-                        {
-                            name: "TIS",
-                            fulfilling: null
-                        }
-                    ]
-                },
-                {
-                    name: "Depth",
-                    requirements: [
-                        {
-                            name: "MATH 41",
-                            fulfilling: null
-                        },
-                        {
-                            name: "MATH 42",
-                            fulfilling: null
-                        },
-                        {
-                            name: "CS 103",
-                            fulfilling: null
-                        },
-                        {
-                            name: "CS 109",
-                            fulfilling: null
-                        },
-                        {
-                            name: "Elective",
-                            fulfilling: null
-                        },
-                        {
-                            name: "Elective",
-                            fulfilling: null
-                        }
-                    ]
-                },
-                {
-                    name: "Core",
-                    requirements: [
-                        {
-                            name: "PHYS 41",
-                            fulfilling: null
-                        },
-                        {
-                            name: "PHYS 43",
-                            fulfilling: null
-                        },
-                        {
-                            name: "Elective",
-                            fulfilling: null
-                        }
-                    ]
-                },
-                {
-                    name: "WIM",
-                    requirements: [
-                        {
-                            name: "TIS",
-                            fulfilling: null
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            name: "Physics",
-            requirement_groups: [
-                {
-                    name: "Mathematics",
-                    requirements: [
-                        {
-                            name: "MATH 41",
-                            fulfilling: null
-                        },
-                        {
-                            name: "MATH 42",
-                            fulfilling: null
-                        },
-                        {
-                            name: "Elective",
-                            fulfilling: null
-                        },
-                        {
-                            name: "Elective",
-                            fulfilling: null
-                        }
-                    ]
-                },
-                {
-                    name: "Science",
-                    requirements: [
-                        {
-                            name: "PHYS 41",
-                            fulfilling: null
-                        },
-                        {
-                            name: "PHYS 43",
-                            fulfilling: null
-                        },
-                        {
-                            name: "Elective",
-                            fulfilling: null
-                        }
-                    ]
-                },
-                {
-                    name: "Technology in Society",
-                    requirements: [
-                        {
-                            name: "TIS",
-                            fulfilling: null
-                        }
-                    ]
-                }
-            ]
-        }
-    ];
+
+    $scope.deleteMM = function(sps_key, ps_name) {
+        var modalInstance = $modal.open({
+            templateUrl: 'DeleteMMModal.html',
+            controller: DeleteMMModalInstanceCtrl,
+            resolve: {ps_name: function() {return ps_name}, sps_key: function() {return sps_key}}
+        });
+    };
+
+    var DeleteMMModalInstanceCtrl = function ($scope, $modalInstance, ps_name, sps_key) {
+        $scope.ps_name = ps_name;
+        $scope.sps_key = sps_key;
+        $scope.ok = function () {
+            $modalInstance.close();
+            MM.remove({sps_key:sps_key}).$promise.then(RefreshService.refresh());
+        };
+
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+    };    
 })
 .controller('TransUploadCtrl', function ($scope, $http, $timeout, $upload, RefreshService) {
     $scope.add = function() {
@@ -694,10 +546,12 @@ angular.module('coursePlannerApp')
 .factory('MM', function ($resource) {
     return $resource('/api/programsheet/search/:prefix', {
         prefix:'@prefix',
-        ps_key:'@ps_key'
+        ps_key:'@ps_key',
+        sps_key:'@sps_key',
     }, {
         add: {method:'POST',url:'/api/sps/:ps_key'},
-        describe: {method:'GET',url:'/api/sps/all',isArray:true}
+        describe: {method:'GET',url:'/api/sps/all',isArray:true},
+        remove: {method:'DELETE',url:'/api/sps/:sps_key'}
     });
 })
 .service('RefreshService', function($log) {
