@@ -101,7 +101,18 @@ def getSpsDict(sps, sps_key):
         
         rect_box_array.append(req_box_dict)
         
-    sps_dict['req_boxes'] = rect_box_array
+    sps_dict['req_boxes'] = rect_box_array   
+    totalGrade = 0
+    totalUnits = 0
+    for box in sps_dict['req_boxes']:
+        for course in box['req_courses']:
+            totalGrade += course['cand_course_gpa']
+            totalUnits += course['cand_course_units']
+    if totalUnits == 0:
+        gpa = 0.0
+    else: 
+        gpa = totalGrade/totalUnits
+    sps_dict['ps_gpa'] = gpa    
     return sps_dict
     
 def createSpsForProgramSheet(ps_obj, uid, allow_double):
