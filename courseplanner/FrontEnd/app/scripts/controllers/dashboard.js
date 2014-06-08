@@ -39,9 +39,6 @@ angular.module('coursePlannerApp')
     ]};
 
     $scope.testy = function(event,d,requirement,fulfilling,ps) {
-        //$log.log(requirement);
-        //$log.log(fulfilling);
-        //$log.log(ps);
         MM.verify({sps_key:ps.sps_key,cc_key:fulfilling.key,rc_key:requirement.req_course_key})
         .$promise.then(function(resp) {
             if (resp.success != true) {
@@ -56,6 +53,48 @@ angular.module('coursePlannerApp')
         });
     };
 
+    $scope.unfulfill = function (fulfilling, sps_key, req_course_key, event) {
+        event.stopPropagation();
+        $scope.unfulfillHelper(fulfilling, sps_key, req_course_key);
+    };
+
+    $scope.unfulfillHelper = function (fulfilling, sps_key, req_course_key) {
+        var modalInstance = $modal.open({
+            templateUrl: 'unfulfillModalContent.html',
+            controller: UnfulfillModalInstanceCtrl,
+            resolve: {
+                fulfilling: function() {
+                    return fulfilling;
+                },
+                sps_key: function() {
+                    return sps_key;
+                },
+                req_course_key: function() {
+                    return req_course_key;
+                }
+            }
+        });
+        modalInstance.result.then(function () {
+
+        }, function () {
+            $log.info('Modal dismissed at: ' + new Date());
+        });
+    };
+
+    var UnfulfillModalInstanceCtrl = function ($scope, $modalInstance, fulfilling, sps_key, req_course_key) {
+        $scope.fulfilling = fulfilling;
+        $scope.ok = function () {
+            $modalInstance.close();
+            MM.unfulfill({sps_key:sps_key,cc_key:fulfilling.cand_course_key,rc_key:req_course_key})
+            .$promise.then(function(resp) {
+                RefreshService.refresh();
+            });
+        };
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+    };
+
     $scope.addAnyway = function (resp, fulfilling, sps_key, req_course_key) {
         var modalInstance = $modal.open({
             templateUrl: 'addErrorModalContent.html',
@@ -65,7 +104,6 @@ angular.module('coursePlannerApp')
                     return resp.message;
                 },
                 fulfilling: function() {
-                    $log.log(fulfilling);
                     return fulfilling;
                 },
                 sps_key: function() {

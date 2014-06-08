@@ -30,6 +30,19 @@
     </div>
 </script>
 
+<script type="text/ng-template" id="unfulfillModalContent.html">
+    <div class="modal-header">
+        <h2>Unfulfill</h2>
+    </div>
+    <div class="modal-body">
+        Would you like to unfulfill this requirement?
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">Yes</button>
+        <button class="btn btn-default" ng-click="cancel()">No</button>
+    </div>
+</script>
+
 <script type="text/ng-template" id="tryAddCourseModalContent.html">
     <div class="modal-header">
         <h2>{{course.course_num}}</h2>
@@ -229,7 +242,7 @@
                                             <tr>
                                                 <td style="text-align: center; vertical-align: middle;">
                                                     <div class="individual-requirement-placeholder" ng-hide="requirement.fulfilling">{{requirement.req_course_name}}</div>
-                                                    <div class="btn btn-success individual-requirement-btn" ng-show="requirement.fulfilling" data-drag="false" data-jqyoui-options="{revert: 'invalid', helper: 'clone'}" ng-model="requirement">{{requirement.fulfilling.course_num}}</div>
+                                                    <div ng-class="requirement.cand_course_valid ? 'btn-success' : 'btn-warning'" class="btn individual-requirement-btn" ng-click="unfulfill(requirement.fulfilling,m.sps_key,requirement.req_course_key,$event)" ng-show="requirement.fulfilling" data-drag="false" data-jqyoui-options="{revert: 'invalid', helper: 'clone'}" ng-model="requirement">{{requirement.fulfilling.course_num}}</div>
                                                 </td>
                                             </tr>
                                         </table>
