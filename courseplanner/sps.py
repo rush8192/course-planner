@@ -120,7 +120,7 @@ def getSpsDict(sps, sps_key):
         gpa = 0.0
     else: 
         gpa = totalGrade/totalUnits
-    sps_dict['ps_gpa'] = gpa    
+    sps_dict['ps_gpa'] = int(gpa * 100) / 100.0    
     return sps_dict
     
 def createSpsForProgramSheet(ps_obj, uid, allow_double):
