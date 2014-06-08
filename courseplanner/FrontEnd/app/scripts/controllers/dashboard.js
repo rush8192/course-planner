@@ -448,9 +448,30 @@ angular.module('coursePlannerApp')
     });
 
     $scope.mm = MM.describe();
-    $log.log($scope.mm);
     $scope.mm.refresh = function() {
         $scope.mm = MM.describe();
+    };
+    RefreshService.register($scope.mm);
+
+    $scope.deleteMM = function(sps_key, ps_name) {
+        var modalInstance = $modal.open({
+            templateUrl: 'DeleteMMModal.html',
+            controller: DeleteMMModalInstanceCtrl,
+            resolve: {ps_name: function() {return ps_name}, sps_key: function() {return sps_key}}
+        });
+    };
+
+    var DeleteMMModalInstanceCtrl = function ($scope, $modalInstance, ps_name, sps_key) {
+        $scope.ps_name = ps_name;
+        $scope.sps_key = sps_key;
+        $scope.ok = function () {
+            $modalInstance.close();
+            MM.remove({sps_key:sps_key}).$promise.then(RefreshService.refresh());
+        };
+
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
     };
 
     $log.log($scope.mm);
@@ -686,10 +707,12 @@ angular.module('coursePlannerApp')
 .factory('MM', function ($resource) {
     return $resource('/api/programsheet/search/:prefix', {
         prefix:'@prefix',
-        ps_key:'@ps_key'
+        ps_key:'@ps_key',
+        sps_key:'@sps_key',
     }, {
         add: {method:'POST',url:'/api/sps/:ps_key'},
-        describe: {method:'GET',url:'/api/sps/all',isArray:true}
+        describe: {method:'GET',url:'/api/sps/all',isArray:true},
+        remove: {method:'DELETE',url:'/api/sps/:sps_key'}
     });
 })
 .service('RefreshService', function() {
