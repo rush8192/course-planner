@@ -449,7 +449,7 @@ class AllSpsHandler(webapp2.RequestHandler):
             else:
                 plan = student.academic_plans[0]
                 sps_arr = plan.get().program_sheets
-                sps_json = [sps.getSpsDict(sps_key.get(), sps_key) for sps_key in sps_arr]
+                sps_json = [sps.getSpsDict(sps_key.get(), sps_key.urlsafe()) for sps_key in sps_arr]
                 self.response.write(json.dumps(sps_json))
 
             
