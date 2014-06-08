@@ -81,13 +81,20 @@
     </div>
 </script>
 
-<script type="text/ng-template" id="addPlanModal.html">
+<script type="text/ng-template" id="addMMModal.html">
     <div class="modal-header">
         <h2>Add a Major or Minor</h2>
     </div>
     <div class="modal-body">
-        <input type="text" ng-model="asyncSelected" placeholder="Search for majors or minors" typeahead="address for address in getLocation($viewValue)" typeahead-loading="loadingLocations" class="form-control">
+        <input type="text" ng-model="foobar" placeholder="Search for majors or minors" typeahead="mm.designation for mm in searchForMM($viewValue)" typeahead-on-select="addToSelected($item,$model,$label)" typeahead-editable="false" class="form-control">
+        <div class="spacer"></div>
+        <ul class="list-group" style="margin-bottom:-5px">
+            <li class="list-group-item" ng-repeat="mm in selectedMM track by $index">
+                {{mm.designation}}
+            </li>
+        </ul>
     </div>
+
     <div class="modal-footer">
         <button class="btn btn-primary" ng-click="ok()">Add</button>
         <button class="btn btn-default" ng-click="cancel()">Cancel</button>
