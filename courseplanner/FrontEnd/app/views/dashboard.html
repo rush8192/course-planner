@@ -157,7 +157,8 @@
                     </tab-heading>
                     <div class="well well-large reqContainer">
                         <div class="row row-left">
-                        GPA: {{m.ps_gpa}}
+                        <div id="gpa">
+                            GPA: {{m.ps_gpa}}
                         </div>
 
                         <div class="row row-centered">
@@ -175,22 +176,24 @@
                                         </table>
                                     </div>
                                 </div>
-                                    <table style="width: 100%;">
+                                   <table style="width: 100%; border-top: thin dashed #d2bcab;">
                                         <tr>
-                                            <td style="text-align: center; vertical-align: middle;">
-                                                <table style="width: 45%;">
+                                            <td style="text-align: right; padding-top: 5px;">
+                                                <table style="width: 100%;">
                                                     <tr>
-                                                        <td style="text-align: center; vertical-align: middle;">
-                                                            <div class="req-box-stats" ng-hide="requirement.fulfilling">{{group.total_units}} / {{group.min_total_units}} Units</div>
+                                                        <td style="text-align: right;">
+                                                            <div class="req-box-stats" ng-hide="requirement.fulfilling">Units: {{group.total_units}} / {{group.min_total_units}}</div>
                                                         </td>
                                                     </tr>
                                                 </table>
                                             </td>
-                                            <td style="text-align: center; vertical-align: middle;">
-                                                <table style="width: 45%;">
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align: right;">
+                                                <table style="width: 100%;">
                                                     <tr>
-                                                        <td style="text-align: center; vertical-align: middle;">
-                                                            <div class="req-box-stats" ng-hide="requirement.fulfilling">{{group.num_courses}} / {{group.min_num_courses}} Courses</div>
+                                                        <td style="text-align: right;">
+                                                            <div class="req-box-stats" ng-hide="requirement.fulfilling">Courses: {{group.num_courses}} / {{group.min_num_courses}} </div>
                                                         </td>
                                                     </tr>
                                                 </table>

@@ -88,6 +88,13 @@ html, body {
   //margin-right: 500px;
 }
 
+#gpa {
+  padding-left: 5px;
+  margin-top: -5px;
+  font-weight:bold;
+  padding-bottom: 5px;
+}
+
 
 #header {
   height: 50px;
@@ -169,8 +176,9 @@ html, body {
 }
 
 .req-box-stats {
-  text-align: center;
-  color: #000000;
+  color: #494949;
+  font-size:80%;
+  margin-right: 10px;
 }
 
 .individual-requirement-btn {
