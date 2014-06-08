@@ -14,6 +14,8 @@ from google.appengine.ext import ndb
              "req_box_key": req_box_key,
              "min_total_units":min_total_units,
              "min_num_courses":min_num_courses,
+             "total_units":total_units,
+             "num_courses":num_courses,
              "req_courses": 
                  [
                       {
@@ -50,6 +52,8 @@ def getSpsDict(sps, sps_key):
         req_box_dict['min_num_courses'] = req_box.min_num_courses
         
         req_course_array = []
+        numCourses = 0
+        totalUnits = 0
         
         for req_course_key in req_box.req_courses:
             req_course_dict = {}
@@ -74,6 +78,8 @@ def getSpsDict(sps, sps_key):
                     break;
             
             if req_cc != None:
+                numCourses += 1
+                totalUnits += req_cc.units
                 valid, message = reqs.checkStatusForCourseInBox(sps_key, req_cc.key.urlsafe(), req_course_key.urlsafe())
             
             req_course_dict['cand_course_name'] = req_cc.course.get().course_num if req_cc != None else ""
@@ -87,7 +93,10 @@ def getSpsDict(sps, sps_key):
             
             
             req_course_array.append(req_course_dict)
-            
+        
+        req_box_dict['total_units'] = totalUnits
+        req_box_dict['num_courses'] = numCourses
+        
         req_box_dict['req_courses'] = req_course_array
         
         rect_box_array.append(req_box_dict)
