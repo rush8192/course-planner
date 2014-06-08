@@ -377,7 +377,6 @@ class SpsHandler(webapp2.RequestHandler):
             self.response.status = 400
             self.response.write("Invalid S.P.S. key")
             return
-            
         sps_dict = sps.getSpsDict(sps_obj, sps_key)
         self.response.write(json.dumps(sps_dict))
     
@@ -411,15 +410,64 @@ class SpsHandler(webapp2.RequestHandler):
         uid = users.get_current_user().user_id()
         self.response.status = sps.deleteSps(sps_key, uid)
 
+# Logout Handler.
+class LogoutHandler(webapp2.RequestHandler):
+    def get(self):
+        print "ssup"
+        self.redirect(users.create_logout_url("/"))
+
+class PlanGPAHandler(webapp2.RequestHandler):
+    @createStudent
+    def get(self, sps_key):
+        sps_obj = ndb.Key(urlsafe=sps_key).get()
+        if sps_obj == None:
+            print "invalid sps key: no matching sps found"
+            self.response.status = 400
+            self.response.write("Invalid S.P.S. key")
+            return
+        sps_dict = sps.getSpsDict(sps_obj, sps_key)    
+        totalGrade = 0
+        totalUnits = 0
+        for box in sps_dict['req_boxes']:
+            for course in box['req_courses']:
+                totalGrade += course['cand_course_gpa']
+                totalUnits += course['cand_course_units']
+        if totalUnits == 0:
+            gpa = 0.0
+        else: 
+            gpa = totalGrade/totalUnits
+        gpa_dict = {'gpa' : gpa}
+        self.response.write(json.dumps(gpa_dict))
+
+class AllSpsHandler(webapp2.RequestHandler):
+    @createStudent
+    def get(self):
+        user = users.get_current_user();
+        uid = ""
+        if (user == None):
+            uid = self.request.get('uid')
+        else:
+            uid = user.user_id()
+            student = Student.query(Student.student_id == uid).get()
+            if student == None:
+                self.response.write('Error: no matching student record for student: ' + uid)
+            else:
+                plan = student.academic_plans[0]
+                sps_arr = plan.get().program_sheets
+                sps_json = [sps.getSpsDict(sps_key.get(), sps_key.urlsafe()) for sps_key in sps_arr]
+                self.response.write(json.dumps(sps_json))
+
 app = webapp2.WSGIApplication([
     ('/setupinitial7', MainHandler), 
     ('/api/trans/upload', TranscriptHandler), # Rush
     ('/api/plan/verify/(.*)/(.*)/(.*)', PlanVerificationHandler), # Rush
     ('/api/plan/verifybox/(.*)/(.*)', BoxVerificationHandler), # Rush
     ('/api/plan/add/(.*)/(.*)/(.*)', AddCourseToPlanHandler), # Rush (also deletes)
-    ('/api/plan/petitionstatus/(.*)/(.*)/(.*)', PlanPetitionStatusHandler), # Rush
+    ('/api/plan/petitionstatus/(.*)/(.*)/(.*)', PlanPetitionStatusHandler), # Rush                        
     ('/api/plan(/.*)?', PlanHandler), # Rush
     ('/api/populate', PopHandler), # Rush
+    ('/api/sps/gpa/(.+)', PlanGPAHandler), #Ryan  
+    ('/api/sps/all', AllSpsHandler), # Ryan 
     ('/api/sps/(.+)', SpsHandler),
     ('/api/student', StudentHandler), # Ryan (test function)
     ('/api/student/course/', CandidateCourseHandler), # Ryan
@@ -429,5 +477,6 @@ app = webapp2.WSGIApplication([
     ('/api/programsheet', ProgramSheetHandler), # Kevin
     ('/api/programsheet/search/(.+)', ProgramSheetSearchHandler), # Kevin
     ('/api/programsheet/reqbox', ReqBoxHandler), # Kevin
-    ('/api/programsheet/reqbox/reqcourses', ReqCourseHandler) # Kevin
+    ('/api/programsheet/reqbox/reqcourses', ReqCourseHandler), # Kevin
+    ('/api/logout', LogoutHandler)
 ], debug=True)

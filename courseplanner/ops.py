@@ -177,11 +177,16 @@ def remove_candidate_course(student_id, cand_course_key):
     cand_course = __deserialize_key(cand_course_key).get()
     if not cand_course:
         return ERROR('Course ' + cand_course_key + ' not found')
-    candidate_courses = Candidate_Course.query(Candidate_Course.student == student.key,
-                                               Candidate_Course.course == cand_course.course
-                                               ).fetch()
-    for course in candidate_courses:
-        course.key.delete()
+    student_plan = student.academic_plans[0].get()
+    for sps_key in student_plan.program_sheets:
+        sps = sps_key.get()
+        sps.cand_courses.remove(cand_course.key)
+        sps.put()
+
+    student_plan.student_course_list.remove(cand_course.key)
+    student_plan.put()
+
+    cand_course.key.delete()
     return True
 
 # Return all candidate courses associated with student: for now, this is just a set
