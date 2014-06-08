@@ -84,6 +84,12 @@ def getSpsDict(sps, sps_key):
             
             req_course_dict['cand_course_name'] = req_cc.course.get().course_num if req_cc != None else ""
             req_course_dict['cand_course_key'] = req_cc.key.urlsafe() if req_cc != None else ""
+
+            req_course_dict['fulfilling'] = {} if req_cc != None else None
+            if req_course_dict['fulfilling'] != None:
+                req_course_dict['fulfilling']['course_num'] = req_course_dict['course_num']
+                req_course_dict['fulfilling']['cand_course_key'] = req_course_dict['cand_course_key']
+
             req_course_dict['cand_course_units'] = req_cc.units if req_cc != None else 0
             req_course_dict['cand_course_gpa'] = req_cc.grade if req_cc != None else 0
             req_course_dict['cand_course_valid'] = valid if req_cc != None else False
