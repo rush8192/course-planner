@@ -52,11 +52,13 @@ angular.module('coursePlannerApp')
         //$scope.selectedMM = [{designation:"FOO"},{designation:"BAR"}];
         $scope.selectedMM = [];
         $scope.addToSelected = function($item,$model,$label) {
-            $log.log($item);
             $scope.selectedMM.push($item);
         }
         $scope.ok = function () {
             $modalInstance.close();
+            for (var i in $scope.selectedMM) {
+                MM.add({ps_key:$scope.selectedMM[i].ps_key});
+            }
         };
 
         $scope.cancel = function () {
@@ -77,7 +79,6 @@ angular.module('coursePlannerApp')
                     }
                     mm.push(item);
                 });
-                $log.log(mm);
                 return mm;
             });
         };
@@ -675,9 +676,10 @@ angular.module('coursePlannerApp')
 })
 .factory('MM', function ($resource) {
     return $resource('/api/programsheet/search/:prefix', {
-        prefix:'@prefix'
+        prefix:'@prefix',
+        ps_key:'@ps_key'
     }, {
-
+        add: {method:'POST',url:'/api/sps/:ps_key'}
     });
 })
 .service('RefreshService', function() {
