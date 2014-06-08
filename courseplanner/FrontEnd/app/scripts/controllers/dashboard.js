@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('coursePlannerApp')
-  .controller('DashboardCtrl', function ($scope, $modal, $log, $http, Courses, RefreshService, MM) {
+  .controller('DashboardCtrl', function ($scope, $modal, $log, $http, $q, Courses, RefreshService, MM) {
     $scope.awesomeThings = [
       'HTML5 Boilerplate',
       'AngularJS',
@@ -46,6 +46,11 @@ angular.module('coursePlannerApp')
             resolve: {
             }
         });
+        modalInstance.result.then(function () {
+
+        }, function () {
+            $log.info('Modal dismissed at: ' + new Date());
+        });
     };
 
     var AddMMModalInstanceCtrl = function ($scope, $modalInstance) {
@@ -55,10 +60,14 @@ angular.module('coursePlannerApp')
             $scope.selectedMM.push($item);
         }
         $scope.ok = function () {
-            $modalInstance.close();
+            var calls = [];
             for (var i in $scope.selectedMM) {
-                MM.add({ps_key:$scope.selectedMM[i].ps_key});
+                calls.push(MM.add({ps_key:$scope.selectedMM[i].ps_key}));
             }
+            $q.all(calls).then(function() {
+                RefreshService.refresh("AddMMModal");
+            });
+            $modalInstance.close();
         };
 
         $scope.cancel = function () {
@@ -448,13 +457,10 @@ angular.module('coursePlannerApp')
     });
 
     $scope.mm = MM.describe();
-    $log.log($scope.mm);
     $scope.mm.refresh = function() {
         $scope.mm = MM.describe();
     };
-
-    $log.log($scope.mm);
-
+    RefreshService.register($scope.mm);
     $scope.mmOLD = [
         {
             name: "Computer Science",
@@ -645,7 +651,7 @@ angular.module('coursePlannerApp')
                     status.innerHTML = "Upload Failed! status is " + this.status;
                 }
                 button.disabled = false;
-                RefreshService.refresh();
+                RefreshService.refresh("WHO IS THIS?");
             }
       };
       xhr.send(f);  
@@ -692,12 +698,15 @@ angular.module('coursePlannerApp')
         describe: {method:'GET',url:'/api/sps/all',isArray:true}
     });
 })
-.service('RefreshService', function() {
+.service('RefreshService', function($log) {
     var toRefresh = [];
     this.register = function(item) {
         toRefresh.push(item);
     };
-    this.refresh = function() {
+    this.refresh = function(caller) {
+        if (caller) {
+            $log.info(caller + " called refresh");
+        }
         for (var i in toRefresh) {
             toRefresh[i].refresh();
         }

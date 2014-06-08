@@ -86,7 +86,7 @@
         <h2>Add a Major or Minor</h2>
     </div>
     <div class="modal-body">
-        <input type="text" ng-model="foobar" placeholder="Search for majors or minors" typeahead="mm.designation for mm in searchForMM($viewValue)" typeahead-on-select="addToSelected($item,$model,$label)" typeahead-editable="false">
+        <input type="text" class="form-control" ng-model="foobar" placeholder="Search for majors or minors" typeahead="mm.designation for mm in searchForMM($viewValue)" typeahead-on-select="addToSelected($item,$model,$label)" typeahead-editable="false">
         <div class="spacer"></div>
         <ul class="list-group" style="margin-bottom:-5px">
             <li class="list-group-item" ng-repeat="mm in selectedMM track by $index">
@@ -122,8 +122,8 @@
     <div class="row header-row">
         <div id="header">
             <ul class="nav nav-pills pull-right nav-container">
-                <li class="active" ng-click="addMM()"><a ng-href="#">Add Major/Minor</a></li>
-                <li class="active" ng-click="transcriptModal()"><a ng-href="#">Upload</a></li>
+                <li class="active" ng-click="addMM()" style="cursor:pointer"><a>Add Major/Minor</a></li>
+                <li class="active" ng-click="transcriptModal()" style="cursor:pointer"><a>Upload</a></li>
                 <li class="active"><a ng-href="/logout">Logout</a></li>
             </ul>
             <h3 class="logo">CoursePlanner</h3>
