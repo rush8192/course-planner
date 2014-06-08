@@ -361,8 +361,8 @@ class ReqBoxHandler(webapp2.RequestHandler):
 
 class ReqCourseHandler(webapp2.RequestHandler):
     @createStudent
-    def get(self):
-        outputMessage(self, get_req_course(rc_key = self.request.get('rc_key')))
+    def get(self, rc_key):
+        outputMessage(self, get_req_course(rc_key))
 
 #--------------End Program Sheet Handlers-----------------------#
 
@@ -482,6 +482,6 @@ app = webapp2.WSGIApplication([
     ('/api/programsheet', ProgramSheetHandler), # Kevin
     ('/api/programsheet/search/(.+)', ProgramSheetSearchHandler), # Kevin
     ('/api/programsheet/reqbox', ReqBoxHandler), # Kevin
-    ('/api/programsheet/reqbox/reqcourses', ReqCourseHandler), # Kevin
+    ('/api/programsheet/reqbox/reqcourses/(.+)', ReqCourseHandler), # Kevin
     ('/api/logout', LogoutHandler)
 ], debug=True)

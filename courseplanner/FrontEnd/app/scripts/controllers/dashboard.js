@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('coursePlannerApp')
-  .controller('DashboardCtrl', function ($scope, $modal, $log, $http, $q, Courses, RefreshService, MM) {
+  .controller('DashboardCtrl', function ($scope, $modal, $log, $http, $q, Courses, RefreshService, MM, ReqCourse) {
     $scope.awesomeThings = [
       'HTML5 Boilerplate',
       'AngularJS',
@@ -487,7 +487,36 @@ angular.module('coursePlannerApp')
         $scope.cancel = function () {
             $modalInstance.dismiss('cancel');
         };
-    };    
+    };  
+
+    $scope.openReqCourse = function(req_course_key) {
+        var allowed_course_arr = []
+        var req_course = ReqCourse.describe({rc_key:req_course_key});
+        req_course.$promise.then(function(data){
+            allowed_course_arr = data.allowed_courses; //Changed data.data.topics to data.topics
+            var allowed_course_str = '';
+            allowed_course_arr = allowed_course_arr.sort();
+            for (var allowed_course in allowed_course_arr) {
+                allowed_course_str += allowed_course_arr[allowed_course] + ', ';
+            }
+            allowed_course_str = allowed_course_str.slice(0,allowed_course_str.length - 2);
+
+            var modalInstance = $modal.open({
+                templateUrl: 'openReqCourse.html',
+                controller: openRCModalInstanceCtrl,
+                resolve: {req_course: function() {return req_course}, allowed_courses: function() {return allowed_course_str;}}
+            });
+        });
+    }
+
+    var openRCModalInstanceCtrl = function ($scope, $modalInstance, $timeout, req_course, allowed_courses) {
+        $scope.req_course = req_course;
+        $scope.allowed_courses = allowed_courses;
+        $scope.close = function () {
+            $modalInstance.dismiss('cancel');
+        };
+    };  
+
 })
 .controller('TransUploadCtrl', function ($scope, $http, $timeout, $upload, RefreshService) {
     $scope.add = function() {
@@ -533,6 +562,7 @@ angular.module('coursePlannerApp')
         }
     }
 })
+
 .factory('Courses', function ($resource) {
     var foo = $resource('/api/student/course/ ', { // only GET and POST are defined
         course_key:'@course_key',
@@ -556,6 +586,14 @@ angular.module('coursePlannerApp')
         add: {method:'POST',url:'/api/sps/:ps_key'},
         describe: {method:'GET',url:'/api/sps/all',isArray:true},
         remove: {method:'DELETE',url:'/api/sps/:sps_key'}
+    });
+})
+
+.factory('ReqCourse', function ($resource) {
+    return $resource('/api/programsheet/reqbox/reqcourses/:rc_key', {
+        rc_key:'@rc_key',
+    }, {
+        describe: {method:'GET',url:'/api/programsheet/reqbox/reqcourses/:rc_key'}
     });
 })
 

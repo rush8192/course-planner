@@ -180,8 +180,9 @@ def remove_candidate_course(student_id, cand_course_key):
     student_plan = student.academic_plans[0].get()
     for sps_key in student_plan.program_sheets:
         sps = sps_key.get()
-        sps.cand_courses.remove(cand_course.key)
-        sps.put()
+        if cand_course.key in sps.cand_courses:
+            sps.cand_courses.remove(cand_course.key)
+            sps.put()
 
     student_plan.student_course_list.remove(cand_course.key)
     student_plan.put()
@@ -341,10 +342,15 @@ Returns:
     Error message on failure
 """
 def get_program_sheet(ps_key):
-    ps_dict = __get_ps_dict(__deserialize_key(ps_key).get().ps_name)
-    if type(ps_dict) != dict:
-        return ERROR(ps_dict)
-    return json.dumps(ps_dict, sort_keys=True, indent=4, separators=(',', ': '))
+    json_str = memcache.get(ps_key)
+    if json_str is None:
+        ps_dict = __get_ps_dict(__deserialize_key(ps_key).get().ps_name)
+        if type(ps_dict) != dict:
+            return ERROR(ps_dict)
+        json_str = json.dumps(ps_dict, sort_keys=True, indent=4, separators=(',', ': '))
+        if not memcache.add(ps_key, json_str):
+            logging.error('Memcache set for req courses failed')
+    return json_str
 
 def program_sheet_exists(ps_name):
     truth_dict = {}
@@ -579,6 +585,17 @@ def remove_req_course_from_rb(rc_key):
             rb_entity.put()
         rc_entity.key.delete()
 #-------------------------End Program Sheet Ops-------------------------#
+
+def get_req_course(rc_key):
+    json_array_str = memcache.get(rc_key)
+    if json_array_str is None:
+        rc_dict = __get_req_course_dict(rc_key, get_courses=True)
+        if rc_dict is None:
+            return ERROR('Required Course not found.')
+        json_array_str = json.dumps(rc_dict)
+        if not memcache.add(rc_key, json_array_str):
+            logging.error('Memcache set for req courses failed')
+    return json_array_str
 
 # convert letter grade from transcript to floating point value
 def gradeToFloat(gradeStr):

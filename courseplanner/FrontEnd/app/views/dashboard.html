@@ -4,8 +4,12 @@
         <h3>{{course.course_title}}</h3>
     </div>
     <div class="modal-body">
-        {{course.course_desc}}
+        {{course.course_desc}} <br> <br>
+        <b>Units: </b> {{course.units}} <br>
+        <b>Grade Received: </b> {{course.grade}} <br>    
     </div>
+
+
     <div class="modal-footer">
         <button class="btn btn-danger" ng-click="ok()">Remove Course</button>
         <button class="btn btn-default" ng-click="cancel()">Cancel</button>
@@ -65,7 +69,7 @@
 
 <script type="text/ng-template" id="allCoursesModalContent.html">
     <div class="modal-header">
-        <h2>View All Courses</h2>
+        <h2>My Courses</h2>
     </div>
     <div class="modal-body">
         <table cellspacing="0" cellpadding="0" style="width: 100%">
@@ -80,6 +84,27 @@
         <button class="btn btn-default" ng-click="cancel()">Close</button>
     </div>
 </script>
+
+
+<script type="text/ng-template" id="openReqCourse.html">
+    <div class="modal-header">
+        <h2>{{req_course.req_course_name}}</h2>
+        <h4>{{req_course.req_course_info}}</h4>
+    </div>
+    <div class="modal-body">
+        <h4>Allowed Courses:</h4>
+        <div id='indentedAllowedCourses'>
+            {{allowed_courses}} <br> <br>
+        </div>
+        <b>Minimum Units: </b> {{req_course.min_units}} <br>
+        <b>Minimum Grade: </b> {{req_course.min_grade}} <br>    
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="close()">Close</button>
+    </div>
+</script>
+
 
 <script type="text/ng-template" id="addMMModal.html">
     <div class="modal-header">
@@ -189,7 +214,7 @@
                                         <table style="width: 100%;">
                                             <tr>
                                                 <td style="text-align: center; vertical-align: middle;">
-                                                    <div class="individual-requirement-placeholder" ng-hide="requirement.fulfilling">{{requirement.req_course_name}}</div>
+                                                    <div ng-click="openReqCourse(requirement.req_course_key)" class="individual-requirement-placeholder" ng-hide="requirement.fulfilling">{{requirement.req_course_name}}</div>
                                                     <div class="btn btn-success individual-requirement-btn" ng-show="requirement.fulfilling" data-drag="false" data-jqyoui-options="{revert: 'invalid', helper: 'clone'}" ng-model="requirement">{{requirement.fulfilling.designation}}</div>
                                                 </td>
                                             </tr>
