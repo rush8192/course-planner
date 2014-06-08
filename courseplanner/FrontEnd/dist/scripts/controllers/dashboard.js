@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('coursePlannerApp')
-  .controller('DashboardCtrl', function ($scope, $modal, $log, $http, Courses, RefreshService) {
+  .controller('DashboardCtrl', function ($scope, $modal, $log, $http, Courses, RefreshService, MM) {
     $scope.awesomeThings = [
       'HTML5 Boilerplate',
       'AngularJS',
@@ -42,19 +42,44 @@ angular.module('coursePlannerApp')
         var getAll = $scope.getAllCourses;
         var modalInstance = $modal.open({
             templateUrl: 'addMMModal.html',
-            controller: AddPlanModalInstanceCtrl,
+            controller: AddMMModalInstanceCtrl,
             resolve: {
             }
         });
     };
 
     var AddMMModalInstanceCtrl = function ($scope, $modalInstance) {
+        //$scope.selectedMM = [{designation:"FOO"},{designation:"BAR"}];
+        $scope.selectedMM = [];
+        $scope.addToSelected = function($item,$model,$label) {
+            $log.log($item);
+            $scope.selectedMM.push($item);
+        }
         $scope.ok = function () {
             $modalInstance.close();
         };
 
         $scope.cancel = function () {
             $modalInstance.dismiss('cancel');
+        };
+
+        $scope.searchForMM = function(val) {
+            return MM.query({prefix:val})
+            .$promise.then(function(res){
+                var mm = [];
+                angular.forEach(res, function(item){
+                    for (var key in item) {
+                        if (key.indexOf("$") !== 0) {
+                            item.designation = key;
+                            item.ps_key = item[key];
+                            delete item[key];
+                        }
+                    }
+                    mm.push(item);
+                });
+                $log.log(mm);
+                return mm;
+            });
         };
     };
 
@@ -647,6 +672,13 @@ angular.module('coursePlannerApp')
         remove: {method:'DELETE',url:'/api/student/course/:cand_course_key'} // delete a course 
     });
     return foo;
+})
+.factory('MM', function ($resource) {
+    return $resource('/api/programsheet/search/:prefix', {
+        prefix:'@prefix'
+    }, {
+
+    });
 })
 .service('RefreshService', function() {
     var toRefresh = [];
