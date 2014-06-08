@@ -46,8 +46,8 @@ class MainHandler(webapp2.RequestHandler):
     def get(self):
         self.response.write('Welcome to CoursePlanner!')
         # Add courses and majors to datastore on start up
-        add_courses.main()
-        #add_majors.main()
+        #add_courses.main()
+        add_majors.main()
 
 class TranscriptHandler(webapp2.RequestHandler):
     @createStudent
@@ -57,10 +57,10 @@ class TranscriptHandler(webapp2.RequestHandler):
         courseFp = cStringIO.StringIO()
         parser.getTransContent(self.request.body_file.file, courseFp)
         print courseFp.getvalue()
-        
+
         user = users.get_current_user();
         uid = user.user_id()
-        
+
         matchingStudent = Student.query(Student.student_id == uid).get()
         for course in courseFp.getvalue().split("\n"):
             if course == "":
@@ -87,14 +87,14 @@ class TranscriptHandler(webapp2.RequestHandler):
                 if alreadyHasCourse:
                     print "student : " + uid + " already has course: " + matchingCourse.course_num
                     continue
-                
+
                 candCourse = Candidate_Course(course=matchingCourse.key, student=matchingStudent.key,
                                     term=term, year=year, grade=grade, units=units)
                 candCourse.put()
                 plan.student_course_list.append(candCourse.key)
                 plan.put()
                 print "added course : " + courseId + " for student plan " + plan.student_plan_name
-            
+
 
     @createStudent
     def get(self):
@@ -229,7 +229,7 @@ class PlanHandler(webapp2.RequestHandler):
                         # method should return the matching student plan
                         print "Found matching plan : " + planid + " for " + uid
                         self.response.write(planKey.get().to_dict())
-                        return 
+                        return
                 self.response.write('Error: no matching program sheet found with id: ' + planid + ' for student: ' + uid)
 
     # POST: allows the user to create a new plan for the given major/minor ID field
@@ -247,7 +247,7 @@ class PlanHandler(webapp2.RequestHandler):
         # first we load the GER program sheet, and add it to a new plan
 
         GER_SHEET_NAME = "GER-PRE-2015" #TODO: this needs to be changed to the correct value
-        
+
         matchingStudent = Student.query(Student.student_id == uid).get()
         if matchingStudent == None:
             self.response.write('Error: no matching student record for: ' + uid)
@@ -278,26 +278,26 @@ class AddCourseToPlanHandler(webapp2.RequestHandler):
     def post(self, sps_id, cc_id, req_id):
         status = reqs.addCourseForBox(sps_id, cc_id, req_id)
         self.response.status = status
-        
+
     @createStudent
     def delete(self, sps_id, cc_id, req_id):
         status = reqs.deleteCourseForBox(sps_id, cc_id, req_id)
         self.response.status = status
-        
+
 class PlanPetitionStatusHandler(webapp2.RequestHandler):
     @createStudent
     def get(self, sps_id, cc_id, req_id):
         success, message = reqs.checkStatusForCourseInBox(sps_id, cc_id, req_id)
         print json.dumps(dict(success=success,message=message))
         self.response.write(json.dumps(dict(success=success,message=message)))
-        
+
 class BoxVerificationHandler(webapp2.RequestHandler):
     @createStudent
     def get(self, sps_id, box_id):
         success, message = reqs.verifyBox(sps_id, box_id)
         print json.dumps(dict(success=success,message=message))
         self.response.write(json.dumps(dict(success=success,message=message)))
-        
+
 # populates a few sample users into the db for testing purposes
 class PopHandler(webapp2.RequestHandler):
     @createStudent
@@ -309,7 +309,7 @@ class PopHandler(webapp2.RequestHandler):
                 studentObj = Student(student_id=student,academic_plans=[])
                 studentObj.put()
                 print "populated db with student: " + student
-        
+
 #--------------Begin Program Sheet Handlers-----------------------#
 
 def __str_to_int(str):
@@ -332,7 +332,7 @@ class ProgramSheetHandler(webapp2.RequestHandler):
 
     @createStudent
     def post(self):
-        ps_json = urllib.unquote(self.request.get('ps_json')).decode('utf8') 
+        ps_json = urllib.unquote(self.request.get('ps_json')).decode('utf8')
         ps_dict = json.loads(ps_json)
         ps_name = ps_dict['ps_name']
         req_box_array = ps_dict['req_boxes']
@@ -377,10 +377,10 @@ class SpsHandler(webapp2.RequestHandler):
             self.response.status = 400
             self.response.write("Invalid S.P.S. key")
             return
-            
+
         sps_dict = sps.getSpsDict(sps_obj, sps_key)
         self.response.write(json.dumps(sps_dict))
-    
+
     @createStudent
     def post(self, ps_key):
         ps_obj = ndb.Key(urlsafe=ps_key).get()
@@ -397,9 +397,9 @@ class SpsHandler(webapp2.RequestHandler):
             allow_double = True
         self.response.status = sps.createSpsForProgramSheet(ps_obj, uid, allow_double)
         print "attempted to create new sps; status code: " + self.response.status
-        
-        
-    @createStudent  
+
+
+    @createStudent
     def delete(self, sps_key):
         sps_obj = ndb.Key(urlsafe=sps_key).get()
         if sps_obj == None:
@@ -412,7 +412,7 @@ class SpsHandler(webapp2.RequestHandler):
         self.response.status = sps.deleteSps(sps_key, uid)
 
 app = webapp2.WSGIApplication([
-    ('/setupinitial7', MainHandler), 
+    ('/setupinitial7', MainHandler),
     ('/api/trans/upload', TranscriptHandler), # Rush
     ('/api/plan/verify/(.*)/(.*)/(.*)', PlanVerificationHandler), # Rush
     ('/api/plan/verifybox/(.*)/(.*)', BoxVerificationHandler), # Rush
