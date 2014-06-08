@@ -472,12 +472,16 @@ angular.module('coursePlannerApp')
         });
     };
 
-    var DeleteMMModalInstanceCtrl = function ($scope, $modalInstance, ps_name, sps_key) {
+    var DeleteMMModalInstanceCtrl = function ($scope, $modalInstance, $timeout, ps_name, sps_key) {
         $scope.ps_name = ps_name;
         $scope.sps_key = sps_key;
         $scope.ok = function () {
             $modalInstance.close();
-            MM.remove({sps_key:sps_key}).$promise.then(RefreshService.refresh());
+            MM.remove({sps_key:sps_key}).$promise.then(
+                $timeout(function() {
+                    RefreshService.refresh("Delete MM Modal");
+                },1000)
+            );
         };
 
         $scope.cancel = function () {
@@ -554,6 +558,7 @@ angular.module('coursePlannerApp')
         remove: {method:'DELETE',url:'/api/sps/:sps_key'}
     });
 })
+
 .service('RefreshService', function($log) {
     var toRefresh = [];
     this.register = function(item) {
