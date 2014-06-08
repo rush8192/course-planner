@@ -153,7 +153,7 @@
                 <tab ng-repeat="m in mm" active="m.active">
                     <tab-heading ng-mouseenter="m.hover = true" ng-mouseleave="m.hover = false">
                         {{m.ps_name}}
-                        <span ng-show="m.hover" ng-click="removeTab($index)" class="glyphicon glyphicon-remove"></span>
+                        <span ng-show="m.hover && m.ps_name !== 'GERs'" ng-click="removeTab($index)" class="glyphicon glyphicon-remove"></span>
                     </tab-heading>
                     <div class="well well-large reqContainer">
                         <div class="row row-left">
